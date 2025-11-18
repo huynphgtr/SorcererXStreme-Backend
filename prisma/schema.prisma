@@ -1,0 +1,72 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/// @map("users")
+model User {
+  id               String            @id @default(uuid()) @db.Text
+  email            String            @unique @db.Text
+  password_hash    String?           @db.Text
+  name             String?           @db.Text
+
+  is_vip           Boolean           @default(false)
+  birth_date       DateTime?         @db.Timestamp(3)
+  birth_time       String?           @db.Text
+  birth_place      String?           @db.Text
+  created_at       DateTime          @default(now()) @db.Timestamp(3)
+  
+  partners         Partner[]         
+  personalEvents   PersonalEvent[]
+  reminder         Reminder?
+}
+
+/// @map("partners")
+model Partner {
+  id               String            @id @default(uuid()) @db.Text
+  user_id          String            @db.Text
+  name             String            @db.Text
+  birth_date       DateTime          @db.Timestamp(3)
+  birth_time       String            @db.Text
+  birth_place      String            @db.Text
+  created_at       DateTime          @default(now()) @db.Timestamp(3)
+  user             User              @relation(fields: [user_id], references: [id])
+  @@unique([id, user_id]) 
+}
+
+
+/// @map("personal_events")
+model PersonalEvent {
+  id               String            @id @default(uuid()) @db.Text
+  user_id          String            @db.Text
+  partner_name     String?           @db.Text
+  event_date       DateTime          @db.Timestamp(3)
+  // event_type: Chỉ chấp nhận các giá trị: RELATIONSHIP_START, RELATIONSHIP_END, MARRIAGE_UNION
+  event_type       String            @db.Text
+  details          String?           @db.Text
+  user             User              @relation(fields: [user_id], references: [id])
+}
+
+
+/// @map("reminders")
+model Reminder {
+  user_id          String            @id @db.Text
+  is_subscribed    Boolean           @default(true)
+  frequency        String            @default("daily") @db.Text
+  last_sent        DateTime?         @db.Timestamp(3)
+  user             User              @relation(fields: [user_id], references: [id])
+}
+
+/// @map("token_blocklist")
+model TokenBlocklist {
+  id               String            @id @default(uuid())
+  jti              String            @unique
+  expiresAt        DateTime
+}
