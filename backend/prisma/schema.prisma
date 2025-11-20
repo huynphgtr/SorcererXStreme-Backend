@@ -1,0 +1,97 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/// @map("users")
+model User {
+  id             String          @id @default(uuid())
+  email          String          @unique
+  password_hash  String?
+  name           String?
+  is_vip         Boolean         @default(false)
+  birth_date     DateTime?
+  birth_time     String?
+  birth_place    String?
+  created_at     DateTime        @default(now())
+  vip_tier       String          @default("FREE")
+  vip_expires_at DateTime?
+  partners       Partner[]
+  personalEvents PersonalEvent[]
+  reminder       Reminder?
+  subscriptions  Subscription[]
+  usageStats     UsageStats?
+}
+
+/// @map("partners")
+model Partner {
+  id          String   @id @default(uuid())
+  user_id     String
+  name        String
+  birth_date  DateTime
+  birth_time  String
+  birth_place String
+  created_at  DateTime @default(now())
+  user        User     @relation(fields: [user_id], references: [id])
+
+  @@unique([id, user_id])
+}
+
+/// @map("personal_events")
+model PersonalEvent {
+  id           String   @id @default(uuid())
+  user_id      String
+  partner_name String?
+  event_date   DateTime
+  event_type   String
+  details      String?
+  user         User     @relation(fields: [user_id], references: [id])
+}
+
+/// @map("reminders")
+model Reminder {
+  user_id       String    @id
+  is_subscribed Boolean   @default(true)
+  frequency     String    @default("daily")
+  last_sent     DateTime?
+  user          User      @relation(fields: [user_id], references: [id])
+}
+
+/// @map("token_blocklist")
+model TokenBlocklist {
+  id        String   @id @default(uuid())
+  jti       String   @unique
+  expiresAt DateTime
+}
+
+/// @map("subscriptions")
+model Subscription {
+  id             String   @id @default(uuid())
+  user_id        String
+  tier           String
+  price          Int
+  start_date     DateTime @default(now())
+  end_date       DateTime
+  status         String   @default("active")
+  payment_method String?
+  transaction_id String?
+  created_at     DateTime @default(now())
+  user           User     @relation(fields: [user_id], references: [id])
+}
+
+/// @map("usage_stats")
+model UsageStats {
+  id                     String   @id @default(uuid())
+  user_id                String   @unique
+  tarot_readings_today   Int      @default(0)
+  chat_messages_today    Int      @default(0)
+  astrology_today        Int      @default(0)
+  fortune_today          Int      @default(0)
+  numerology_today       Int      @default(0)
+  last_reset_date        DateTime @default(now())
+  user                   User     @relation(fields: [user_id], references: [id])
+}
