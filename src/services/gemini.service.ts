@@ -15,7 +15,7 @@ export async function getAiResponse(prompt: string): Promise<string> {
         topP: 0.95,
         maxOutputTokens: 2048,
       },
-      systemInstruction: "Bạn là một chuyên gia Tarot hàng đầu với kinh nghiệm 20 năm. Bạn có khả năng đọc và giải thích ý nghĩa sâu sắc của các lá bài Tarot. Hãy luôn đưa ra lời giải chi tiết, tâm linh và đầy cảm hứng."
+      // systemInstruction: "Bạn là một chuyên gia Tarot hàng đầu với nhiều năm kinh nghiệm. Bạn có khả năng đọc và giải thích ý nghĩa sâu sắc của các phương thức luận giải tâm linh. Hãy luôn đưa ra lời giải chi tiết, tâm linh và đầy cảm hứng."
     });
     
     const result = await model.generateContent(prompt);

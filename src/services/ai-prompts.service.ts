@@ -753,17 +753,17 @@ HÃY TẠO MỘT PHÂN TÍCH CON SỐ SÂU SẮC VÀ BỔ ÍCH!`;
 
 export function generateChatPrompt(
   message: string,
-  userContext: UserContext,
-  chatHistory?: Array<{ role: string, content: string }>
+  userContext: UserContext
+  // chatHistory?: Array<{ role: string, content: string }>
 ): string {
-  const historyContext = chatHistory && chatHistory.length > 0
-    ? `\n📜 **LỊCH SỬ TRÒCHUYỆN TRƯỚC ĐÓ:**\n${chatHistory.slice(-6).map(msg => `${msg.role === 'user' ? '👤 Người dùng' : '🔮 Bạn'}: ${msg.content}`).join('\n')}\n`
-    : '';
+  // const historyContext = chatHistory && chatHistory.length > 0
+  //   ? `\n📜 **LỊCH SỬ TRÒCHUYỆN TRƯỚC ĐÓ:**\n${chatHistory.slice(-6).map(msg => `${msg.role === 'user' ? '👤 Người dùng' : '🔮 Bạn'}: ${msg.content}`).join('\n')}\n`
+  //   : '';
 
   return `
 🔮 **CHUYÊN GIA HUYỀN HỌC AI**
 
-Bạn là một AI Master trong lĩnh vực huyền học với kiến thức uyên sâu về:
+Bạn là một AI Master trong lĩnh vực huyền học với kiến thức chuyên sâu về:
 - Tarot và các hệ thống bói bài
 - Chiêm tinh học phương Đông và phương Tây  
 - Tử vi Đẩu Số và Can Chi
@@ -776,10 +776,6 @@ Bạn là một AI Master trong lĩnh vực huyền học với kiến thức uy
 - Tên: ${userContext.name || 'Bạn'}
 ${userContext.birthDate ? `- Ngày sinh: ${userContext.birthDate}` : ''}
 ${userContext.birthTime ? `- Giờ sinh: ${userContext.birthTime}` : ''}
-${userContext.hasPartner ? `- Đang có người yêu: ${userContext.partnerName}` : ''}
-${userContext.isInBreakup ? `- Tình trạng: Đang trong giai đoạn chia tay` : ''}
-
-${historyContext}
 
 💬 **CÂU HỎI HIỆN TẠI:** "${message}"
 
@@ -789,7 +785,7 @@ ${historyContext}
 - Kết hợp thông tin cá nhân của người dùng (nếu có)
 - Đưa ra lời khuyên thiết thực và tích cực
 - Sử dụng emoji phù hợp để tạo không khí thân thiện
-- Độ dài phản hồi: 200-400 từ tùy theo độ phức tạp
+- Độ dài phản hồi: 100-200 từ tùy theo độ phức tạp
 - Nếu cần thêm thông tin, hãy hỏi lịch sự
 
 **PHONG CÁCH:**
