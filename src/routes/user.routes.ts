@@ -7,5 +7,4 @@ userRouter.put('/complete-profile', authenticateToken, completeProfile);
 userRouter.patch('/update-profile', authenticateToken, updateProfile);
 userRouter.get('/profile', authenticateToken, getProfile);
 
-
 export default userRouter;

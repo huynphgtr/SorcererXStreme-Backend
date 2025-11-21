@@ -1,9 +1,11 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Gender } from '@prisma/client';
+
 
 const prisma = new PrismaClient();
 
 type UserProfileData = {
   name?: string;
+  gender?: Gender;
   birth_date?: string;
   birth_time?: string;
   birth_place?: string;
@@ -26,6 +28,7 @@ export class UserService {
         id: true,
         email: true,
         name: true,
+        gender: true,
         is_vip: true,
         birth_date: true,
         birth_time: true,
@@ -46,6 +49,7 @@ export class UserService {
         id: true,
         email: true,
         name: true,
+        gender: true,
         is_vip: true,
         birth_date: true,
         birth_time: true,

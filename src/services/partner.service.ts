@@ -1,9 +1,10 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Gender } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
 type PartnerData = {
   name: string;
+  gender?: Gender;
   birth_date: string;
   birth_time: string;
   birth_place: string;
