@@ -6,7 +6,6 @@ import { getFortune } from '../controllers/fortune.controller';
 const router = Router();
 
 router.use(authenticateToken);
-
 router.post('/', getFortune);
 
 export default router;

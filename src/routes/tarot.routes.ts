@@ -1,12 +1,12 @@
 import { Router } from 'express';
-// import { authMiddleware } from '../middlewares/auth.middleware';
 import { authenticateToken } from '../middlewares/auth.middleware'; 
-import { getTarotReading } from '../controllers/tarot.controller';
+import { getTarotOverview, getTarotQuestion } from '../controllers/tarot.controller';
 
 const router = Router();
 
 router.use(authenticateToken);
-
-router.post('/reading', getTarotReading);
+// router.post('/reading', getTarotReading);
+router.post('/overview', getTarotOverview);
+router.post('/question', getTarotQuestion);
 
 export default router;

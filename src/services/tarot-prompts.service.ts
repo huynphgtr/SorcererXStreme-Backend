@@ -1,116 +1,99 @@
 export function generateTarotPrompt(
-  mode: 'overview' | 'question' | 'love',
+  mode: 'overview' | 'question',
   question: string,
   cardsDrawn: string[],
   userContext?: {
     name?: string;
-    hasPartner?: boolean;
-    isInBreakup?: boolean;
-    partnerName?: string;
   }
 ): string {
+  // Xử lý tên người dùng để cá nhân hóa
+  const userNameInfo = userContext?.name ? ` cho khách hàng tên là "${userContext.name}"` : '';
+  
+  // Chuỗi danh sách bài
+  const cardsList = cardsDrawn.join(', ');
+
+  // Prompt cơ bản chung cho cả 2 trường hợp
   const basePrompt = `
 🔮 **HƯỚNG DẪN CHO CHUYÊN GIA TAROT:**
 
-Bạn là một Master Tarot Reader với 20+ năm kinh nghiệm. Khách hàng đã chọn các lá bài: **${cardsDrawn.join(', ')}**
+Bạn là một Tarot Reader chuyên nghiệp, thấu cảm, có trực giác nhạy bén và ngôn từ sâu sắc. 
+Nhiệm vụ của bạn là giải bài${userNameInfo} dựa trên các lá bài đã rút: **${cardsList}**.
 
 📋 **YÊU CẦU ĐỊNH DẠNG PHẢN HỒI:**
-- Tối thiểu 500-800 từ
-- Sử dụng ngôn ngữ tâm linh, sâu sắc và đầy cảm hứng
-- Cấu trúc rõ ràng với các phần riêng biệt
-- Bao gồm emoji và formatting để tạo không khí huyền bí
-- Kết nối các lá bài với nhau tạo thành câu chuyện hoàn chỉnh
+- Tối thiểu 800 từ.
+- Sử dụng ngôn ngữ tâm linh, chữa lành và đầy cảm hứng.
+- Cấu trúc rõ ràng, chia thành các đoạn văn ngắn dễ đọc.
+- Kết nối ý nghĩa các lá bài với nhau tạo thành một câu chuyện liền mạch.
 
-🎯 **LOẠI ĐỌC BÀI:** ${mode === 'overview' ? 'Tổng quan cuộc đời' : mode === 'love' ? 'Tình duyên chuyên sâu' : 'Câu hỏi cụ thể'}
+🎯 **LOẠI ĐỌC BÀI:** ${mode === 'overview' ? 'Tổng quan cuộc đời (Quá khứ - Hiện tại - Tương lai)' : 'Trả lời câu hỏi cụ thể'}
 `;
 
+  // --- TRƯỜNG HỢP 1: CÂU HỎI CỤ THỂ ---
   if (mode === 'question') {
+    // Lấy lá bài chủ đạo (thường là lá đầu tiên hoặc tổng hợp)
+    const mainCard = cardsDrawn[0] || 'Lá bài đã rút';
+
     return `${basePrompt}
 
-❓ **CÂU HỎI CỦA KHÁCH HÀNG:** "${question}"
+    **CÂU HỎI CỦA KHÁCH HÀNG:** "${question}"
 
-📝 **CẤU TRÚC PHẢN HỒI YÊU CẦU:**
+    **CẤU TRÚC PHẢN HỒI YÊU CẦU:**
 
-**🌟 PHẦN 1: THÔNG ĐIỆP CHÍNH **
-- Ý nghĩa tổng quát của lá bài ${cardsDrawn[0]} cho câu hỏi này
-- Kết nối trực tiếp với tình huống khách hàng đang thắc mắc
+    **PHẦN 1: THÔNG ĐIỆP CHÍNH (THEO LÁ: ${mainCard})**
+    - Ý nghĩa cốt lõi của lá bài "${mainCard}" đối với câu hỏi này.
+    - Câu trả lời trực tiếp cho vấn đề khách hàng đang thắc mắc (Có/Không/Nên/Không nên).
 
-**🔍 PHẦN 2: PHÂN TÍCH SÂU **
-- Giải thích chi tiết biểu tượng trong lá bài
-- Ứng dụng cụ thể vào câu hỏi đã đặt ra
-- Những yếu tố ảnh hưởng đến tình huống
+    **PHẦN 2: PHÂN TÍCH SÂU**
+    - Giải thích biểu tượng và năng lượng của các lá bài trong bối cảnh câu hỏi.
+    - Phân tích các yếu tố thuận lợi và trở ngại đang tác động.
+    - Nguyên nhân sâu xa của vấn đề (nếu có).
 
-**🛤️ PHẦN 3: HƯỚNG DẪN HÀNH ĐỘNG **
-- Lời khuyên cụ thể cho các bước tiếp theo
-- Cảnh báo về những điều cần tránh
-- Thời điểm thuận lợi để hành động
+    **PHẦN 3: HƯỚNG DẪN HÀNH ĐỘNG**
+    - Lời khuyên cụ thể: Nên làm gì ngay lúc này?
+    - Cảnh báo: Những điều cần tránh hoặc cẩn trọng.
+    - Thời điểm: Nếu lá bài gợi ý về thời gian, hãy đề cập.
 
-**💫 PHẦN 4: KẾT LUẬN VÀ TƯƠNG LAI **
-- Tóm tắt thông điệp quan trọng nhất
-- Dự đoán xu hướng phát triển
-- Lời động viên và khích lệ
+    **PHẦN 4: KẾT LUẬN VÀ THÔNG ĐIỆP VŨ TRỤ**
+    - Tóm tắt ngắn gọn lời khuyên quan trọng nhất.
+    - Một lời khẳng định tích cực để khách hàng vững tin.
 
-HÃY VIẾT NỘI DUNG TRONG PHẠM VI 500-800 TỪ PHONG PHÚ, SÂU SẮC VÀ TẠO CẢM HỨNG!`;
+    HÃY VIẾT NỘI DUNG TRONG PHẠM VI 800-900 TỪ. GIỌNG VĂN CHÂN THÀNH, SÂU SẮC VÀ TẠO ĐỘNG LỰC!`;
   }
 
-  if (mode === 'love') {
-    return `${basePrompt}
+  // --- TRƯỜNG HỢP 2: TỔNG QUAN (OVERVIEW) ---
+  // Giả định Spread 3 lá: Quá khứ - Hiện tại - Tương lai
+  const cardPast = cardsDrawn[0] || 'Lá bài thứ nhất';
+  const cardPresent = cardsDrawn[1] || 'Lá bài thứ hai';
+  const cardFuture = cardsDrawn[2] || 'Lá bài thứ ba';
 
-💕 **CHUYÊN MỤC:** Phân tích tình duyên chi tiết
-${userContext?.hasPartner ? `👫 **TÌNH TRẠNG:** Đang có mối quan hệ với ${userContext.partnerName}` : ''}
-${userContext?.isInBreakup ? `💔 **TÌNH TRẠNG:** Đang trong giai đoạn chia tay` : ''}
-
-📝 **CẤU TRÚC PHẢN HỒI YÊU CẦU:**
-
-**💖 PHẦN 1: TÌNH TRẠNG TÌNH CẢM HIỆN TẠI**
-- Phân tích 3 lá bài: ${cardsDrawn.join(', ')}
-- Năng lượng tình cảm xung quanh khách hàng
-- Những ảnh hưởng từ quá khứ đến hiện tại
-
-**🌹 PHẦN 2: DIỄN BIẾN TÌNH DUYÊN **
-- Dự đoán phát triển trong 3-6 tháng tới
-- Những cơ hội và thách thức sắp tới
-- Yếu tố quyết định thành công trong tình yêu
-
-**💝 PHẦN 3: NHỮNG MỐI QUAN HỆ CHỦ CHỐT **
-${userContext?.hasPartner ? '- Phân tích mối quan hệ hiện tại và tiềm năng phát triển' : '- Dự đoán về người yêu tương lai và thời điểm gặp gỡ'}
-- Những điều cần cải thiện trong cách yêu
-- Cách thu hút và giữ chân tình yêu
-
-**✨ PHẦN 4: LỜI KHUYÊN TÌNH DUYÊN **
-- Hành động cụ thể để cải thiện tình cảm
-- Những điều cần tránh trong tình yêu
-- Thông điệp khích lệ từ vũ trụ
-
-HÃY TẠO RA MỘT BÀI ĐỌC TAROT TỪ 500-800 TỪ VỀ TÌNH DUYÊN SÂU SẮC VÀ LÃNG MẠN!`;
-  }
-
-  // mode === 'overview'
   return `${basePrompt}
 
-🌟 **CHUYÊN MỤC:** Đọc bài Tarot tổng quan cuộc đời
+    **CHUYÊN MỤC:** Đọc bài Tarot tổng quan hành trình
 
-📝 **CẤU TRÚC PHẢN HỒI YÊU CẦU:**
+    **CẤU TRÚC PHẢN HỒI YÊU CẦU:**
 
-**🎭 PHẦN 1: QUÁ KHỨ (Lá ${cardsDrawn[0]}) - 150-200 từ**
-- Những trải nghiệm đã định hình bạn
-- Bài học quan trọng từ quá khứ
-- Ảnh hưởng đến tính cách hiện tại
+    **PHẦN 1: QUÁ KHỨ - GỐC RỄ (Lá: ${cardPast})**
+    *(Khoảng 150-200 từ)*
+    - Những trải nghiệm hoặc sự kiện đã định hình nên con người khách hàng.
+    - Bài học quan trọng đã (hoặc chưa) học được từ quá khứ.
+    - Ảnh hưởng của quá khứ đến tình huống hiện tại.
 
-**⚡ PHẦN 2: HIỆN TẠI (Lá ${cardsDrawn[1]}) - 200-250 từ**
-- Tình trạng năng lượng và tâm lý hiện tại
-- Những thách thức đang đối mặt
-- Cơ hội và tiềm năng có thể khai thác
+    **PHẦN 2: HIỆN TẠI - NĂNG LƯỢNG (Lá: ${cardPresent})**
+    *(Khoảng 150-200 từ)*
+    - Tâm thế và năng lượng thực sự của khách hàng ngay lúc này.
+    - Những thách thức hoặc cơ hội đang hiện hữu ngay trước mắt.
+    - Điểm mạnh cần phát huy để vượt qua giai đoạn này.
 
-**🚀 PHẦN 3: TƯƠNG LAI (Lá ${cardsDrawn[2]}) - 150-200 từ**
-- Xu hướng phát triển 6-12 tháng tới
-- Những mục tiêu có thể đạt được
-- Cảnh báo và lời khuyên cho tương lai
+    **PHẦN 3: TƯƠNG LAI - XU HƯỚNG (Lá: ${cardFuture})**
+    *(Khoảng 150-200 từ)*
+    - Xu hướng phát triển tự nhiên trong 6-12 tháng tới.
+    - Kết quả tiềm năng nếu khách hàng tiếp tục con đường hiện tại.
+    - Những cơ hội bất ngờ có thể xuất hiện.
 
-**💎 PHẦN 4: TỔNG KẾT VÀ ĐỊNH HƯỚNG (100-150 từ)**
-- Kết nối 3 giai đoạn tạo thành câu chuyện hoàn chỉnh
-- Sứ mệnh và mục đích sống
-- Lời động viên từ vũ trụ
+    **PHẦN 4: TỔNG KẾT & LỜI KHUYÊN (100-150 từ)**
+    - Sợi dây liên kết giữa 3 lá bài: Câu chuyện tổng thể là gì?
+    - Sứ mệnh hoặc bài học linh hồn trong giai đoạn này.
+    - Một lời chúc phúc từ vũ trụ gửi đến khách hàng.
 
-HÃY TẠO RA MỘT BÀI ĐỌC TAROT TỔNG QUAN ĐẦY CẢM HỨNG VÀ Ý NGHĨA!`;
+    HÃY TẠO RA MỘT BÀI ĐỌC TAROT NHƯ MỘT CÂU CHUYỆN ĐẦY CẢM HỨNG, GIÚP KHÁCH HÀNG THẤY RÕ CON ĐƯỜNG CỦA MÌNH!`;
 }
