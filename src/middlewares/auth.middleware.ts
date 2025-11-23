@@ -5,11 +5,10 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-// Mở rộng interface Request của Express để có thể chứa 'user'
 declare global {
   namespace Express {
     interface Request {
-      user?: any; // Hoặc một interface cụ thể hơn cho payload
+      user?: any; 
     }
   }
 }

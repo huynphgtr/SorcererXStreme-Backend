@@ -6,7 +6,7 @@ import userRoutes from './routes/user.routes';
 import partnerRoutes from './routes/partner.routes';
 import chatRoutes from './routes/chat.routes';
 import tarotRoutes from './routes/tarot.routes';
-// import astrologyRoutes from './routes/astrology.routes';
+import astrologyRoutes from './routes/astrology.routes';
 // import fortuneRoutes from './routes/fortune.routes';
 // import numerologyRoutes from './routes/numerology.routes';
 import { errorMiddleware } from './middlewares/error.middleware';
@@ -41,7 +41,7 @@ app.use('/api/events', eventRoutes);
 app.use('/api/reminders', reminderRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/tarot', tarotRoutes);
-// app.use('/api/astrology', astrologyRoutes);
+app.use('/api/astrology', astrologyRoutes);
 // app.use('/api/fortune', fortuneRoutes);
 // app.use('/api/numerology', numerologyRoutes);
 
