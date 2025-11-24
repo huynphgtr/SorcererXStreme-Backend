@@ -10,7 +10,6 @@ import astrologyRoutes from './routes/astrology.routes';
 // import fortuneRoutes from './routes/fortune.routes';
 // import numerologyRoutes from './routes/numerology.routes';
 import { errorMiddleware } from './middlewares/error.middleware';
-import eventRoutes from './routes/event.routes';
 import reminderRoutes from './routes/reminder.routes';
 
 
@@ -37,7 +36,6 @@ app.get('/health', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/partners', partnerRoutes);   
-app.use('/api/events', eventRoutes);
 app.use('/api/reminders', reminderRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/tarot', tarotRoutes);

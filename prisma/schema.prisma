@@ -36,40 +36,20 @@ model User {
   birth_time     String?
   birth_place    String?
   created_at     DateTime        @default(now())
+
+  partner_name     String?
+  partner_gender   Gender?
+  partner_birth_date DateTime?
+  partner_birth_time String?
+  partner_birth_place String?
+  relationship_start_date DateTime? 
+
   vip_tier       String          @default("FREE")
   vip_expires_at DateTime?
-  partners       Partner[]
-  personalEvents PersonalEvent[]
   reminder       Reminder?
   subscriptions  Subscription[]
   usageStats     UsageStats?
   passwordResetTokens PasswordResetToken[]
-}
-
-/// @map("partners")
-model Partner {
-  id          String   @id @default(uuid())
-  user_id     String
-  name        String
-  gender      Gender?     
-  birth_date  DateTime
-  birth_time  String
-  birth_place String
-  created_at  DateTime @default(now())
-  user        User     @relation(fields: [user_id], references: [id])
-
-  @@unique([id, user_id])
-}
-
-/// @map("personal_events")
-model PersonalEvent {
-  id           String   @id @default(uuid())
-  user_id      String
-  partner_name String?
-  event_date   DateTime
-  event_type   String
-  details      String?
-  user         User     @relation(fields: [user_id], references: [id])
 }
 
 /// @map("reminders")
