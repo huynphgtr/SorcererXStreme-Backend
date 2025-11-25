@@ -1,14 +1,12 @@
 import { Response } from 'express';
-import { getAiResponse } from '../services/gemini.service';
-import { generateAstrologyPrompt } from '../services/ai-prompts.service';
 import { AuthRequest } from '../middlewares/auth.middleware';
 import { VIPService } from '../services/vip.service';
+import { AIService } from '../services/ai.service';
 
 interface AstrologyContext {
   name?: string;
   gender?: string;
   birth_date?: string;
-  birth_time?: string;
   birth_place?: string;
   [key: string]: any;
 }
@@ -16,7 +14,7 @@ interface AstrologyContext {
 function validateRequiredFields(ctx: any, label: string): string | null {
   if (!ctx) return `Missing ${label} object`;
   
-  const required = ['name', 'birth_date', 'birth_time', 'birth_place'];
+  const required = ['name', 'birth_date', 'gender'];
   const missing = required.find(field => !ctx[field] || ctx[field].toString().trim() === '');
 
   if (missing) return `Field '${missing}' is required in ${label}`;
@@ -24,31 +22,28 @@ function validateRequiredFields(ctx: any, label: string): string | null {
 }
 
 async function handleAstrologyLogic(
-  userId: string,
-  res: Response,
   params: {
     mode: 'overview' | 'love';
     userContext: AstrologyContext;
     partnerContext?: AstrologyContext;
   }
 ) {
-  const { mode, userContext, partnerContext } = params;
-  // try {
-  //   await VIPService.incrementUsage(userId, 'tarot');
-  // } catch (usageError) {
-  //   console.warn('Failed to increment usage counter:', usageError);
-  // }
-  res.status(200).json({
-    message: 'Request processed successfully',
-    payload: {
-      userId,
-      mode,
-      processedData: {
-        user: userContext,
-        partner: partnerContext || null
-      }
-    }
-  });
+  const { mode, userContext } = params;
+    const aiPayload = {
+      domain: "astrology",
+      feature_type: mode,
+      user_context: userContext
+    };
+    const aiResponse = await AIService.callMysticEndpoint(aiPayload);
+  
+    // 3. Handle VIP Usage 
+    // try {
+    //   await VIPService.incrementUsage(userId, 'astrology');
+    // } catch (usageError) {
+    //   console.warn('Failed to increment usage counter:', usageError);
+    // }
+    return aiResponse;
+
 }
 
 export async function processAstrologyReading(req: AuthRequest, res: Response): Promise<void> {
@@ -95,11 +90,12 @@ export async function processAstrologyReading(req: AuthRequest, res: Response): 
     }
 
     // --- D. Process Logic ---
-    await handleAstrologyLogic(userId, res, {
+    const result = await handleAstrologyLogic({
       mode: feature_type, 
       userContext: user_context,
       partnerContext: partner_context ?? undefined
     });
+    res.status(200).json(result);
 
   } catch (error: any) {
     console.error(error);

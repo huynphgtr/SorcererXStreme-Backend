@@ -1,8 +1,7 @@
 import { Response } from 'express';
 import { AuthRequest } from '../middlewares/auth.middleware';
 import { VIPService } from '../services/vip.service';
-// import { getAiResponse } from '../services/gemini.service';
-// import { generateNumerologyPrompt } from '../services/ai-prompts.service';
+import { AIService } from '../services/ai.service';
 
 interface NumerologyContext {
   name?: string;
@@ -13,7 +12,7 @@ interface NumerologyContext {
 
 function validateNumerologyFields(ctx: any): string | null {
   if (!ctx) return 'Missing user_context object';
-  
+
   const required = ['name', 'birth_date', 'gender'];
   const missing = required.find(field => !ctx[field] || ctx[field].toString().trim() === '');
 
@@ -30,38 +29,20 @@ async function handleNumerologyLogic(
 ) {
   const { userContext } = params;
 
-  // --- 1. Prepare Data ---
-  // const birthDate = userContext.birth_date;
-  // const name = userContext.name;
-
-  // --- 2. Call AI ---
-  // let prompt = generateNumerologyPrompt(birthDate, 'life_path', userContext);
-  // let analysis = await getAiResponse(prompt);
-
-  // --- 3. Handle VIP Usage ---
-  try {
-    await VIPService.incrementUsage(userId,'numerology');
-  } catch (usageError) {
-    console.warn('VIP usage error:', usageError);
-  }
-
-  // --- 4. Response ---
-  // res.status(200).json({ analysis });
-
-  // DEBUG RESPONSE
-  const payload = {
-    userId,
-    domain: 'numerology',
-    feature_type: 'overview',
-    processedData: {
-      user: userContext
-    }
+  const aiPayload = {
+    domain: "numerology",
+    feature_type: "overview",
+    user_context: userContext
   };
+  const aiResponse = await AIService.callMysticEndpoint(aiPayload);
 
-  res.status(200).json({ 
-    message: 'Numerology payload received and processed successfully', 
-    payload 
-  });
+  // 3. Handle VIP Usage 
+  // try {
+  //   await VIPService.incrementUsage(userId, 'astrology');
+  // } catch (usageError) {
+  //   console.warn('Failed to increment usage counter:', usageError);
+  // }
+  return aiResponse;
 }
 
 export async function getNumerology(req: AuthRequest, res: Response): Promise<void> {
@@ -93,9 +74,10 @@ export async function getNumerology(req: AuthRequest, res: Response): Promise<vo
     }
 
     // --- C. Process Logic ---
-    await handleNumerologyLogic(userId, res, {
+    const result = await handleNumerologyLogic(userId, res, {
       userContext: user_context
     });
+    res.status(200).json(result);
 
   } catch (error) {
     console.error('Error in getNumerology:', error);

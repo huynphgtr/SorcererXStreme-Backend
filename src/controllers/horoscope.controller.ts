@@ -1,6 +1,7 @@
 import { Response } from 'express';
 import { AuthRequest } from '../middlewares/auth.middleware';
 import { VIPService } from '../services/vip.service';
+import { AIService } from '../services/ai.service';
 // import { getAiResponse } from '../services/gemini.service';
 // import { generateHoroscopePrompt } from '../services/ai-prompts.service';
 
@@ -35,21 +36,6 @@ async function handleHoroscopeLogic(
 ) {
   const { mode, targetDate, userContext } = params;
 
-  // --- A. Generate Prompt & Call AI ---
-  // const prompt = generateHoroscopePrompt(mode, userContext, targetDate);
-  // const analysis = await getAiResponse(prompt);
-
-  // --- B. Handle VIP Usage ---
-  try {
-    await VIPService.incrementUsage(userId, 'Horoscope');
-  } catch (usageError) {
-    console.warn('VIP usage error:', usageError);
-  }
-
-  // --- C. Return Response ---
-  // res.status(200).json({ analysis });
-
-  // DEBUG RESPONSE: Trả về payload để verify
   const payload = {
     userId,
     domain: 'Horoscope',
@@ -59,11 +45,14 @@ async function handleHoroscopeLogic(
       user: userContext
     }
   };
-
-  res.status(200).json({ 
-    message: 'Horoscope payload received and processed successfully', 
-    payload 
-  });
+  const aiResponse = await AIService.callMysticEndpoint(payload);
+  // 3. Handle VIP Usage 
+  // try {
+  //   await VIPService.incrementUsage(userId, 'astrology');
+  // } catch (usageError) {
+  //   console.warn('Failed to increment usage counter:', usageError);
+  // }
+  return aiResponse;
 }
 
 export async function getHoroscope(req: AuthRequest, res: Response): Promise<void> {
@@ -76,15 +65,11 @@ export async function getHoroscope(req: AuthRequest, res: Response): Promise<voi
 
     const { domain, feature_type, user_context, data } = req.body ?? {};
 
-    // --- A. Validate Domain ---
-    // Payload mẫu dùng domain là "horoscope"
     if (domain !== 'horoscope') {
       res.status(400).json({ message: 'Invalid domain (expected "horoscope")' });
       return;
     }
 
-    // --- B. Validate Feature Type ---
-    // Chỉ chấp nhận 2 mode: daily, natal_chart
     if (feature_type !== 'daily' && feature_type !== 'natal_chart') {
       res.status(400).json({ message: 'Invalid feature_type. Expected "daily" or "natal_chart"' });
       return;
@@ -108,13 +93,14 @@ export async function getHoroscope(req: AuthRequest, res: Response): Promise<voi
       targetDateString = data.target_date;
     } 
 
-    // --- E. Process Logic ---
-    await handleHoroscopeLogic(userId, res, {
+    const result = await handleHoroscopeLogic(userId, res, {
       mode: feature_type, 
       targetDate: targetDateString,
       userContext: user_context
     });
 
+    res.status(200).json(result);
+    
   } catch (error) {
     console.error('Error in getHoroscope:', error);
     res.status(500).json({ message: 'Internal server error' });
