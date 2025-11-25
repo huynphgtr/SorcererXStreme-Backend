@@ -4,128 +4,54 @@ import { generateAstrologyPrompt } from '../services/ai-prompts.service';
 import { AuthRequest } from '../middlewares/auth.middleware';
 import { VIPService } from '../services/vip.service';
 
-// --- Helper Function (Private) ---
+interface AstrologyContext {
+  name?: string;
+  gender?: string;
+  birth_date?: string;
+  birth_time?: string;
+  birth_place?: string;
+  [key: string]: any;
+}
+
+function validateRequiredFields(ctx: any, label: string): string | null {
+  if (!ctx) return `Missing ${label} object`;
+  
+  const required = ['name', 'birth_date', 'birth_time', 'birth_place'];
+  const missing = required.find(field => !ctx[field] || ctx[field].toString().trim() === '');
+
+  if (missing) return `Field '${missing}' is required in ${label}`;
+  return null;
+}
+
 async function handleAstrologyLogic(
   userId: string,
   res: Response,
   params: {
-    mode: 'overview' | 'natal_chart' | 'love'
-    birthDate: string;
-    birthTime?: string;
-    birthPlace?: string;
-    userContext?: any;
-    // Có thể thêm partnerContext nếu tính Love compatibility
-    partnerContext?: any;
+    mode: 'overview' | 'love';
+    userContext: AstrologyContext;
+    partnerContext?: AstrologyContext;
   }
 ) {
-  const { mode, birthDate, birthTime, birthPlace, userContext, partnerContext } = params;
-
-  // 1. Chuẩn bị context đầy đủ
-  const fullUserContext = {
-    ...userContext,
-    birthDate,
-    birthTime,
-    birthPlace,
-    partnerContext
-  };
-
-  // 2. Generate Prompt
-  let prompt = generateAstrologyPrompt(mode, fullUserContext);
-
-  // 3. Call AI
-  let analysis = await getAiResponse(prompt);
-  // console.log('--- DEBUG ANALYSIS ---');
-  // console.log(typeof analysis);
-  // console.log(analysis ? analysis.substring(0, 50) + '...' : 'Analysis is NULL/UNDEFINED');
-  // 4. Handle VIP Usage
-  try {
-    await VIPService.incrementUsage(userId, 'astrology');
-  } catch (usageError: any) {
-    console.warn('Failed to increment usage counter:', usageError.message);
-    // Continue execution
-  }
-
-  console.log(`[Astrology - ${mode}] Sending response to client`);
-
-  // 5. Response
-  res.status(200).json({ analysis });
+  const { mode, userContext, partnerContext } = params;
+  // try {
+  //   await VIPService.incrementUsage(userId, 'tarot');
+  // } catch (usageError) {
+  //   console.warn('Failed to increment usage counter:', usageError);
+  // }
+  res.status(200).json({
+    message: 'Request processed successfully',
+    payload: {
+      userId,
+      mode,
+      processedData: {
+        user: userContext,
+        partner: partnerContext || null
+      }
+    }
+  });
 }
 
-// --- Main Controllers ---
-
-/**
- * Xem Tử vi/Chiêm tinh tổng quan (Overview)
- * Thường là dự báo ngày, tuần, hoặc tính cách sơ lược.
- * Yêu cầu: Ngày sinh là bắt buộc.
- */
-export async function getAstrologyOverview(req: AuthRequest, res: Response): Promise<void> {
-  try {
-    const userId = req.user?.id
-    if (!userId) {
-      res.status(401).json({ message: 'Unauthorized' });
-      return;
-    }
-
-    const { birthDate, birthTime, birthPlace, userContext } = req.body;
-
-    if (!birthDate) {
-      res.status(400).json({ message: 'Birth date is required' });
-      return;
-    }
-
-    await handleAstrologyLogic(userId, res, {
-      mode: 'overview',
-      birthDate,
-      birthTime,
-      birthPlace,
-      userContext
-    });
-
-  } catch (error: any) {
-    handleError(res, error);
-  }
-}
-
-/**
- * Xem Bản đồ sao (Natal Chart)
- * Phân tích sâu về tính cách, tiềm năng dựa trên vị trí các hành tinh.
- * Yêu cầu: Cần chính xác Ngày, Giờ và Nơi sinh để vẽ chart chuẩn.
- */
-export async function getAstrologyNatalChart(req: AuthRequest, res: Response): Promise<void> {
-  try {
-    const userId = req.user?.id
-    if (!userId) {
-      res.status(401).json({ message: 'Unauthorized' });
-      return;
-    }
-
-    const { birthDate, birthTime, birthPlace, userContext } = req.body;
-
-    if (!birthDate || !birthTime || !birthPlace) {
-      res.status(400).json({
-        message: 'Birth date, time, and place are required for accurate Natal Chart reading'
-      });
-      return;
-    }
-
-    await handleAstrologyLogic(userId, res, {
-      mode: 'natal_chart',
-      birthDate,
-      birthTime,
-      birthPlace,
-      userContext
-    });
-
-  } catch (error: any) {
-    handleError(res, error);
-  }
-}
-
-/**
- * Xem Tình yêu (Love)
- * Dự đoán tình duyên hoặc độ hợp nhau.
- */
-export async function getAstrologyLove(req: AuthRequest, res: Response): Promise<void> {
+export async function processAstrologyReading(req: AuthRequest, res: Response): Promise<void> {
   try {
     const userId = req.user?.id;
     if (!userId) {
@@ -133,34 +59,50 @@ export async function getAstrologyLove(req: AuthRequest, res: Response): Promise
       return;
     }
 
-    const { birthDate, birthTime, birthPlace, userContext, partnerContext } = req.body;
+    const { domain, feature_type, user_context, partner_context } = req.body ?? {};
 
-    if (!birthDate) {
-      res.status(400).json({ message: 'Birth date is required' });
+    // --- A. Validate Meta Data ---
+    if (domain !== 'astrology') {
+      res.status(400).json({ message: 'Invalid domain' });
       return;
     }
 
+    if (feature_type !== 'overview' && feature_type !== 'love') {
+      res.status(400).json({ message: "Invalid feature_type. Expected 'overview' or 'love'" });
+      return;
+    }
+
+    // --- B. Validate User Context (Always Required) ---
+    const userError = validateRequiredFields(user_context, 'user_context');
+    if (userError) {
+      res.status(400).json({ message: userError });
+      return;
+    }
+
+    // --- C. Validate Partner Context (Conditional) ---
+    if (feature_type === 'love') {
+      const partnerError = validateRequiredFields(partner_context, 'partner_context');
+      if (partnerError) {
+        res.status(400).json({ message: partnerError });
+        return;
+      }
+    } else if (partner_context) {
+      const partnerError = validateRequiredFields(partner_context, 'partner_context');
+      if (partnerError) {
+        res.status(400).json({ message: partnerError });
+        return;
+      }
+    }
+
+    // --- D. Process Logic ---
     await handleAstrologyLogic(userId, res, {
-      mode: 'love',
-      birthDate,
-      birthTime,
-      birthPlace,
-      userContext,
-      partnerContext
+      mode: feature_type, 
+      userContext: user_context,
+      partnerContext: partner_context ?? undefined
     });
 
   } catch (error: any) {
-    handleError(res, error);
+    console.error(error);
+    res.status(500).json({ message: 'Internal Server Error' });
   }
-}
-
-// --- Error Handling Helper ---
-function handleError(res: Response, error: any) {
-  console.error('[Astrology] Controller error:', error);
-  // console.error('[Astrology] Error stack:', error.stack); // Uncomment if needed
-  const errorMessage = error.message || 'Internal server error';
-  res.status(500).json({
-    message: errorMessage,
-    error: process.env.NODE_ENV === 'development' ? error.message : undefined
-  });
 }
