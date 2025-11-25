@@ -5,7 +5,6 @@ import { getTarotOverview, getTarotQuestion } from '../controllers/tarot.control
 const router = Router();
 
 router.use(authenticateToken);
-// router.post('/reading', getTarotReading);
 router.post('/overview', getTarotOverview);
 router.post('/question', getTarotQuestion);
 
