@@ -6,7 +6,5 @@ const router = Router();
 
 router.use(authenticateToken);
 router.post('/reading', processAstrologyReading);
-// router.post('/natal-chart', getAstrologyNatalChart);
-// router.post('/love', getAstrologyLove);
 
 export default router;
