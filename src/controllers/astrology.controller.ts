@@ -28,11 +28,12 @@ async function handleAstrologyLogic(
     partnerContext?: AstrologyContext;
   }
 ) {
-  const { mode, userContext } = params;
+  const { mode, userContext, partnerContext } = params;
     const aiPayload = {
       domain: "astrology",
       feature_type: mode,
-      user_context: userContext
+      user_context: userContext,
+      partner_context: partnerContext ?? null
     };
     const aiResponse = await AIService.callMysticEndpoint(aiPayload);
   
@@ -81,13 +82,14 @@ export async function processAstrologyReading(req: AuthRequest, res: Response): 
         res.status(400).json({ message: partnerError });
         return;
       }
-    } else if (partner_context) {
-      const partnerError = validateRequiredFields(partner_context, 'partner_context');
-      if (partnerError) {
-        res.status(400).json({ message: partnerError });
-        return;
-      }
-    }
+    } 
+    // else if (partner_context) {
+    //   const partnerError = validateRequiredFields(partner_context, 'partner_context');
+    //   if (partnerError) {
+    //     res.status(400).json({ message: partnerError });
+    //     return;
+    //   }
+    // }
 
     // --- D. Process Logic ---
     const result = await handleAstrologyLogic({

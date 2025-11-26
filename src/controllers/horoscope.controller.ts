@@ -2,8 +2,6 @@ import { Response } from 'express';
 import { AuthRequest } from '../middlewares/auth.middleware';
 import { VIPService } from '../services/vip.service';
 import { AIService } from '../services/ai.service';
-// import { getAiResponse } from '../services/gemini.service';
-// import { generateHoroscopePrompt } from '../services/ai-prompts.service';
 
 
 interface HoroscopeContext {
@@ -26,8 +24,7 @@ function validateRequiredFields(ctx: any): string | null {
 }
 
 async function handleHoroscopeLogic(
-  userId: string,
-  res: Response,
+
   params: {
     mode: 'daily' | 'natal_chart';
     targetDate?: string;
@@ -37,13 +34,10 @@ async function handleHoroscopeLogic(
   const { mode, targetDate, userContext } = params;
 
   const payload = {
-    userId,
-    domain: 'Horoscope',
+    domain: 'horoscope',
     feature_type: mode,
-    target_date: targetDate || null, 
-    processedData: {
-      user: userContext
-    }
+    target_date: targetDate || null,  
+    user_context: userContext
   };
   const aiResponse = await AIService.callMysticEndpoint(payload);
   // 3. Handle VIP Usage 
@@ -93,7 +87,7 @@ export async function getHoroscope(req: AuthRequest, res: Response): Promise<voi
       targetDateString = data.target_date;
     } 
 
-    const result = await handleHoroscopeLogic(userId, res, {
+    const result = await handleHoroscopeLogic({
       mode: feature_type, 
       targetDate: targetDateString,
       userContext: user_context

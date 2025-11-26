@@ -3,7 +3,7 @@ import { AuthRequest } from '../middlewares/auth.middleware';
 import { VIPService } from '../services/vip.service';
 import { AIService } from '../services/ai.service';
 
-interface UserContext {
+interface TarotContext {
   name?: string;
   gender?: string;
   birth_date?: string;
@@ -31,13 +31,12 @@ async function handleTarotLogic(
     mode: 'overview' | 'question';
     question?: string;
     cardsDrawn: TarotCard[];
-    userContext: UserContext;
-    partnerContext?: UserContext;
+    userContext: TarotContext;
+    partnerContext?: TarotContext;
   }
 ) {
   const { mode, question, cardsDrawn, userContext, partnerContext } = params;
 
-  // 1. Chuẩn bị Payload cho Python AI
   const aiPayload = {
     domain: "tarot",
     feature_type: mode,
@@ -85,14 +84,14 @@ export async function processTarotRequest(req: AuthRequest, res: Response): Prom
     }
 
     // --- B. Validate Contexts ---
-    // 1. User Context: Bắt buộc
+    // 1. User Context
     const userError = validateRequiredFields(user_context, 'user_context');
     if (userError) {
       res.status(400).json({ message: userError });
       return;
     }
 
-    // 2. Partner Context: Optional (Nhưng nếu có thì phải Valid)
+    // 2. Partner Context
     if (partner_context) {
       const partnerError = validateRequiredFields(partner_context, 'partner_context');
       if (partnerError) {
