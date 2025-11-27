@@ -67,7 +67,6 @@ export class AuthService {
     });
   }
 
-  // Xử lý yêu cầu quên mật khẩu
   static async handleForgotPassword(email: string) {
     const user = await prisma.user.findUnique({ where: { email } });
     
@@ -94,7 +93,6 @@ export class AuthService {
     await EmailService.sendPasswordResetEmail(user.email, token);
   }
 
-  // Xử lý việc reset mật khẩu
   static async handleResetPassword(token: string, newPassword: string) {
     // 1. Tìm token trong database
     const resetToken = await prisma.passwordResetToken.findUnique({

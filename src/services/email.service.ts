@@ -1,19 +1,29 @@
 import nodemailer from 'nodemailer';
 
-// Cấu hình transporter (dùng biến môi trường cho production)
-// Ví dụ này dùng Mailtrap/Ethereal cho development
+// const transporter = nodemailer.createTransport({
+//   host: process.env.EMAIL_HOST, 
+//   port: Number(process.env.EMAIL_PORT), 
+//   auth: {
+//     user: process.env.EMAIL_USER,
+//     pass: process.env.EMAIL_PASS,
+//   },
+// });
+// Cấu hình transporter cho SendGrid
 const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST, // ví dụ: "smtp.mailtrap.io"
-  port: Number(process.env.EMAIL_PORT), // ví dụ: 2525
+  host: process.env.EMAIL_HOST || 'smtp.sendgrid.net',
+  port: Number(process.env.EMAIL_PORT) || 587,
+  secure: false, 
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
+  tls: {
+    rejectUnauthorized: false 
+  }
 });
 
 export class EmailService {
   static async sendPasswordResetEmail(to: string, token: string) {
-    // Link này nên trỏ đến trang reset password trên frontend của bạn
     const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
 
     const mailOptions = {
