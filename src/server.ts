@@ -11,5 +11,3 @@ app.listen(PORT, () => {
   startReminderJob();
 });
 
-
-

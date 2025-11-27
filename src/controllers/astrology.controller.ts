@@ -1,42 +1,106 @@
 import { Response } from 'express';
-import { getAiResponse } from '../services/gemini.service';
-import { generateAstrologyPrompt } from '../services/ai-prompts.service';
-import { addBreakupContextToPrompt, getComfortingMessage } from '../services/breakup-utils.service';
 import { AuthRequest } from '../middlewares/auth.middleware';
+import { VIPService } from '../services/vip.service';
+import { AIService } from '../services/ai.service';
 
-export async function getAstrology(req: AuthRequest, res: Response): Promise<void> {
+interface AstrologyContext {
+  name?: string;
+  gender?: string;
+  birth_date?: string;
+  birth_place?: string;
+  [key: string]: any;
+}
+
+function validateRequiredFields(ctx: any, label: string): string | null {
+  if (!ctx) return `Missing ${label} object`;
+  
+  const required = ['name', 'birth_date', 'gender'];
+  const missing = required.find(field => !ctx[field] || ctx[field].toString().trim() === '');
+
+  if (missing) return `Field '${missing}' is required in ${label}`;
+  return null;
+}
+
+async function handleAstrologyLogic(
+  params: {
+    mode: 'overview' | 'love';
+    userContext: AstrologyContext;
+    partnerContext?: AstrologyContext;
+  }
+) {
+  const { mode, userContext, partnerContext } = params;
+    const aiPayload = {
+      domain: "astrology",
+      feature_type: mode,
+      user_context: userContext,
+      partner_context: partnerContext ?? null
+    };
+    const aiResponse = await AIService.callMysticEndpoint(aiPayload);
+  
+    // 3. Handle VIP Usage 
+    // try {
+    //   await VIPService.incrementUsage(userId, 'astrology');
+    // } catch (usageError) {
+    //   console.warn('Failed to increment usage counter:', usageError);
+    // }
+    return aiResponse;
+
+}
+
+export async function processAstrologyReading(req: AuthRequest, res: Response): Promise<void> {
   try {
-    const userId = req.userId;
+    const userId = req.user?.id;
     if (!userId) {
       res.status(401).json({ message: 'Unauthorized' });
       return;
     }
 
-    const { mode, birthDate, birthTime, birthPlace, userContext } = req.body;
+    const { domain, feature_type, user_context, partner_context } = req.body ?? {};
 
-    const fullUserContext = {
-      ...userContext,
-      birthDate,
-      birthTime,
-      birthPlace
-    };
-
-    let prompt = generateAstrologyPrompt(mode, fullUserContext);
-    
-    if (fullUserContext?.isInBreakup) {
-      prompt = addBreakupContextToPrompt(prompt, fullUserContext);
-    }
-    
-    let analysis = await getAiResponse(prompt);
-    
-    if (fullUserContext?.isInBreakup) {
-      const comfortingMsg = getComfortingMessage('astrology');
-      analysis += `\n\n${comfortingMsg}`;
+    // --- A. Validate Meta Data ---
+    if (domain !== 'astrology') {
+      res.status(400).json({ message: 'Invalid domain' });
+      return;
     }
 
-    res.status(200).json({ analysis });
-  } catch (error) {
+    if (feature_type !== 'overview' && feature_type !== 'love') {
+      res.status(400).json({ message: "Invalid feature_type. Expected 'overview' or 'love'" });
+      return;
+    }
+
+    // --- B. Validate User Context (Always Required) ---
+    const userError = validateRequiredFields(user_context, 'user_context');
+    if (userError) {
+      res.status(400).json({ message: userError });
+      return;
+    }
+
+    // --- C. Validate Partner Context (Conditional) ---
+    if (feature_type === 'love') {
+      const partnerError = validateRequiredFields(partner_context, 'partner_context');
+      if (partnerError) {
+        res.status(400).json({ message: partnerError });
+        return;
+      }
+    } 
+    // else if (partner_context) {
+    //   const partnerError = validateRequiredFields(partner_context, 'partner_context');
+    //   if (partnerError) {
+    //     res.status(400).json({ message: partnerError });
+    //     return;
+    //   }
+    // }
+
+    // --- D. Process Logic ---
+    const result = await handleAstrologyLogic({
+      mode: feature_type, 
+      userContext: user_context,
+      partnerContext: partner_context ?? undefined
+    });
+    res.status(200).json(result);
+
+  } catch (error: any) {
     console.error(error);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({ message: 'Internal Server Error' });
   }
 }

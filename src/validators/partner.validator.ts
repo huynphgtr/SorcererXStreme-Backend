@@ -1,18 +1,23 @@
 import { z } from 'zod';
 
-export const createPartnerSchema = z.object({
-  name: z.string('Name is required').min(1),
-  birth_date: z.string('Birth date is required').datetime(),
-  birth_time: z.string('Birth time is required').regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Invalid time format. Use HH:MM'),
-  birth_place: z.string('Birth place is required').min(1),
-  relationship_type: z.string().optional(), 
+const GenderEnum = z.enum(['male', 'female', 'other']);
+
+export const setPartnerSchema = z.object({
+  partner_name: z
+    .string({ error: 'Partner name is required' })
+    .min(1, 'Partner name cannot be empty'),
+
+  partner_gender: GenderEnum.optional(), // Giữ lại optional cho gender
+
+  partner_birth_date: z
+    .string({ error: 'Partner birth date is required' })
+    .datetime('Invalid date format. Use ISO 8601 format'),
+
+  partner_birth_time: z
+    .string({ error: 'Partner birth time is required' })
+    .regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Invalid time format. Use HH:MM'),
+
+  partner_birth_place: z
+    .string({ error: 'Partner birth place is required' })
+    .min(1, 'Partner birth place cannot be empty'),
 });
-
-
-export const updatePartnerSchema = z.object({
-  name: z.string().min(1).optional(),
-  birth_date: z.string().datetime().optional(),
-  birth_time: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Invalid time format. Use HH:MM').optional(),
-  birth_place: z.string().min(1).optional(),
-  relationship_type: z.string().optional(),
-}).strict(); 

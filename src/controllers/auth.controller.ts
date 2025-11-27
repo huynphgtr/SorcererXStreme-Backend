@@ -4,6 +4,8 @@ import { z } from 'zod';
 import { registerSchema, loginSchema } from '../validators/auth.validator'; 
 import { AuthService } from '../services/auth.service'; 
 import jwt from 'jsonwebtoken';
+import { forgotPasswordSchema, resetPasswordSchema } from '../validators/auth.validator';
+
 
 const prisma = new PrismaClient();
 
@@ -102,5 +104,45 @@ export async function logout(req: Request, res: Response): Promise<void> {
   }
 }
 
+export async function forgotPassword(req: Request, res: Response) {
+  try {
+    const { email } = forgotPasswordSchema.parse(req.body);
+    await AuthService.handleForgotPassword(email);
+
+    // Luôn trả về thông báo thành công để bảo mật
+    res.status(200).json({ message: 'If a user with that email exists, a password reset link has been sent.' });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      res.status(400).json({
+        message: 'Validation failed',
+        errors: error.flatten().fieldErrors,
+      });
+      return;
+    }
+    console.error('[Forgot Password Error]:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+}
+
+export async function resetPassword(req: Request, res: Response) {
+  try {
+    const { token, password } = resetPasswordSchema.parse(req.body);
+    await AuthService.handleResetPassword(token, password);
+    res.status(200).json({ message: 'Password has been reset successfully.' });
+  } catch (error: any) {
+    if (error.message.includes('Invalid or expired')) {
+      return res.status(400).json({ message: error.message });
+    }
+    if (error instanceof z.ZodError) {
+      res.status(400).json({
+        message: 'Validation failed',
+        errors: error.flatten().fieldErrors,
+      });
+      return;
+    }
+    console.error('[Reset Password Error]:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+}
 
 

@@ -1,7 +1,9 @@
 import { PrismaClient, User } from '@prisma/client';
 import { compare, hash } from 'bcryptjs';
+import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 import { v4 as uuidv4 } from 'uuid';
+import { EmailService } from './email.service'; 
 
 const prisma = new PrismaClient();
 
@@ -35,23 +37,6 @@ export class AuthService {
     return await compare(password, hash);
   }
 
-  // static generateJwtToken(user: User): string {
-  //   const payload = {
-  //     id: user.id,
-  //     email: user.email,
-  //   };
-
-  //   if (!process.env.JWT_SECRET) {
-  //     throw new Error('JWT_SECRET is not defined in environment variables');
-  //   }
-
-  //   const token = jwt.sign(payload, process.env.JWT_SECRET, {
-  //     expiresIn: '1h',
-  //   });
-
-  //   return token;
-  // }
-
   static generateJwtToken(user: User): string {
     const payload = {
       id: user.id,
@@ -81,4 +66,58 @@ export class AuthService {
       },
     });
   }
+
+  static async handleForgotPassword(email: string) {
+    const user = await prisma.user.findUnique({ where: { email } });
+    
+    // An toàn: Không báo lỗi nếu không tìm thấy user để tránh user enumeration
+    if (!user) {
+      return; 
+    }
+
+    // Tạo token ngẫu nhiên, an toàn
+    const token = crypto.randomBytes(32).toString('hex');
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // Hết hạn sau 15 phút
+
+    // Lưu token vào database
+    await prisma.passwordResetToken.create({
+      data: {
+        user_id: user.id,
+        token: token,
+        expiresAt: expiresAt,
+      },
+    });
+
+    // Gửi email chứa token
+    console.log(token)
+    await EmailService.sendPasswordResetEmail(user.email, token);
+  }
+
+  static async handleResetPassword(token: string, newPassword: string) {
+    // 1. Tìm token trong database
+    const resetToken = await prisma.passwordResetToken.findUnique({
+      where: { token: token },
+    });
+
+    // 2. Kiểm tra token có hợp lệ và còn hạn không
+    if (!resetToken || resetToken.expiresAt < new Date()) {
+      throw new Error('Invalid or expired password reset token.');
+    }
+
+    // 3. Hash mật khẩu mới
+    const passwordHash = await this.hashPassword(newPassword);
+
+    // 4. Cập nhật mật khẩu cho user
+    await prisma.user.update({
+      where: { id: resetToken.user_id },
+      data: { password_hash: passwordHash },
+    });
+    
+    // 5. Xóa token đã sử dụng để nó không thể được dùng lại
+    await prisma.passwordResetToken.delete({
+      where: { id: resetToken.id },
+    });
+  }
+
+
 }

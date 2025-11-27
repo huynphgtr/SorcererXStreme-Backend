@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,63 +7,106 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Gender {
+  male
+  female
+  other
+}
+
+/// @map("password_reset_tokens")
+model PasswordResetToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  user_id   String
+  expiresAt DateTime
+  user      User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@map("password_reset_tokens")
+}
+
 /// @map("users")
 model User {
-  id               String            @id @default(uuid()) @db.Text
-  email            String            @unique @db.Text
-  password_hash    String?           @db.Text
-  name             String?           @db.Text
+  id             String          @id @default(uuid())
+  email          String          @unique
+  password_hash  String?
+  name           String?
+  gender         Gender?     
+  is_vip         Boolean         @default(false)
+  birth_date     DateTime?
+  birth_time     String?
+  birth_place    String?
+  created_at     DateTime        @default(now())
 
-  is_vip           Boolean           @default(false)
-  birth_date       DateTime?         @db.Timestamp(3)
-  birth_time       String?           @db.Text
-  birth_place      String?           @db.Text
-  created_at       DateTime          @default(now()) @db.Timestamp(3)
-  
-  partners         Partner[]         
-  personalEvents   PersonalEvent[]
-  reminder         Reminder?
+  partner_name     String?
+  partner_gender   Gender?
+  partner_birth_date DateTime?
+  partner_birth_time String?
+  partner_birth_place String?
+  relationship_start_date DateTime? 
+
+  vip_tier       String          @default("FREE")
+  vip_expires_at DateTime?
+  reminder       Reminder?
+  subscriptions  Subscription[]
+  usageStats     UsageStats?
+  passwordResetTokens PasswordResetToken[]
+  chatSessions        ChatSession[]
 }
-
-/// @map("partners")
-model Partner {
-  id               String            @id @default(uuid()) @db.Text
-  user_id          String            @db.Text
-  name             String            @db.Text
-  birth_date       DateTime          @db.Timestamp(3)
-  birth_time       String            @db.Text
-  birth_place      String            @db.Text
-  created_at       DateTime          @default(now()) @db.Timestamp(3)
-  user             User              @relation(fields: [user_id], references: [id])
-  @@unique([id, user_id]) 
-}
-
-
-/// @map("personal_events")
-model PersonalEvent {
-  id               String            @id @default(uuid()) @db.Text
-  user_id          String            @db.Text
-  partner_name     String?           @db.Text
-  event_date       DateTime          @db.Timestamp(3)
-  // event_type: Chỉ chấp nhận các giá trị: RELATIONSHIP_START, RELATIONSHIP_END, MARRIAGE_UNION
-  event_type       String            @db.Text
-  details          String?           @db.Text
-  user             User              @relation(fields: [user_id], references: [id])
-}
-
 
 /// @map("reminders")
 model Reminder {
-  user_id          String            @id @db.Text
-  is_subscribed    Boolean           @default(true)
-  frequency        String            @default("daily") @db.Text
-  last_sent        DateTime?         @db.Timestamp(3)
-  user             User              @relation(fields: [user_id], references: [id])
+  user_id       String    @id
+  is_subscribed Boolean   @default(true)
+  frequency     String    @default("daily")
+  last_sent     DateTime?
+  user          User      @relation(fields: [user_id], references: [id])
 }
 
 /// @map("token_blocklist")
 model TokenBlocklist {
-  id               String            @id @default(uuid())
-  jti              String            @unique
-  expiresAt        DateTime
+  id        String   @id @default(uuid())
+  jti       String   @unique
+  expiresAt DateTime
+}
+
+/// @map("subscriptions")
+model Subscription {
+  id             String   @id @default(uuid())
+  user_id        String
+  tier           String
+  price          Int
+  start_date     DateTime @default(now())
+  end_date       DateTime
+  status         String   @default("active")
+  payment_method String?
+  transaction_id String?
+  created_at     DateTime @default(now())
+  user           User     @relation(fields: [user_id], references: [id])
+}
+
+/// @map("usage_stats")
+model UsageStats {
+  id                     String   @id @default(uuid())
+  user_id                String   @unique
+  tarot_readings_today   Int      @default(0)
+  chat_messages_today    Int      @default(0)
+  astrology_today        Int      @default(0)
+  fortune_today          Int      @default(0)
+  numerology_today       Int      @default(0)
+  last_reset_date        DateTime @default(now())
+  user                   User     @relation(fields: [user_id], references: [id])
+}
+
+/// @map("chat_sessions")
+model ChatSession {
+  id           String    @id @default(uuid())
+  user_id      String    @db.Text
+  title        String?   @db.Text
+  created_at   DateTime  @default(now())
+  updated_at   DateTime  @updatedAt
+  
+  user         User      @relation(fields: [user_id], references: [id])
+
+  @@index([user_id])
+  @@map("chat_sessions")
 }
