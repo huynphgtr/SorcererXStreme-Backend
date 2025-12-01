@@ -35,14 +35,15 @@ async function handleNumerologyLogic(
     user_context: userContext
   };
   const aiResponse = await AIService.callMysticEndpoint(aiPayload);
-
+  const answer = aiResponse?.answer || aiResponse;
+  return { analysis: answer };
   // 3. Handle VIP Usage 
   // try {
   //   await VIPService.incrementUsage(userId, 'astrology');
   // } catch (usageError) {
   //   console.warn('Failed to increment usage counter:', usageError);
   // }
-  return aiResponse;
+  // return aiResponse;
 }
 
 export async function getNumerology(req: AuthRequest, res: Response): Promise<void> {

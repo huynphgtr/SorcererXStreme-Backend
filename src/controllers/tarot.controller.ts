@@ -59,7 +59,9 @@ async function handleTarotLogic(
   // } catch (usageError) {
   //   console.warn('Failed to increment usage counter:', usageError);
   // }
-  return aiResponse;
+  // return aiResponse;
+  const answer = aiResponse?.answer || aiResponse;
+  return { analysis: answer };
 }
 
 export async function processTarotRequest(req: AuthRequest, res: Response): Promise<void> {

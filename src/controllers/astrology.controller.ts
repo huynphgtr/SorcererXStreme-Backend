@@ -43,7 +43,10 @@ async function handleAstrologyLogic(
     // } catch (usageError) {
     //   console.warn('Failed to increment usage counter:', usageError);
     // }
-    return aiResponse;
+    // return aiResponse;
+    const answer = aiResponse?.answer || aiResponse;
+    // console.log('[Astrology] Extracted answer length:', answer?.length || 0); 
+    return { analysis: answer };
 
 }
 

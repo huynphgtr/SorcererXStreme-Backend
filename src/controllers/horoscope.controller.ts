@@ -40,13 +40,20 @@ async function handleHoroscopeLogic(
     user_context: userContext
   };
   const aiResponse = await AIService.callMysticEndpoint(payload);
+  const analysis = aiResponse?.answer?.analysis || '';
+  // console.log('[Horoscope] Extracted analysis length:', analysis.length);
+  return { 
+    analysis: analysis,
+    metadata: aiResponse?.answer?.metadata,
+    summary: aiResponse?.answer?.summary
+  };
   // 3. Handle VIP Usage 
   // try {
   //   await VIPService.incrementUsage(userId, 'astrology');
   // } catch (usageError) {
   //   console.warn('Failed to increment usage counter:', usageError);
   // }
-  return aiResponse;
+  // return aiResponse;
 }
 
 export async function getHoroscope(req: AuthRequest, res: Response): Promise<void> {
