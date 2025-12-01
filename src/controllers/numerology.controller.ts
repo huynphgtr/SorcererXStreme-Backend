@@ -21,13 +21,13 @@ function validateNumerologyFields(ctx: any): string | null {
 }
 
 async function handleNumerologyLogic(
-  userId: string,
   res: Response,
   params: {
     userContext: NumerologyContext;
+    userId: string;
   }
 ) {
-  const { userContext } = params;
+  const { userContext, userId } = params;
 
   const aiPayload = {
     domain: "numerology",
@@ -35,15 +35,17 @@ async function handleNumerologyLogic(
     user_context: userContext
   };
   const aiResponse = await AIService.callMysticEndpoint(aiPayload);
+
+  try {
+    await VIPService.incrementUsage(userId, 'numerology');
+  } catch (usageError) {
+    console.warn('Failed to increment usage counter:', usageError);
+  }
+  // console.log('Test inccrement usage for numerology');
+
   const answer = aiResponse?.answer || aiResponse;
   return { analysis: answer };
-  // 3. Handle VIP Usage 
-  // try {
-  //   await VIPService.incrementUsage(userId, 'astrology');
-  // } catch (usageError) {
-  //   console.warn('Failed to increment usage counter:', usageError);
-  // }
-  // return aiResponse;
+
 }
 
 export async function getNumerology(req: AuthRequest, res: Response): Promise<void> {
@@ -75,8 +77,9 @@ export async function getNumerology(req: AuthRequest, res: Response): Promise<vo
     }
 
     // --- C. Process Logic ---
-    const result = await handleNumerologyLogic(userId, res, {
-      userContext: user_context
+    const result = await handleNumerologyLogic(res, {
+      userContext: user_context,
+      userId: userId
     });
     res.status(200).json(result);
 

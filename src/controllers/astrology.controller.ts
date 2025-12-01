@@ -26,9 +26,10 @@ async function handleAstrologyLogic(
     mode: 'overview' | 'love';
     userContext: AstrologyContext;
     partnerContext?: AstrologyContext;
+    userId: string;
   }
 ) {
-  const { mode, userContext, partnerContext } = params;
+  const { mode, userContext, partnerContext, userId } = params;
     const aiPayload = {
       domain: "astrology",
       feature_type: mode,
@@ -38,12 +39,16 @@ async function handleAstrologyLogic(
     const aiResponse = await AIService.callMysticEndpoint(aiPayload);
   
     // 3. Handle VIP Usage 
-    // try {
-    //   await VIPService.incrementUsage(userId, 'astrology');
-    // } catch (usageError) {
-    //   console.warn('Failed to increment usage counter:', usageError);
-    // }
-    // return aiResponse;
+    try {
+      if(mode === 'love') {
+        await VIPService.incrementUsage(userId, 'astrology_love');
+      } else {
+        await VIPService.incrementUsage(userId, 'astrology_overview');
+      }
+    } catch (usageError) {
+      console.warn('Failed to increment usage counter:', usageError);
+    }
+
     const answer = aiResponse?.answer || aiResponse;
     // console.log('[Astrology] Extracted answer length:', answer?.length || 0); 
     return { analysis: answer };
@@ -86,19 +91,13 @@ export async function processAstrologyReading(req: AuthRequest, res: Response): 
         return;
       }
     } 
-    // else if (partner_context) {
-    //   const partnerError = validateRequiredFields(partner_context, 'partner_context');
-    //   if (partnerError) {
-    //     res.status(400).json({ message: partnerError });
-    //     return;
-    //   }
-    // }
 
     // --- D. Process Logic ---
     const result = await handleAstrologyLogic({
       mode: feature_type, 
       userContext: user_context,
-      partnerContext: partner_context ?? undefined
+      partnerContext: partner_context ?? undefined,
+      userId: userId
     });
     res.status(200).json(result);
 

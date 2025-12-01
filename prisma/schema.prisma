@@ -87,15 +87,17 @@ model Subscription {
 
 /// @map("usage_stats")
 model UsageStats {
-  id                     String   @id @default(uuid())
-  user_id                String   @unique
-  tarot_readings_today   Int      @default(0)
-  chat_messages_today    Int      @default(0)
-  astrology_today        Int      @default(0)
-  fortune_today          Int      @default(0)
-  numerology_today       Int      @default(0)
-  last_reset_date        DateTime @default(now())
-  user                   User     @relation(fields: [user_id], references: [id])
+  id      String @id @default(uuid())
+  user_id String @unique
+  chat_messages_today Int @default(0)
+  tarot_overview_today Int @default(0)
+  tarot_question_today Int @default(0)
+  astrology_overview_today Int @default(0)
+  astrology_love_today     Int @default(0)
+  numerology_today Int @default(0)
+  horoscope_daily_today Int @default(0)
+  last_reset_date DateTime @default(now())
+  user            User     @relation(fields: [user_id], references: [id])
 }
 
 /// @map("chat_sessions")

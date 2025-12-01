@@ -29,9 +29,10 @@ async function handleHoroscopeLogic(
     mode: 'daily' | 'natal_chart';
     targetDate?: string;
     userContext: HoroscopeContext;
+    userId: string;
   }
 ) {
-  const { mode, targetDate, userContext } = params;
+  const { mode, targetDate, userContext, userId } = params;
 
   const payload = {
     domain: 'horoscope',
@@ -39,21 +40,28 @@ async function handleHoroscopeLogic(
     target_date: targetDate || null,  
     user_context: userContext
   };
-  const aiResponse = await AIService.callMysticEndpoint(payload);
-  const analysis = aiResponse?.answer?.analysis || '';
+  // const aiResponse = await AIService.callMysticEndpoint(payload);
+  // const analysis = aiResponse?.answer?.analysis || '';
   // console.log('[Horoscope] Extracted analysis length:', analysis.length);
-  return { 
-    analysis: analysis,
-    metadata: aiResponse?.answer?.metadata,
-    summary: aiResponse?.answer?.summary
-  };
-  // 3. Handle VIP Usage 
-  // try {
-  //   await VIPService.incrementUsage(userId, 'astrology');
-  // } catch (usageError) {
-  //   console.warn('Failed to increment usage counter:', usageError);
-  // }
-  // return aiResponse;
+
+
+  try {
+    if(mode === 'daily'){
+      await VIPService.incrementUsage(userId, 'horoscope_daily');
+    }      
+    else{
+      await VIPService.incrementUsage(userId, 'horoscope_daily');
+    }
+  } catch (usageError) {
+    console.warn('Failed to increment usage counter:', usageError);
+  }
+  console.log('Test increment usage for horoscope_daily');
+
+  // return { 
+  //   analysis: analysis,
+  //   metadata: aiResponse?.answer?.metadata,
+  //   summary: aiResponse?.answer?.summary
+  // };
 }
 
 export async function getHoroscope(req: AuthRequest, res: Response): Promise<void> {
@@ -97,7 +105,8 @@ export async function getHoroscope(req: AuthRequest, res: Response): Promise<voi
     const result = await handleHoroscopeLogic({
       mode: feature_type, 
       targetDate: targetDateString,
-      userContext: user_context
+      userContext: user_context,
+      userId: userId
     });
 
     res.status(200).json(result);
