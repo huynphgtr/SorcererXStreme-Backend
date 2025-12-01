@@ -15,6 +15,18 @@
           "FRONTEND_URL": "http://localhost:3000",
           "PRISMA_CLI_BINARY_TARGETS": "rhel-openssl-3.0.x"
         },
+        "apiGateway": {
+          "usagePlan": {
+            "quota": {
+              "limit": 5000000,
+              "period": "MONTH"
+            },
+            "throttle": {
+              "burstLimit": 200,
+              "rateLimit": 100
+            }
+          }
+        },
         "stage": "dev",
         "versionFunctions": true,
         "compiledCloudFormationTemplate": {
@@ -110,7 +122,7 @@
               "Properties": {
                 "Code": {
                   "S3Bucket": "serverless-framework-deployments-ap-southeast-1-a38a0297-9cd4",
-                  "S3Key": "serverless/sorcererxstreme-backend/dev/1764512173733-2025-11-30T14:16:13.733Z/sorcererxstreme-backend-api.zip"
+                  "S3Key": "serverless/sorcererxstreme-backend/dev/1764558486533-2025-12-01T03:08:06.533Z/sorcererxstreme-backend-api.zip"
                 },
                 "Handler": "src/handler.handler",
                 "Runtime": "nodejs20.x",
@@ -136,14 +148,14 @@
                 "ApiLogGroup"
               ]
             },
-            "ApiLambdaVersionPOC3SJGEQZiuYgdrpgM0HaaiVt6dZ0TkIZavtU2xbgg": {
+            "ApiLambdaVersionLiDTCJRizYXEhrqdEu1DVYJZhAkPUUV9cE6mDR0vyg": {
               "Type": "AWS::Lambda::Version",
               "DeletionPolicy": "Retain",
               "Properties": {
                 "FunctionName": {
                   "Ref": "ApiLambdaFunction"
                 },
-                "CodeSha256": "gx+vbyxwTytaTg0oK7WV4B2Vej2v69kBPSm6JDTwYIM="
+                "CodeSha256": "z9kSqQRQnTnigabf0CuAyls2oBO3fpP/lv+WhGfyGdI="
               }
             },
             "ApiGatewayRestApi": {
@@ -268,7 +280,7 @@
                 "ApiLambdaPermissionApiGateway"
               ]
             },
-            "ApiGatewayDeployment1764512164522": {
+            "ApiGatewayDeployment1764558477324": {
               "Type": "AWS::ApiGateway::Deployment",
               "Properties": {
                 "RestApiId": {
@@ -280,6 +292,30 @@
                 "ApiGatewayMethodAny",
                 "ApiGatewayMethodProxyVarAny"
               ]
+            },
+            "ApiGatewayUsagePlan": {
+              "Type": "AWS::ApiGateway::UsagePlan",
+              "DependsOn": "ApiGatewayDeployment1764558477324",
+              "Properties": {
+                "ApiStages": [
+                  {
+                    "ApiId": {
+                      "Ref": "ApiGatewayRestApi"
+                    },
+                    "Stage": "dev"
+                  }
+                ],
+                "Description": "Usage plan for sorcererxstreme-backend dev stage",
+                "UsagePlanName": "sorcererxstreme-backend-dev",
+                "Quota": {
+                  "Limit": 5000000,
+                  "Period": "MONTH"
+                },
+                "Throttle": {
+                  "BurstLimit": 200,
+                  "RateLimit": 100
+                }
+              }
             },
             "ApiLambdaPermissionApiGateway": {
               "Type": "AWS::Lambda::Permission",
@@ -329,7 +365,7 @@
             "ApiLambdaFunctionQualifiedArn": {
               "Description": "Current Lambda function version",
               "Value": {
-                "Ref": "ApiLambdaVersionPOC3SJGEQZiuYgdrpgM0HaaiVt6dZ0TkIZavtU2xbgg"
+                "Ref": "ApiLambdaVersionLiDTCJRizYXEhrqdEu1DVYJZhAkPUUV9cE6mDR0vyg"
               },
               "Export": {
                 "Name": "sls-sorcererxstreme-backend-dev-ApiLambdaFunctionQualifiedArn"
@@ -387,7 +423,7 @@
         ],
         "artifactsS3KeyDirname": "serverless/sorcererxstreme-backend/dev/code-artifacts",
         "deploymentBucket": "serverless-framework-deployments-ap-southeast-1-a38a0297-9cd4",
-        "artifactDirectoryName": "serverless/sorcererxstreme-backend/dev/1764512173733-2025-11-30T14:16:13.733Z"
+        "artifactDirectoryName": "serverless/sorcererxstreme-backend/dev/1764558486533-2025-12-01T03:08:06.533Z"
       },
       "plugins": [
         "serverless-offline"
@@ -419,7 +455,7 @@
           "timeout": 6,
           "runtime": "nodejs20.x",
           "vpc": {},
-          "versionLogicalId": "ApiLambdaVersionPOC3SJGEQZiuYgdrpgM0HaaiVt6dZ0TkIZavtU2xbgg"
+          "versionLogicalId": "ApiLambdaVersionLiDTCJRizYXEhrqdEu1DVYJZhAkPUUV9cE6mDR0vyg"
         }
       }
     },
@@ -432,6 +468,18 @@
         "JWT_SECRET": "<REDACTED>",
         "FRONTEND_URL": "http://localhost:3000",
         "PRISMA_CLI_BINARY_TARGETS": "rhel-openssl-3.0.x"
+      },
+      "apiGateway": {
+        "usagePlan": {
+          "quota": {
+            "limit": 5000000,
+            "period": "MONTH"
+          },
+          "throttle": {
+            "burstLimit": 200,
+            "rateLimit": 100
+          }
+        }
       },
       "stage": "dev",
       "versionFunctions": true,
@@ -528,7 +576,7 @@
             "Properties": {
               "Code": {
                 "S3Bucket": "serverless-framework-deployments-ap-southeast-1-a38a0297-9cd4",
-                "S3Key": "serverless/sorcererxstreme-backend/dev/1764512173733-2025-11-30T14:16:13.733Z/sorcererxstreme-backend-api.zip"
+                "S3Key": "serverless/sorcererxstreme-backend/dev/1764558486533-2025-12-01T03:08:06.533Z/sorcererxstreme-backend-api.zip"
               },
               "Handler": "src/handler.handler",
               "Runtime": "nodejs20.x",
@@ -554,14 +602,14 @@
               "ApiLogGroup"
             ]
           },
-          "ApiLambdaVersionPOC3SJGEQZiuYgdrpgM0HaaiVt6dZ0TkIZavtU2xbgg": {
+          "ApiLambdaVersionLiDTCJRizYXEhrqdEu1DVYJZhAkPUUV9cE6mDR0vyg": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "ApiLambdaFunction"
               },
-              "CodeSha256": "gx+vbyxwTytaTg0oK7WV4B2Vej2v69kBPSm6JDTwYIM="
+              "CodeSha256": "z9kSqQRQnTnigabf0CuAyls2oBO3fpP/lv+WhGfyGdI="
             }
           },
           "ApiGatewayRestApi": {
@@ -686,7 +734,7 @@
               "ApiLambdaPermissionApiGateway"
             ]
           },
-          "ApiGatewayDeployment1764512164522": {
+          "ApiGatewayDeployment1764558477324": {
             "Type": "AWS::ApiGateway::Deployment",
             "Properties": {
               "RestApiId": {
@@ -698,6 +746,30 @@
               "ApiGatewayMethodAny",
               "ApiGatewayMethodProxyVarAny"
             ]
+          },
+          "ApiGatewayUsagePlan": {
+            "Type": "AWS::ApiGateway::UsagePlan",
+            "DependsOn": "ApiGatewayDeployment1764558477324",
+            "Properties": {
+              "ApiStages": [
+                {
+                  "ApiId": {
+                    "Ref": "ApiGatewayRestApi"
+                  },
+                  "Stage": "dev"
+                }
+              ],
+              "Description": "Usage plan for sorcererxstreme-backend dev stage",
+              "UsagePlanName": "sorcererxstreme-backend-dev",
+              "Quota": {
+                "Limit": 5000000,
+                "Period": "MONTH"
+              },
+              "Throttle": {
+                "BurstLimit": 200,
+                "RateLimit": 100
+              }
+            }
           },
           "ApiLambdaPermissionApiGateway": {
             "Type": "AWS::Lambda::Permission",
@@ -747,7 +819,7 @@
           "ApiLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "ApiLambdaVersionPOC3SJGEQZiuYgdrpgM0HaaiVt6dZ0TkIZavtU2xbgg"
+              "Ref": "ApiLambdaVersionLiDTCJRizYXEhrqdEu1DVYJZhAkPUUV9cE6mDR0vyg"
             },
             "Export": {
               "Name": "sls-sorcererxstreme-backend-dev-ApiLambdaFunctionQualifiedArn"
@@ -792,7 +864,7 @@
       "serviceProvider": null,
       "instanceParameters": null
     },
-    "serviceRawFile": "service: sorcererxstreme-backend\r\n\r\nprovider:\r\n  name: aws\r\n  runtime: nodejs20.x\r\n  region: ap-southeast-1\r\n  environment:\r\n    DATABASE_URL: ${env:DATABASE_URL}\r\n    JWT_SECRET: ${env:JWT_SECRET}\r\n    FRONTEND_URL: ${env:FRONTEND_URL}\r\n    PRISMA_CLI_BINARY_TARGETS: rhel-openssl-3.0.x\r\n\r\nbuild:\r\n  esbuild:\r\n    bundle: true\r\n    minify: true\r\n    sourcemap: false\r\n    # QUAN TRỌNG: Bỏ dòng external đi!\r\n    # Chúng ta sẽ để esbuild nén luôn cả @prisma/client vào file JS chính.\r\n    # Chỉ loại trừ file binary (vì file này không nén được).\r\n    external:\r\n      - 'aws-sdk' # Lambda có sẵn rồi\r\n      - '@prisma/client/runtime/library' # Phần này Prisma load động\r\n\r\npackage:\r\n  individually: true\r\n  excludeDevDependencies: true\r\n  patterns:\r\n    # 1. XÓA SẠCH TẤT CẢ (Làm sạch môi trường)\r\n    - '!./**'\r\n    - '!node_modules/**'\r\n    \r\n    # 2. CHỈ LẤY LẠI NHỮNG THỨ CẦN THIẾT\r\n    \r\n    # Lấy file binary của Linux (Bắt buộc)\r\n    - 'node_modules/.prisma/client/libquery_engine-rhel-openssl-3.0.x.so.node'\r\n    - 'node_modules/.prisma/client/schema.prisma'\r\n    \r\n    # Lấy code Prisma Client (cần thiết nếu không dùng external)\r\n    # Nếu esbuild bundle tốt thì không cần dòng này, nhưng an toàn thì cứ để\r\n    # - 'node_modules/@prisma/client/**' \r\n\r\nplugins:\r\n  - serverless-offline\r\n\r\nfunctions:\r\n  api:\r\n    handler: src/handler.handler\r\n    events:\r\n      - http:\r\n          path: /\r\n          method: ANY\r\n      - http:\r\n          path: /{proxy+}\r\n          method: ANY",
+    "serviceRawFile": "service: sorcererxstreme-backend\r\n\r\nprovider:\r\n  name: aws\r\n  runtime: nodejs20.x\r\n  region: ap-southeast-1\r\n  environment:\r\n    DATABASE_URL: ${ssm:/sorcererxstreme/dev/database_url, true}\r\n    JWT_SECRET: ${ssm:/sorcererxstreme/dev/jwt_secret, true}\r\n    FRONTEND_URL: ${env:FRONTEND_URL}\r\n    PRISMA_CLI_BINARY_TARGETS: rhel-openssl-3.0.x\r\n  apiGateway:\r\n    # Throttling\r\n    usagePlan:\r\n      quota:\r\n        limit: 5000000\r\n        period: MONTH\r\n      throttle:\r\n        burstLimit: 200\r\n        rateLimit: 100\r\n\r\nbuild:\r\n  esbuild:\r\n    bundle: true\r\n    minify: true\r\n    sourcemap: false\r\n    external:\r\n      - \"aws-sdk\"\r\n      - \"@prisma/client/runtime/library\"\r\n\r\npackage:\r\n  individually: true\r\n  excludeDevDependencies: true\r\n  patterns:\r\n    - \"!./**\"\r\n    - \"!node_modules/**\"\r\n    - \"node_modules/.prisma/client/libquery_engine-rhel-openssl-3.0.x.so.node\"\r\n    - \"node_modules/.prisma/client/schema.prisma\"\r\n\r\n    # Lấy code Prisma Client (cần thiết nếu không dùng external)\r\n    # Nếu esbuild bundle tốt thì không cần dòng này, nhưng an toàn thì cứ để\r\n    # - 'node_modules/@prisma/client/**'\r\n\r\nplugins:\r\n  - serverless-offline\r\n\r\nfunctions:\r\n  api:\r\n    handler: src/handler.handler\r\n    events:\r\n      - http:\r\n          path: /\r\n          method: ANY\r\n      - http:\r\n          path: /{proxy+}\r\n          method: ANY\r\n",
     "command": [
       "deploy"
     ],
@@ -805,12 +877,12 @@
     "serviceProviderAwsCfStackName": "sorcererxstreme-backend-dev",
     "serviceProviderAwsCfStackId": "arn:aws:cloudformation:ap-southeast-1:958923398802:stack/sorcererxstreme-backend-dev/d31df160-cdf2-11f0-a210-02a637576fb5",
     "serviceProviderAwsCfStackCreated": "2025-11-30T13:45:26.428Z",
-    "serviceProviderAwsCfStackUpdated": "2025-11-30T14:09:10.925Z",
-    "serviceProviderAwsCfStackStatus": "UPDATE_ROLLBACK_COMPLETE",
+    "serviceProviderAwsCfStackUpdated": "2025-11-30T14:16:36.503Z",
+    "serviceProviderAwsCfStackStatus": "UPDATE_COMPLETE",
     "serviceProviderAwsCfStackOutputs": [
       {
         "OutputKey": "ApiLambdaFunctionQualifiedArn",
-        "OutputValue": "arn:aws:lambda:ap-southeast-1:958923398802:function:sorcererxstreme-backend-dev-api:2",
+        "OutputValue": "arn:aws:lambda:ap-southeast-1:958923398802:function:sorcererxstreme-backend-dev-api:3",
         "Description": "Current Lambda function version",
         "ExportName": "sls-sorcererxstreme-backend-dev-ApiLambdaFunctionQualifiedArn"
       },
@@ -919,7 +991,7 @@
           "Properties": {
             "Code": {
               "S3Bucket": "serverless-framework-deployments-ap-southeast-1-a38a0297-9cd4",
-              "S3Key": "serverless/sorcererxstreme-backend/dev/1764512173733-2025-11-30T14:16:13.733Z/sorcererxstreme-backend-api.zip"
+              "S3Key": "serverless/sorcererxstreme-backend/dev/1764558486533-2025-12-01T03:08:06.533Z/sorcererxstreme-backend-api.zip"
             },
             "Handler": "src/handler.handler",
             "Runtime": "nodejs20.x",
@@ -945,14 +1017,14 @@
             "ApiLogGroup"
           ]
         },
-        "ApiLambdaVersionPOC3SJGEQZiuYgdrpgM0HaaiVt6dZ0TkIZavtU2xbgg": {
+        "ApiLambdaVersionLiDTCJRizYXEhrqdEu1DVYJZhAkPUUV9cE6mDR0vyg": {
           "Type": "AWS::Lambda::Version",
           "DeletionPolicy": "Retain",
           "Properties": {
             "FunctionName": {
               "Ref": "ApiLambdaFunction"
             },
-            "CodeSha256": "gx+vbyxwTytaTg0oK7WV4B2Vej2v69kBPSm6JDTwYIM="
+            "CodeSha256": "z9kSqQRQnTnigabf0CuAyls2oBO3fpP/lv+WhGfyGdI="
           }
         },
         "ApiGatewayRestApi": {
@@ -1077,7 +1149,7 @@
             "ApiLambdaPermissionApiGateway"
           ]
         },
-        "ApiGatewayDeployment1764512164522": {
+        "ApiGatewayDeployment1764558477324": {
           "Type": "AWS::ApiGateway::Deployment",
           "Properties": {
             "RestApiId": {
@@ -1089,6 +1161,30 @@
             "ApiGatewayMethodAny",
             "ApiGatewayMethodProxyVarAny"
           ]
+        },
+        "ApiGatewayUsagePlan": {
+          "Type": "AWS::ApiGateway::UsagePlan",
+          "DependsOn": "ApiGatewayDeployment1764558477324",
+          "Properties": {
+            "ApiStages": [
+              {
+                "ApiId": {
+                  "Ref": "ApiGatewayRestApi"
+                },
+                "Stage": "dev"
+              }
+            ],
+            "Description": "Usage plan for sorcererxstreme-backend dev stage",
+            "UsagePlanName": "sorcererxstreme-backend-dev",
+            "Quota": {
+              "Limit": 5000000,
+              "Period": "MONTH"
+            },
+            "Throttle": {
+              "BurstLimit": 200,
+              "RateLimit": 100
+            }
+          }
         },
         "ApiLambdaPermissionApiGateway": {
           "Type": "AWS::Lambda::Permission",
@@ -1138,7 +1234,7 @@
         "ApiLambdaFunctionQualifiedArn": {
           "Description": "Current Lambda function version",
           "Value": {
-            "Ref": "ApiLambdaVersionPOC3SJGEQZiuYgdrpgM0HaaiVt6dZ0TkIZavtU2xbgg"
+            "Ref": "ApiLambdaVersionLiDTCJRizYXEhrqdEu1DVYJZhAkPUUV9cE6mDR0vyg"
           },
           "Export": {
             "Name": "sls-sorcererxstreme-backend-dev-ApiLambdaFunctionQualifiedArn"
