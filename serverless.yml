@@ -2,11 +2,13 @@ service: sorcererxstreme-backend
 
 provider:
   name: aws
+  timeout: 29
   runtime: nodejs20.x
   region: ap-southeast-1
   environment:
     DATABASE_URL: ${ssm:/sorcererxstreme/dev/database_url, true}
     JWT_SECRET: ${ssm:/sorcererxstreme/dev/jwt_secret, true}
+    AI_SERVICE_URL: ${env:META_SERVICE_URL}
     FRONTEND_URL: ${env:FRONTEND_URL}
     PRISMA_CLI_BINARY_TARGETS: rhel-openssl-3.0.x
   apiGateway:

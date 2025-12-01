@@ -1,7 +1,8 @@
 import axios from 'axios';
 
 // URL của Python Server
-const AI_API_URL = process.env.AI_API_URL || "http://localhost:5001/api/mystic";
+const AI_API_URL = process.env.META_SERVICE_URL || "http://localhost:5001/api/mystic";
+// const AI_API_URL = process.env.AI_API_URL || "http://localhost:5001/api/mystic";
 
 export const AIService = {
     async callMysticEndpoint(payload: any) {

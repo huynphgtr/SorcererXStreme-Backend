@@ -91,7 +91,7 @@
       "Properties": {
         "Code": {
           "S3Bucket": "serverless-framework-deployments-ap-southeast-1-a38a0297-9cd4",
-          "S3Key": "serverless/sorcererxstreme-backend/dev/1764558486533-2025-12-01T03:08:06.533Z/sorcererxstreme-backend-api.zip"
+          "S3Key": "serverless/sorcererxstreme-backend/dev/1764572322926-2025-12-01T06:58:42.926Z/sorcererxstreme-backend-api.zip"
         },
         "Handler": "src/handler.handler",
         "Runtime": "nodejs20.x",
@@ -117,14 +117,14 @@
         "ApiLogGroup"
       ]
     },
-    "ApiLambdaVersionLiDTCJRizYXEhrqdEu1DVYJZhAkPUUV9cE6mDR0vyg": {
+    "ApiLambdaVersionJt1tKDfifCp2dtEWPIWDM74BAORbQnk0HFbOrH3nksw": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "ApiLambdaFunction"
         },
-        "CodeSha256": "z9kSqQRQnTnigabf0CuAyls2oBO3fpP/lv+WhGfyGdI="
+        "CodeSha256": "70dTSQlJcHpwW767A55nj2TthcgBNL6XfxqtX9jF5o4="
       }
     },
     "ApiGatewayRestApi": {
@@ -249,7 +249,7 @@
         "ApiLambdaPermissionApiGateway"
       ]
     },
-    "ApiGatewayDeployment1764558477324": {
+    "ApiGatewayDeployment1764572309348": {
       "Type": "AWS::ApiGateway::Deployment",
       "Properties": {
         "RestApiId": {
@@ -264,7 +264,7 @@
     },
     "ApiGatewayUsagePlan": {
       "Type": "AWS::ApiGateway::UsagePlan",
-      "DependsOn": "ApiGatewayDeployment1764558477324",
+      "DependsOn": "ApiGatewayDeployment1764572309348",
       "Properties": {
         "ApiStages": [
           {
@@ -334,7 +334,7 @@
     "ApiLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "ApiLambdaVersionLiDTCJRizYXEhrqdEu1DVYJZhAkPUUV9cE6mDR0vyg"
+        "Ref": "ApiLambdaVersionJt1tKDfifCp2dtEWPIWDM74BAORbQnk0HFbOrH3nksw"
       },
       "Export": {
         "Name": "sls-sorcererxstreme-backend-dev-ApiLambdaFunctionQualifiedArn"
