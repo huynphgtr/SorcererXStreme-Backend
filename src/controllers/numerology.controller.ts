@@ -34,7 +34,7 @@ async function handleNumerologyLogic(
     feature_type: "overview",
     user_context: userContext
   };
-  const aiResponse = await AIService.callMysticEndpoint(aiPayload);
+  // const aiResponse = await AIService.callMysticEndpoint(aiPayload);
 
   try {
     await VIPService.incrementUsage(userId, 'numerology');
@@ -43,8 +43,8 @@ async function handleNumerologyLogic(
   }
   // console.log('Test inccrement usage for numerology');
 
-  const answer = aiResponse?.answer || aiResponse;
-  return { analysis: answer };
+  // const answer = aiResponse?.answer || aiResponse;
+  // return { analysis: answer };
 
 }
 

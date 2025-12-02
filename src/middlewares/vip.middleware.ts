@@ -6,21 +6,22 @@ import { VIPTier } from '../types/vip.types';
 export const checkFeatureLimit = (feature: string) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
-      // const userId = (req as any).userId;
       const userId = req.user?.id;
-      console.log(`[VIP Middleware] Feature: ${feature}, UserId: ${userId}`);
-
+      // console.log(`[VIP Middleware] Feature: ${feature}, UserId: ${userId}`);
       if (!userId) {
         console.log('[VIP Middleware] No userId found');
         return res.status(401).json({ message: 'Unauthorized' });
       }
 
       const featureMap: Record<string, any> = {
-        tarot: 'tarotReadingsPerDay',
+        tarotOverview: 'tarotOverviewPerDay',
+        tarotQuestion: 'tarotQuestionPerDay',
+        astrologyOverview: 'astrologyOverviewPerDay',
+        astrologyLove: 'astrologyLovePerDay',
         chat: 'chatMessagesPerDay',
-        astrology: 'astrologyAnalysisPerDay',
-        fortune: 'fortuneReadingsPerDay',
-        numerology: 'numerologyAnalysisPerDay'
+        horoscopeDaily: 'horoscopeDailyPerDay',
+        horoscopeNatalChart: 'horoscopeNatalChart',
+        numerology: 'numerologyOverviewPerDay'
       };
 
       const featureKey = featureMap[feature];
@@ -32,7 +33,7 @@ export const checkFeatureLimit = (feature: string) => {
 
       if (!access.allowed) {
         return res.status(403).json({
-          message: 'Feature limit reached',
+          message: `Feature limit reached for ${feature}`,
           error: 'LIMIT_REACHED',
           currentUsage: access.currentUsage,
           limit: access.limit,

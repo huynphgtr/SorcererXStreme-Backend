@@ -36,7 +36,7 @@ async function handleAstrologyLogic(
       user_context: userContext,
       partner_context: partnerContext ?? null
     };
-    const aiResponse = await AIService.callMysticEndpoint(aiPayload);
+    // const aiResponse = await AIService.callMysticEndpoint(aiPayload);
   
     // 3. Handle VIP Usage 
     try {
@@ -49,9 +49,9 @@ async function handleAstrologyLogic(
       console.warn('Failed to increment usage counter:', usageError);
     }
 
-    const answer = aiResponse?.answer || aiResponse;
+    // const answer = aiResponse?.answer || aiResponse;
     // console.log('[Astrology] Extracted answer length:', answer?.length || 0); 
-    return { analysis: answer };
+    // return { analysis: answer };
 
 }
 

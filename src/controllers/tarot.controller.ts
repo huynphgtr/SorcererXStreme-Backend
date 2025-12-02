@@ -52,7 +52,7 @@ async function handleTarotLogic(
       }))
     }
   };
-  const aiResponse = await AIService.callMysticEndpoint(aiPayload);
+  // const aiResponse = await AIService.callMysticEndpoint(aiPayload);
   
   // 3. Handle VIP Usage
   try {
@@ -65,8 +65,8 @@ async function handleTarotLogic(
   }
 
   // console.log('Test increment usage for tarot');
-  const answer = aiResponse?.answer || aiResponse;
-  return { analysis: answer };
+  // const answer = aiResponse?.answer || aiResponse;
+  // return { analysis: answer };
 }
 
 export async function processTarotRequest(req: AuthRequest, res: Response): Promise<void> {

@@ -19,8 +19,7 @@ const app: Application = express();
 // --- CẤU HÌNH CORS ---
 const allowedOrigins = [
   process.env.FRONTEND_URL || 'http://localhost:3000',
-  'http://localhost:3001',
-  'https://sorcererxstreme.com' 
+  'http://localhost:3001'
 ];
 
 app.use(cors({
