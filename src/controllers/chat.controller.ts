@@ -1,84 +1,177 @@
-import { Response } from 'express';
-import { AuthRequest } from '../middlewares/auth.middleware';
+import { Request, Response } from 'express';
 import { VIPService } from '../services/vip.service';
-import { ChatService } from '../services/chat.service';
+import { ChatService } from '../services/chat.service'; 
+import { AIService } from '../services/ai.service';
 
-
-interface ChatPayload {
-    sessionId: string;
-    message: string;
+// Interface cho Request có user (đã qua middleware auth)
+interface AuthRequest extends Request {
+  user?: {
+    id: string;
+  };
 }
 
-export async function sendMessage(req: AuthRequest, res: Response): Promise<void> {
-    const { sessionId, message }: ChatPayload = req.body;
-    const userId = req.user?.id; 
+interface ChatContext {
+  name?: string;
+  gender?: string;
+  birth_date?: string;
+  birth_time?: string;
+  birth_place?: string;
+  [key: string]: any;
+}
 
-    if (!userId) {
-      res.status(401).json({ message: 'Unauthorized: User ID not found in token.' });
-      return;
-    }
+function validateRequiredFields(ctx: any, label: string): string | null {
+  if (!ctx) return `Missing ${label} object`;
+  
+  const required = ['name', 'birth_date', 'birth_time', 'gender'];
+  const missing = required.find(field => !ctx[field] || ctx[field].toString().trim() === '');
 
-    if (!sessionId || typeof message !== 'string' || message.trim().length === 0) {
-      res.status(400).json({ message: 'Invalid sessionId or message content is required.' });
-      return;
-    }
+  if (missing) return `Field '${missing}' is required in ${label}`;
+  return null;
+}
 
-    try {
-        // 1. Kiểm tra Trạng thái VIP và Giới hạn Sử dụng
-        // const isVip = await VIPService.isVip(userId);
-        // let usageCheck: { success: boolean, remaining: number | null } = { success: true, remaining: null };
+export async function sendMessage(params: {
+  mode: 'question';
+  userContext: ChatContext;
+  partnerContext?: ChatContext;
+  userId: string;
+  sessionId: string;
+  question: string;
+}) {
+  const { mode, userContext, partnerContext, sessionId, question, userId } = params;
 
-        // if (!isVip) {
-        //     // Logic kiểm tra và trừ lượt sử dụng cho người dùng FREE
-        //     usageCheck = await VIPService.incrementUsage(userId, 'chat');
-            
-        //     if (!usageCheck.success) {
-        //         return res.status(403).json({
-        //             message: 'Hết lượt chat miễn phí hôm nay. Vui lòng nâng cấp gói VIP.',
-        //             code: 'USAGE_LIMIT_EXCEEDED'
-        //         });
-        //     }
-        // }
-        
-        // 2. Lấy Ngữ cảnh (Lịch sử chat)
-        // Lấy lịch sử tin nhắn chi tiết từ DynamoDB để duy trì ngữ cảnh
-        // const contextHistory = await ChatService.getContextHistory(sessionId);
-        
-        // 3. Gửi sang AI Server và Nhận Phản hồi
-        // const aiResponseContent = await mockAIService.generateResponse(
-        //     message,
-        //     contextHistory, // Truyền lịch sử vào hàm AI
-        //     // isVip
-        //     false
-        // );
-        
-        // 4. Lưu tin nhắn mới và Phản hồi AI vào DynamoDB & Cập nhật timestamp RDS
-        // await ChatService.saveNewMessages(
-        //     sessionId,
-        //     userId, // Cần User ID để lưu aiResponse (cho audit log)
-        //     message,
-        //     aiResponseContent
-        // );
+  // 1. Chuẩn bị payload gửi cho AI Service
+  const aiPayload = {
+    domain: "astrology",
+    feature_type: mode,
+    user_context: userContext,
+    partner_context: partnerContext ?? null,
+    sessionId: sessionId,
+    question: question
+  };
 
-        // 5. Trả về Phản hồi
-        res.status(200).json({ 
-            note: 'Chat service is under maintenance. AI response functionality is temporarily disabled.',
-            sessionId: sessionId,
-            message: message,
-            // response: aiResponseContent, 
-            // isVip: isVip,
-            // remainingUses: usageCheck.remaining
-        });
+  try {
+    // 3. Gọi AI Service
+    // const aiResponseContent = await AIService.sendChatMessage(aiPayload);
+    // return {
+    //   sessionId,
+    //   question,
+    //   answer: aiResponseContent
+    // };
+    return {aiPayload};
 
-    } catch (error) {
-        console.error('Lỗi xử lý tin nhắn:', error);
-        res.status(500).json({ message: 'Internal server error' });
-    }
+  } catch (error) {
+    console.error('Error inside sendMessage:', error);
+    throw error; 
+  }
 }
 
 export async function createNewSession(req: AuthRequest, res: Response) {
-  const userId = req.user?.id;
-  const { initialTitle } = req.body;
-  const sessionId = await ChatService.createSession(userId, initialTitle);
-  res.status(201).json({ sessionId: sessionId });
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+    const { initialTitle } = req.body;
+    const sessionId = await ChatService.createSession(userId, initialTitle);
+    res.status(201).json({ sessionId: sessionId });
+  } catch (error) {
+    res.status(500).json({ message: 'Error creating session' });
+  }
+}
+
+export async function processMessage(req: AuthRequest, res: Response): Promise<void> {
+  try {
+    const userId = req.user?.id;
+
+    if (!userId) {
+      res.status(401).json({ message: 'Unauthorized' });
+      return;
+    }
+
+    const { domain, feature_type, user_context, partner_context, data } = req.body ?? {};
+    
+    const sessionId = data?.sessionId;
+    const question = data?.question;
+
+    if (!sessionId) {
+      res.status(400).json({ message: 'Invalid sessionId in data object' });
+      return;
+    }
+
+    if (!question || question.toString().trim() === '') {
+      res.status(400).json({ message: 'Question cannot be empty' });
+      return;
+    }
+
+    if (domain !== 'chatbot') {
+      res.status(400).json({ message: 'Invalid domain' });
+      return;
+    }
+
+    if (feature_type !== 'question') {
+      res.status(400).json({ message: "Invalid feature_type. Expected 'question'" });
+      return;
+    }
+
+    const userError = validateRequiredFields(user_context, 'user_context');
+    if (userError) {
+      res.status(400).json({ message: userError });
+      return;
+    }
+    if (partner_context) {
+      const partnerError = validateRequiredFields(partner_context, 'partner_context');
+      if (partnerError) {
+        res.status(400).json({ message: partnerError });
+        return;
+      }
+    }
+
+    // ==================================================================
+    // 4. VIP CHECK: Kiểm tra giới hạn Chat
+    // ==================================================================
+    const accessCheck = await VIPService.checkFeatureAccess(userId, 'chatMessagesPerDay');
+
+    if (!accessCheck.allowed) {
+       res.status(403).json({
+        success: false,
+        code: 'LIMIT_REACHED',
+        message: 'Bạn đã hết lượt chat với AI trong ngày.',
+        data: {
+          tier: accessCheck.tier,
+          limit: accessCheck.limit,
+          currentUsage: accessCheck.currentUsage
+        }
+      });
+      return;
+    }
+
+    // ==================================================================
+    // 5. PROCESS LOGIC: Gọi hàm xử lý tin nhắn
+    // ==================================================================
+    const result = await sendMessage({
+      mode: feature_type,
+      userContext: user_context,
+      partnerContext: partner_context ?? undefined,
+      userId: userId,
+      sessionId: sessionId,
+      question: question,
+    });
+
+    // ==================================================================
+    // 6. INCREMENT USAGE: Tăng lượt sử dụng sau khi thành công
+    // ==================================================================
+    await VIPService.incrementUsage(userId, 'chat');
+    res.status(200).json({
+      success: true,
+      data: result,
+      usage: {
+        current: (accessCheck.currentUsage || 0) + 1,
+        limit: accessCheck.limit
+      }
+    });
+
+  } catch (error: any) {
+    console.error('Process message error:', error);
+    res.status(500).json({ message: 'Internal Server Error', error: error.message });
+  }
 }
