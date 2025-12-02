@@ -96,6 +96,7 @@ model UsageStats {
   astrology_love_today     Int @default(0)
   numerology_today Int @default(0)
   horoscope_daily_today Int @default(0)
+  horoscope_natal_chart Int @default(0)
   last_reset_date DateTime @default(now())
   user            User     @relation(fields: [user_id], references: [id])
 }

@@ -28,7 +28,7 @@ export interface VIPFeatureLimits {
   
   // Horoscope (Tử vi hàng ngày)
   horoscopeDailyPerDay: number;
-  comprehensiveHoroscope: boolean;
+  horoscopeNatalChart: number;
   
   // Numerology (Thần số học)
   numerologyOverviewPerDay: number;
@@ -55,11 +55,11 @@ export const VIP_TIER_LIMITS: Record<VIPTier, VIPFeatureLimits> = {
     // Astrology: 5 overview, 1 love
     astrologyOverviewPerDay: 5,
     astrologyLovePerDay: 1,
-    // astrology3DVisualization: false,
+    
 
     // Horoscope: 5 daily
     horoscopeDailyPerDay: 5,
-    comprehensiveHoroscope: false,
+    horoscopeNatalChart: 0,
 
     // Numerology: 5 overview
     numerologyOverviewPerDay: 5,
@@ -83,7 +83,7 @@ export const VIP_TIER_LIMITS: Record<VIPTier, VIPFeatureLimits> = {
     astrologyLovePerDay: -1, 
 
     horoscopeDailyPerDay: -1, 
-    comprehensiveHoroscope: true,
+    horoscopeNatalChart: -1,
 
     numerologyOverviewPerDay: -1, 
 
@@ -120,12 +120,9 @@ export const VIP_PLANS: VIPPlanInfo[] = [
       '10 tin nhắn chat AI/ngày',
       '5 lượt Tarot tổng quan/ngày',
       '5 câu hỏi Tarot cụ thể/ngày',
-      '5 phân tích bản đồ sao/ngày',
       '1 phân tích tình duyên/ngày',
       '5 phân tích thần số học/ngày',
       '5 xem tử vi hàng ngày/ngày',
-      'Lưu lịch sử 7 ngày',
-      'Có quảng cáo'
     ]
   },
   {

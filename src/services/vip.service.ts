@@ -54,7 +54,8 @@ export class VIPService {
           astrology_overview_today: 0,
           astrology_love_today: 0,
           numerology_today: 0,
-          horoscope_daily_today: 0
+          horoscope_daily_today: 0,
+          horoscope_natal_chart: 0
         }
       });
       return { allowed: true, currentUsage: 0, limit: featureLimit as number, tier };
@@ -91,7 +92,8 @@ export class VIPService {
       astrologyOverviewPerDay: 'astrology_overview_today',
       astrologyLovePerDay: 'astrology_love_today',
       
-      horoscopeDailyPerDay: 'horoscope_daily_today', // Đã đổi tên từ fortune
+      horoscopeDailyPerDay: 'horoscope_daily_today', 
+      horoscopeNatalChart: 'horoscope_natal_chart',
       numerologyOverviewPerDay: 'numerology_today'
     };
 
@@ -117,7 +119,7 @@ export class VIPService {
     'chat' | 
     'tarot_overview' | 'tarot_question' | 
     'astrology_overview' | 'astrology_love' | 
-    'horoscope_daily' | 'numerology'
+    'horoscope_daily' | 'horoscope_natal_chart' | 'numerology'
   ): Promise<void> {
     
     // Map action key sang column DB
@@ -128,6 +130,7 @@ export class VIPService {
       astrology_overview: 'astrology_overview_today',
       astrology_love: 'astrology_love_today',
       horoscope_daily: 'horoscope_daily_today',
+      horoscope_natal_chart: 'horoscope_natal_chart',
       numerology: 'numerology_today'
     };
 
