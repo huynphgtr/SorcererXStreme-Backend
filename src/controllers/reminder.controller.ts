@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { ReminderService } from '../services/reminder.service';
+import { updateReminderSchema } from '../validators/reminder.validator';
 import { z } from 'zod';
 
 interface AuthRequest extends Request {
@@ -7,14 +8,6 @@ interface AuthRequest extends Request {
         id: string;
     };
 }
-
-// Giả định Schema Validator chỉ cho phép is_subscribed
-// Nếu bạn chưa có file validator, đây là định nghĩa cơ bản
-export const updateReminderSchema = z.object({
-    is_subscribed: z.boolean({
-        error: "Trạng thái đăng ký là bắt buộc (true/false)."
-    }),
-});
 
 // --- Controller Logic ---
 
@@ -74,7 +67,6 @@ export async function updateReminderSettings(req: AuthRequest, res: Response): P
 
     } catch (error) {
         if (error instanceof z.ZodError) {
-            // Xử lý lỗi xác thực từ Zod
             res.status(400).json({ message: 'Validation failed', errors: error.flatten().fieldErrors });
             return;
         }

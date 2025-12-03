@@ -21,6 +21,15 @@ provider:
       throttle:
         burstLimit: 200
         rateLimit: 100
+  iam:
+    role:
+      statements:
+        - Effect: 'Allow'   # <--- Dùng dấu gạch ngang
+          Action:
+            - 'ses:SendEmail'
+            - 'ses:SendRawEmail'
+          Resource: '*'
+  
 
 build:
   esbuild:
@@ -57,3 +66,19 @@ functions:
       - http:
           path: /{proxy+}
           method: ANY
+
+  dailyEmailJob:
+    handler: 'src/jobs/cron.runDailyJob'    
+    timeout: 60 # Cho 60s để xử lý DB và gửi mail
+    
+    events: [
+      {
+        schedule: {
+          # Chạy lúc 00:00 UTC hằng ngày (Tức 07:00 sáng giờ VN)
+          rate: ['cron(0 1 * * ? *)'], 
+          enabled: true, # Set false nếu muốn tạm tắt
+        },
+      },
+    ]
+
+
