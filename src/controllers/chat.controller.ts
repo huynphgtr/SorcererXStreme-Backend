@@ -41,24 +41,24 @@ export async function sendMessage(params: {
 
   // 1. Chuẩn bị payload gửi cho AI Service
   const aiPayload = {
-    domain: "astrology",
+    domain: "chatbot",
     feature_type: mode,
     user_context: userContext,
     partner_context: partnerContext ?? null,
-    sessionId: sessionId,
-    question: question
+    data: {
+      sessionId: sessionId,
+      question: question, 
+    }
   };
 
   try {
     // 3. Gọi AI Service
-    // const aiResponseContent = await AIService.sendChatMessage(aiPayload);
-    // return {
-    //   sessionId,
-    //   question,
-    //   answer: aiResponseContent
-    // };
-    return {aiPayload};
-
+    const aiResponseContent = await AIService.sendChatMessage(aiPayload);
+    return {
+      // sessionId,
+      // question,
+      answer: aiResponseContent
+    };
   } catch (error) {
     console.error('Error inside sendMessage:', error);
     throw error; 

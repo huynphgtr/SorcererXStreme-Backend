@@ -6,12 +6,14 @@
     },
     "provider": {
       "name": "aws",
+      "timeout": 29,
       "runtime": "nodejs20.x",
       "region": "ap-southeast-1",
       "environment": {
         "DATABASE_URL": "postgresql://neondb_owner:npg_6dYBHrUN3Vxm@ep-crimson-heart-a1lg2l77-pooler.ap-southeast-1.aws.neon.tech/SorcererXStreme?sslmode=require&channel_binding=require",
         "JWT_SECRET": "your-super-secret-jwt-key-here-change-in-production",
-        "FRONTEND_URL": "http://localhost:3000",
+        "AI_SERVICE_URL": "https://o9i37lplba.execute-api.ap-southeast-1.amazonaws.com/deploy1/metaphysical",
+        "FRONTEND_URL": "https://main.d30n5a8g6cs88k.amplifyapp.com/",
         "PRISMA_CLI_BINARY_TARGETS": "rhel-openssl-3.0.x"
       },
       "apiGateway": {
@@ -121,18 +123,19 @@
             "Properties": {
               "Code": {
                 "S3Bucket": "serverless-framework-deployments-ap-southeast-1-a38a0297-9cd4",
-                "S3Key": "serverless/sorcererxstreme-backend/dev/1764572322926-2025-12-01T06:58:42.926Z/sorcererxstreme-backend-api.zip"
+                "S3Key": "serverless/sorcererxstreme-backend/dev/1764735351004-2025-12-03T04:15:51.004Z/sorcererxstreme-backend-api.zip"
               },
               "Handler": "src/handler.handler",
               "Runtime": "nodejs20.x",
               "FunctionName": "sorcererxstreme-backend-dev-api",
               "MemorySize": 1024,
-              "Timeout": 6,
+              "Timeout": 29,
               "Environment": {
                 "Variables": {
                   "DATABASE_URL": "postgresql://neondb_owner:npg_6dYBHrUN3Vxm@ep-crimson-heart-a1lg2l77-pooler.ap-southeast-1.aws.neon.tech/SorcererXStreme?sslmode=require&channel_binding=require",
                   "JWT_SECRET": "your-super-secret-jwt-key-here-change-in-production",
-                  "FRONTEND_URL": "http://localhost:3000",
+                  "AI_SERVICE_URL": "https://o9i37lplba.execute-api.ap-southeast-1.amazonaws.com/deploy1/metaphysical",
+                  "FRONTEND_URL": "https://main.d30n5a8g6cs88k.amplifyapp.com/",
                   "PRISMA_CLI_BINARY_TARGETS": "rhel-openssl-3.0.x"
                 }
               },
@@ -147,14 +150,14 @@
               "ApiLogGroup"
             ]
           },
-          "ApiLambdaVersionJt1tKDfifCp2dtEWPIWDM74BAORbQnk0HFbOrH3nksw": {
+          "ApiLambdaVersionPBQxpyTVJQ9OltyYciMTgyZtSYdiGldu9K5mfths8A": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "ApiLambdaFunction"
               },
-              "CodeSha256": "70dTSQlJcHpwW767A55nj2TthcgBNL6XfxqtX9jF5o4="
+              "CodeSha256": "GVhfA+t4pMH7xrnIS9eBm7esXFs+xFOHvMSfr7H/EMM="
             }
           },
           "ApiGatewayRestApi": {
@@ -279,7 +282,7 @@
               "ApiLambdaPermissionApiGateway"
             ]
           },
-          "ApiGatewayDeployment1764572309348": {
+          "ApiGatewayDeployment1764735342320": {
             "Type": "AWS::ApiGateway::Deployment",
             "Properties": {
               "RestApiId": {
@@ -294,7 +297,7 @@
           },
           "ApiGatewayUsagePlan": {
             "Type": "AWS::ApiGateway::UsagePlan",
-            "DependsOn": "ApiGatewayDeployment1764572309348",
+            "DependsOn": "ApiGatewayDeployment1764735342320",
             "Properties": {
               "ApiStages": [
                 {
@@ -364,7 +367,7 @@
           "ApiLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "ApiLambdaVersionJt1tKDfifCp2dtEWPIWDM74BAORbQnk0HFbOrH3nksw"
+              "Ref": "ApiLambdaVersionPBQxpyTVJQ9OltyYciMTgyZtSYdiGldu9K5mfths8A"
             },
             "Export": {
               "Name": "sls-sorcererxstreme-backend-dev-ApiLambdaFunctionQualifiedArn"
@@ -428,10 +431,10 @@
           "artifact": "D:\\FCJ\\SorcererXStreme-Backend\\.serverless\\build\\sorcererxstreme-backend-api.zip"
         },
         "memory": 1024,
-        "timeout": 6,
+        "timeout": 29,
         "runtime": "nodejs20.x",
         "vpc": {},
-        "versionLogicalId": "ApiLambdaVersionJt1tKDfifCp2dtEWPIWDM74BAORbQnk0HFbOrH3nksw"
+        "versionLogicalId": "ApiLambdaVersionPBQxpyTVJQ9OltyYciMTgyZtSYdiGldu9K5mfths8A"
       }
     },
     "configValidationMode": "warn",
@@ -463,7 +466,7 @@
         ],
         "artifactsS3KeyDirname": "serverless/sorcererxstreme-backend/dev/code-artifacts",
         "deploymentBucket": "serverless-framework-deployments-ap-southeast-1-a38a0297-9cd4",
-        "artifactDirectoryName": "serverless/sorcererxstreme-backend/dev/1764572322926-2025-12-01T06:58:42.926Z"
+        "artifactDirectoryName": "serverless/sorcererxstreme-backend/dev/1764735351004-2025-12-03T04:15:51.004Z"
       },
       "plugins": {
         "$ref": "$[\"service\"][\"plugins\"]"
@@ -481,7 +484,7 @@
   },
   "package": {
     "individually": true,
-    "artifactDirectoryName": "serverless/sorcererxstreme-backend/dev/1764572322926-2025-12-01T06:58:42.926Z",
+    "artifactDirectoryName": "serverless/sorcererxstreme-backend/dev/1764735351004-2025-12-03T04:15:51.004Z",
     "artifact": ""
   }
 }
