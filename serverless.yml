@@ -2,43 +2,55 @@ service: sorcererxstreme-backend
 
 provider:
   name: aws
+  timeout: 29
   runtime: nodejs20.x
   region: ap-southeast-1
   environment:
-    DATABASE_URL: ${env:DATABASE_URL}
-    JWT_SECRET: ${env:JWT_SECRET}
-    FRONTEND_URL: ${env:FRONTEND_URL}
+    DATABASE_URL: ${ssm:/sorcererxstreme/dev/database_url, true}
+    JWT_SECRET: ${ssm:/sorcererxstreme/dev/jwt_secret, true}
+    AI_SERVICE_URL: ${env:META_SERVICE_URL}
+    CHAT_SERVICE_URL: ${env:CHAT_SERVICE_URL}
+    FRONTEND_URL: ${ssm:/sorcererxstreme/dev/frontend_url, true}
     PRISMA_CLI_BINARY_TARGETS: rhel-openssl-3.0.x
+  apiGateway:
+    # Throttling
+    usagePlan:
+      quota:
+        limit: 5000000
+        period: MONTH
+      throttle:
+        burstLimit: 200
+        rateLimit: 100
+  iam:
+    role:
+      statements:
+        - Effect: 'Allow'   # <--- Dùng dấu gạch ngang
+          Action:
+            - 'ses:SendEmail'
+            - 'ses:SendRawEmail'
+          Resource: '*'  
 
 build:
   esbuild:
     bundle: true
     minify: true
     sourcemap: false
-    # QUAN TRỌNG: Bỏ dòng external đi!
-    # Chúng ta sẽ để esbuild nén luôn cả @prisma/client vào file JS chính.
-    # Chỉ loại trừ file binary (vì file này không nén được).
     external:
-      - 'aws-sdk' # Lambda có sẵn rồi
-      - '@prisma/client/runtime/library' # Phần này Prisma load động
+      - "aws-sdk"
+      - "@prisma/client/runtime/library"
 
 package:
   individually: true
   excludeDevDependencies: true
   patterns:
-    # 1. XÓA SẠCH TẤT CẢ (Làm sạch môi trường)
-    - '!./**'
-    - '!node_modules/**'
-    
-    # 2. CHỈ LẤY LẠI NHỮNG THỨ CẦN THIẾT
-    
-    # Lấy file binary của Linux (Bắt buộc)
-    - 'node_modules/.prisma/client/libquery_engine-rhel-openssl-3.0.x.so.node'
-    - 'node_modules/.prisma/client/schema.prisma'
-    
+    - "!./**"
+    - "!node_modules/**"
+    - "node_modules/.prisma/client/libquery_engine-rhel-openssl-3.0.x.so.node"
+    - "node_modules/.prisma/client/schema.prisma"
+
     # Lấy code Prisma Client (cần thiết nếu không dùng external)
     # Nếu esbuild bundle tốt thì không cần dòng này, nhưng an toàn thì cứ để
-    # - 'node_modules/@prisma/client/**' 
+    # - 'node_modules/@prisma/client/**'
 
 plugins:
   - serverless-offline
@@ -53,3 +65,19 @@ functions:
       - http:
           path: /{proxy+}
           method: ANY
+
+  dailyEmailJob:
+    handler: 'src/jobs/cron.runDailyJob'    
+    timeout: 60 # Cho 60s để xử lý DB và gửi mail
+    
+    events: [
+      {
+        schedule: {
+          # Chạy lúc 00:00 UTC hằng ngày (Tức 07:00 sáng giờ VN)
+          rate: ['cron(0 1 * * ? *)'], 
+          enabled: true, # Set false nếu muốn tạm tắt
+        },
+      },
+    ]
+
+

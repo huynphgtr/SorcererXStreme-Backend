@@ -16,20 +16,22 @@ export interface VIPFeatureLimits {
   chatHistoryDays: number;  
   
   // Tarot
-  tarotReadingsPerDay: number;
+  tarotOverviewPerDay: number; 
+  tarotQuestionPerDay: number; 
   tarotCardOptions: number[]; 
   tarotHistoryDays: number;
   
-  // Astrology
-  astrologyAnalysisPerDay: number;
-  astrology3DVisualization: boolean;
+  // Astrology (Chiêm tinh)
+  astrologyOverviewPerDay: number; 
+  astrologyLovePerDay: number;    
+
   
-  // Fortune
-  fortuneReadingsPerDay: number;
-  comprehensiveFortune: boolean;
+  // Horoscope (Tử vi hàng ngày)
+  horoscopeDailyPerDay: number;
+  horoscopeNatalChart: number;
   
-  // Numerology
-  numerologyAnalysisPerDay: number;
+  // Numerology (Thần số học)
+  numerologyOverviewPerDay: number;
   
   // Other
   prioritySupport: boolean;
@@ -40,32 +42,51 @@ export interface VIPFeatureLimits {
 
 export const VIP_TIER_LIMITS: Record<VIPTier, VIPFeatureLimits> = {
   [VIPTier.FREE]: {
-    tarotReadingsPerDay: 3,
-    tarotCardOptions: [3],
-    tarotHistoryDays: 7,
+    // Chat: 10 req
     chatMessagesPerDay: 10,
     chatHistoryDays: 3,
-    astrologyAnalysisPerDay: 1,
-    astrology3DVisualization: false,
-    fortuneReadingsPerDay: 1,
-    comprehensiveFortune: false,
-    numerologyAnalysisPerDay: 1,
+
+    // Tarot: 5 overview, 5 question
+    tarotOverviewPerDay: 5,
+    tarotQuestionPerDay: 5,
+    tarotCardOptions: [3],
+    tarotHistoryDays: 7,
+
+    // Astrology: 5 overview, 1 love
+    astrologyOverviewPerDay: 5,
+    astrologyLovePerDay: 1,
+    
+
+    // Horoscope: 5 daily
+    horoscopeDailyPerDay: 5,
+    horoscopeNatalChart: 0,
+
+    // Numerology: 5 overview
+    numerologyOverviewPerDay: 5,
+
+    // Other
     prioritySupport: false,
     earlyAccess: false,
     adFree: false,
     customThemes: false,
   },
   [VIPTier.VIP]: {
-    tarotReadingsPerDay: -1, // unlimited
-    tarotCardOptions: [3, 5, 7],
-    tarotHistoryDays: -1, // unlimited
-    chatMessagesPerDay: -1, // unlimited
-    chatHistoryDays: -1, // unlimited
-    astrologyAnalysisPerDay: -1, // unlimited
-    astrology3DVisualization: true,
-    fortuneReadingsPerDay: -1, // unlimited
-    comprehensiveFortune: true,
-    numerologyAnalysisPerDay: -1, // unlimited
+    chatMessagesPerDay: -1, 
+    chatHistoryDays: -1, 
+
+    tarotOverviewPerDay: -1, 
+    tarotQuestionPerDay: -1, 
+    tarotCardOptions: [3], 
+    tarotHistoryDays: -1, 
+
+    astrologyOverviewPerDay: -1, 
+    astrologyLovePerDay: -1, 
+
+    horoscopeDailyPerDay: -1, 
+    horoscopeNatalChart: -1,
+
+    numerologyOverviewPerDay: -1, 
+
     prioritySupport: true,
     earlyAccess: true,
     adFree: true,
@@ -96,15 +117,12 @@ export const VIP_PLANS: VIPPlanInfo[] = [
     description: 'Trải nghiệm các tính năng cơ bản',
     icon: '✨',
     features: [
-      '3 lượt xem Tarot/ngày',
-      'Rút 3 lá bài',
-      'Lưu lịch sử 7 ngày',
       '10 tin nhắn chat AI/ngày',
-      '1 phân tích chiêm tinh/ngày',
-      '1 phân tích tử vi/ngày',
-      '1 phân tích thần số học/ngày',
-      'Không có biểu đồ 3D',
-      'Có quảng cáo'
+      '5 lượt Tarot tổng quan/ngày',
+      '5 câu hỏi Tarot cụ thể/ngày',
+      '1 phân tích tình duyên/ngày',
+      '5 phân tích thần số học/ngày',
+      '5 xem tử vi hàng ngày/ngày',
     ]
   },
   {
@@ -117,16 +135,14 @@ export const VIP_PLANS: VIPPlanInfo[] = [
     description: 'Không giới hạn + Đầy đủ tính năng',
     icon: '👑',
     features: [
-      '♾️ Xem Tarot không giới hạn',
-      'Rút 3, 5, hoặc 7 lá bài',
-      'Lưu lịch sử vô hạn',
       '♾️ Chat AI không giới hạn',
-      '♾️ Tử vi không giới hạn',
-      '♾️ Thần số học không giới hạn',
+      '♾️ Xem Tarot không giới hạn (Rút 3 lá)',
+      '♾️ Chiêm tinh & Tình duyên không giới hạn',
+      '♾️ Thần số học & Tử vi không giới hạn',
+      'Lưu lịch sử trọn đời',
       'Biểu đồ 3D đầy đủ',
-      'Tử vi tổng quát',
       '🎯 Hỗ trợ ưu tiên',
-      '🚀 Ưu tiên nhận tính năng mới',
+      '🚀 Không quảng cáo & Giao diện riêng',
       '💎 Huy hiệu VIP đặc biệt'
     ]
   }
@@ -140,4 +156,3 @@ export interface SubscriptionData {
   paymentMethod?: string;
   transactionId?: string;
 }
-

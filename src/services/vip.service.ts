@@ -1,10 +1,12 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, UsageStats } from '@prisma/client';
 import { VIPTier, VIP_TIER_LIMITS, SubscriptionData, SubscriptionStatus } from '../types/vip.types';
 
 const prisma = new PrismaClient();
 
 export class VIPService {
-  // Kiểm tra user có quyền truy cập feature không
+  // ----------------------------------------------------------------
+  // 1. Kiểm tra quyền truy cập (CHECK ACCESS)
+  // ----------------------------------------------------------------
   static async checkFeatureAccess(
     userId: string,
     feature: keyof typeof VIP_TIER_LIMITS.FREE
@@ -16,126 +18,152 @@ export class VIPService {
       include: { usageStats: true }
     });
 
-    console.log(`[VIPService] User found:`, user ? `Yes (${user.email})` : 'No');
-
     if (!user) {
       throw new Error('User not found');
     }
 
-    // Kiểm tra VIP có hết hạn không
+    // Lấy Tier hiện tại và Limit tương ứng
     const tier = await this.getCurrentTier(userId);
     const limits = VIP_TIER_LIMITS[tier];
     const featureLimit = limits[feature];
 
-    // Nếu không có usage tracking (boolean features)
+    // 1.1 Xử lý các feature không phải dạng số đếm (Boolean hoặc Array)
     if (typeof featureLimit === 'boolean') {
       return { allowed: featureLimit, tier };
     }
-
-    // Nếu là array (tarotCardOptions)
     if (Array.isArray(featureLimit)) {
       return { allowed: true, tier };
     }
 
-    // Nếu unlimited (-1)
+    // 1.2 Xử lý trường hợp Unlimited (-1)
     if (featureLimit === -1) {
       return { allowed: true, limit: -1, tier };
     }
 
-    // Kiểm tra usage
-    const stats = user.usageStats;
+    // 1.3 Kiểm tra Usage (Số lần đã dùng)
+    let stats = user.usageStats;
+
+    // Nếu chưa có bảng stats, tạo mới
     if (!stats) {
-      // Tạo mới usage stats
-      await prisma.usageStats.create({
+      stats = await prisma.usageStats.create({
         data: { 
           user_id: userId,
-          tarot_readings_today: 0,
           chat_messages_today: 0,
-          astrology_today: 0,
-          fortune_today: 0,
-          numerology_today: 0
+          tarot_overview_today: 0,
+          tarot_question_today: 0,
+          astrology_overview_today: 0,
+          astrology_love_today: 0,
+          numerology_today: 0,
+          horoscope_daily_today: 0,
+          horoscope_natal_chart: 0
         }
       });
       return { allowed: true, currentUsage: 0, limit: featureLimit as number, tier };
     }
 
-    // Reset nếu qua ngày mới
+    // Reset nếu qua ngày mới (So sánh ngày hiện tại với last_reset_date)
     const today = new Date().toDateString();
     const lastReset = new Date(stats.last_reset_date).toDateString();
     
-    let currentStats = stats;
     if (today !== lastReset) {
-      currentStats = await prisma.usageStats.update({
+      stats = await prisma.usageStats.update({
         where: { user_id: userId },
         data: {
-          tarot_readings_today: 0,
           chat_messages_today: 0,
-          astrology_today: 0,
-          fortune_today: 0,
+          tarot_overview_today: 0,
+          tarot_question_today: 0,
+          astrology_overview_today: 0,
+          astrology_love_today: 0,
           numerology_today: 0,
+          horoscope_daily_today: 0,
           last_reset_date: new Date()
         }
       });
     }
 
-    // Map feature name to usage stat
-    const usageMap: Record<string, keyof typeof stats> = {
-      tarotReadingsPerDay: 'tarot_readings_today',
+    // 1.4 Map tên feature sang tên cột trong Database
+    // Key: Tên trong vip.types.ts -> Value: Tên cột trong Schema Prisma
+    const usageMap: Record<string, keyof Omit<UsageStats, 'id' | 'user_id' | 'last_reset_date'>> = {
       chatMessagesPerDay: 'chat_messages_today',
-      astrologyAnalysisPerDay: 'astrology_today',
-      fortuneReadingsPerDay: 'fortune_today',
-      numerologyAnalysisPerDay: 'numerology_today'
+      
+      tarotOverviewPerDay: 'tarot_overview_today',
+      tarotQuestionPerDay: 'tarot_question_today',
+      
+      astrologyOverviewPerDay: 'astrology_overview_today',
+      astrologyLovePerDay: 'astrology_love_today',
+      
+      horoscopeDailyPerDay: 'horoscope_daily_today', 
+      horoscopeNatalChart: 'horoscope_natal_chart',
+      numerologyOverviewPerDay: 'numerology_today'
     };
 
     const usageField = usageMap[feature];
+
+    // Nếu feature không có trong map tracking (ví dụ feature mới chưa add), mặc định cho phép
     if (!usageField) {
-      return { allowed: true, tier }; // Feature không có usage tracking
+      console.warn(`[VIPService] Feature ${feature} not mapped to DB column. Allowing access.`);
+      return { allowed: true, tier }; 
     }
 
-    const currentUsage = currentStats[usageField] as number;
+    const currentUsage = stats[usageField] as number;
     const allowed = currentUsage < (featureLimit as number);
 
     return { allowed, currentUsage, limit: featureLimit as number, tier };
   }
 
-  // Increment usage counter
-  static async incrementUsage(userId: string, feature: string): Promise<void> {
-    const usageMap: Record<string, string> = {
-      tarot: 'tarot_readings_today',
+  // ----------------------------------------------------------------
+  // 2. Tăng số lần sử dụng (INCREMENT USAGE)
+  // ----------------------------------------------------------------
+  // Lưu ý: featureKey ở đây là các chuỗi định danh hành động cụ thể từ Controller
+  static async incrementUsage(userId: string, featureKey: 
+    'chat' | 
+    'tarot_overview' | 'tarot_question' | 
+    'astrology_overview' | 'astrology_love' | 
+    'horoscope_daily' | 'horoscope_natal_chart' | 'numerology'
+  ): Promise<void> {
+    
+    // Map action key sang column DB
+    const usageMap: Record<string, keyof Omit<UsageStats, 'id' | 'user_id' | 'last_reset_date'>> = {
       chat: 'chat_messages_today',
-      astrology: 'astrology_today',
-      fortune: 'fortune_today',
+      tarot_overview: 'tarot_overview_today',
+      tarot_question: 'tarot_question_today',
+      astrology_overview: 'astrology_overview_today',
+      astrology_love: 'astrology_love_today',
+      horoscope_daily: 'horoscope_daily_today',
+      horoscope_natal_chart: 'horoscope_natal_chart',
       numerology: 'numerology_today'
     };
 
-    const field = usageMap[feature];
-    if (!field) return;
+    const field = usageMap[featureKey];
+    if (!field) {
+      console.error(`[VIPService] Invalid feature key for increment: ${featureKey}`);
+      return;
+    }
 
-    const stats = await prisma.usageStats.findUnique({
-      where: { user_id: userId }
-    });
-
-    if (!stats) {
-      await prisma.usageStats.create({
-        data: {
-          user_id: userId,
-          [field]: 1
-        }
-      });
-    } else {
-      await prisma.usageStats.update({
+    // Upsert: Nếu có thì update, chưa có thì create
+    // Prisma upsert yêu cầu 'where' unique, UsageStats có user_id unique
+    try {
+      await prisma.usageStats.upsert({
         where: { user_id: userId },
-        data: {
+        update: {
           [field]: { increment: 1 }
+        },
+        create: {
+          user_id: userId,
+          [field]: 1,
+          // Các trường khác mặc định là 0 (theo schema)
         }
       });
+    } catch (error) {
+      console.error(`[VIPService] Error incrementing usage for ${userId}:`, error);
     }
   }
 
   // Lấy tier hiện tại của user
   static async getCurrentTier(userId: string): Promise<VIPTier> {
     const user = await prisma.user.findUnique({
-      where: { id: userId }
+      where: { id: userId },
+      select: { vip_tier: true, vip_expires_at: true } // Chỉ select field cần thiết để tối ưu
     });
 
     if (!user) {
@@ -155,7 +183,7 @@ export class VIPService {
     return user.vip_tier as VIPTier;
   }
 
-  // Lấy thông tin giới hạn của user
+  // Lấy thông tin giới hạn của user (để hiển thị UI)
   static async getUserLimits(userId: string) {
     const tier = await this.getCurrentTier(userId);
     const limits = VIP_TIER_LIMITS[tier];
@@ -179,6 +207,7 @@ export class VIPService {
 
     const startDate = new Date();
     const endDate = new Date();
+    // Logic cộng tháng thông minh hơn (tránh lỗi ngày 31)
     endDate.setMonth(endDate.getMonth() + durationMonths);
 
     // Tạo subscription record
@@ -226,7 +255,6 @@ export class VIPService {
       data: { status: SubscriptionStatus.CANCELLED }
     });
 
-    // User vẫn dùng được đến hết hạn
     return activeSubscription;
   }
 
@@ -238,7 +266,7 @@ export class VIPService {
     });
   }
 
-  // Kiểm tra và cập nhật subscriptions hết hạn (chạy định kỳ)
+  // Job định kỳ: Kiểm tra hết hạn
   static async checkExpiredSubscriptions() {
     const now = new Date();
     
@@ -262,7 +290,6 @@ export class VIPService {
         }
       });
 
-      // Update subscription status
       await prisma.subscription.updateMany({
         where: {
           user_id: user.id,
@@ -280,4 +307,3 @@ export class VIPService {
     return expiredUsers.length;
   }
 }
-

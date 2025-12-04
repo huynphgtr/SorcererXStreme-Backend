@@ -1,202 +1,118 @@
-# SorcererXStreme Backend API
+# SorcererXStreme — Backend API
 
-Backend API cho ứng dụng huyền thuật SorcererXStreme, được xây dựng với Express.js và TypeScript.
+Backend API cho ứng dụng SorcererXStreme — Express + TypeScript + Prisma (Postgres). Tích hợp AI (Gemini / RAG), JWT auth, và hệ thống VIP/limits.
 
-## Tech Stack
+## Tech stack
+- Node.js, Express, TypeScript
+- PostgreSQL + Prisma
+- JWT authentication
+- AI integration (services/*)
+- Zod validators for input schemas
 
-- **Runtime:** Node.js
-- **Framework:** Express.js
-- **Language:** TypeScript
-- **Database:** PostgreSQL + Prisma ORM
-- **Authentication:** JWT (JsonWebToken)
-- **AI Integration:** Google Gemini AI
-- **Password Hashing:** bcryptjs
+## Project layout
+- src/server.ts — entry
+- src/app.ts — app + middleware registration
+- src/routes/*.ts — route definitions
+- src/controllers/*.ts — request handlers
+- src/services/*.ts — business logic / AI / VIP
+- src/middlewares/*.ts — auth, error handlers, VIP-check
+- src/validators/*.ts — zod validators
+- src/types/*.ts — app types (including vip.types.ts)
+- prisma/schema.prisma — database schema
 
-## Project Structure
+## Important endpoints (protected routes require Authorization: Bearer <token>)
+Auth
+- POST /api/auth/register
+- POST /api/auth/login
 
-```
-backend/
-├── src/
-│   ├── server.ts                 # Entry point
-│   ├── app.ts                    # Express app configuration
-│   ├── routes/                   # API route definitions
-│   │   ├── auth.routes.ts
-│   │   ├── profile.routes.ts
-│   │   ├── chat.routes.ts
-│   │   ├── tarot.routes.ts
-│   │   ├── astrology.routes.ts
-│   │   ├── fortune.routes.ts
-│   │   └── numerology.routes.ts
-│   ├── controllers/              # Request handlers
-│   │   ├── auth.controller.ts
-│   │   ├── profile.controller.ts
-│   │   ├── chat.controller.ts
-│   │   ├── tarot.controller.ts
-│   │   ├── astrology.controller.ts
-│   │   ├── fortune.controller.ts
-│   │   └── numerology.controller.ts
-│   ├── services/                 # Business logic & integrations
-│   │   ├── gemini.service.ts
-│   │   ├── jwt.service.ts
-│   │   ├── ai-prompts.service.ts
-│   │   ├── tarot-prompts.service.ts
-│   │   └── breakup-utils.service.ts
-│   ├── middlewares/              # Express middlewares
-│   │   ├── auth.middleware.ts
-│   │   └── error.middleware.ts
-│   ├── lib/                      # Utilities
-│   │   └── utils.ts
-│   └── types/                    # TypeScript types
-│       └── index.ts
-├── prisma/
-│   ├── schema.prisma             # Database schema
-│   └── migrations/               # Database migrations
-├── package.json
-├── tsconfig.json
-├── .env.example
-└── README.md
-```
+Profile
+- GET  /api/profile
+- PUT  /api/profile  (zod validated)
 
-## API Endpoints
+Chat
+- POST /api/chat
+  - Free users: 10 messages/day (see src/types/vip.types.ts)
+  - VIP users: unlimited (-1)
 
-### Authentication
-- `POST /api/auth/register` - Register new user
-- `POST /api/auth/login` - User login
+Tarot
+- POST /api/tarot/overview
+  - Expect payload:
+    {
+      "domain": "tarot",
+      "feature_type": "tarot_overview",
+      "user_context": { name, gender, birth_date, birth_time, birth_place },
+      "partner_context": null | { ... },
+      "data": { "cards_drawn": [ { "name"|"card_name", "is_upright", "position"? } ] }
+    }
+  - Controller normalizes cards and calls shared handler (current handler logs/echos payload for testing).
 
-### Profile
-- `GET /api/profile` - Get user profile (protected)
-- `PUT /api/profile` - Update user profile (protected)
+- POST /api/tarot/question
+  - Expect payload:
+    {
+      "domain": "tarot",
+      "feature_type": "tarot_question",
+      "user_context": {...},
+      "partner_context": null | {...},
+      "data": { "question": "text", "cards_drawn": [ { "card_name"|"name", "is_upright", "position"? } ] }
+    }
 
-### Chat
-- `POST /api/chat` - Send message to AI (protected)
-- `GET /api/chat/history` - Get chat history (protected)
+Astrology
+- POST /api/astrology/overview (or /api/astrology)
+  - Expect payload:
+    {
+      "domain": "astrology",
+      "feature_type": "overall",
+      "user_context": { name, gender, birth_date, birth_time, birth_place },
+      "partner_context": null | { ... }
+    }
 
-### Tarot
-- `POST /api/tarot/reading` - Get tarot reading (protected)
+Partner management
+- POST /api/partner     — add partner
+- PUT  /api/partner/:id — update
+- DELETE /api/partner/:id — remove
 
-### Astrology
-- `POST /api/astrology` - Get astrology analysis (protected)
+VIP / Limits
+- Defined in src/types/vip.types.ts
+  - FREE: chatMessagesPerDay = 10, chatHistoryDays = 3
+  - VIP: -1 = unlimited
 
-### Fortune
-- `POST /api/fortune` - Get fortune reading (protected)
+## Environment variables
+Copy .env.example → .env and fill values:
+- DATABASE_URL (Postgres)
+- JWT_SECRET
+- PORT
+- FRONTEND_URL
+- GEMINI_API_KEY (if used)
+- other email / payment vars as required
 
-### Numerology
-- `POST /api/numerology` - Get numerology analysis (protected)
+## Run locally
+1. Install:
+   npm install
+2. Setup .env
+3. Prisma:
+   npx prisma generate
+   npx prisma migrate dev
+4. Start dev server:
+   npm run dev
 
-### Health Check
-- `GET /health` - Check server status
+## Quick testing (Postman / curl)
+- Add header: Content-Type: application/json and Authorization: Bearer <TOKEN> for protected routes.
+- Tarot overview example (POST /api/tarot/overview):
+  {
+    "domain":"tarot","feature_type":"tarot_overview",
+    "user_context":{ "name":"Nguyễn A", "gender":"female", "birth_date":"20-10-1995", "birth_time":"14:30", "birth_place":"Hanoi" },
+    "partner_context": null,
+    "data": { "cards_drawn":[ { "name":"The Lovers","is_upright":true,"position":"past" }, ... ] }
+  }
 
-## Setup Instructions
+- Tarot question example (POST /api/tarot/question):
+  {
+    "domain":"tarot","feature_type":"tarot_question",
+    "user_context":{...}, "partner_context":{...},
+    "data":{"question":"Tình cảm trong tương lai?","cards_drawn":[{"card_name":"The Fool","is_upright":true}]}
+  }
 
-### Prerequisites
-- Node.js (v18 or higher)
-- PostgreSQL database
-- npm or yarn
-
-### Installation
-
-1. Install dependencies:
-```bash
-cd backend
-npm install
-```
-
-2. Setup environment variables:
-```bash
-cp .env.example .env
-```
-
-Edit `.env` file with your credentials:
-```
-DATABASE_URL="postgresql://user:password@localhost:5432/sorcererxstreme"
-JWT_SECRET="your-super-secret-jwt-key-here-change-in-production"
-GEMINI_API_KEY="your-gemini-api-key-here"
-PORT=5000
-NODE_ENV=development
-FRONTEND_URL=http://localhost:3000
-```
-
-3. Setup database:
-```bash
-npx prisma generate
-npx prisma migrate dev
-```
-
-4. Run development server:
-```bash
-npm run dev
-```
-
-Server will start on `http://localhost:5000`
-
-### Production Build
-
-```bash
-npm run build
-npm start
-```
-
-## Environment Variables
-
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `DATABASE_URL` | PostgreSQL connection string | Yes |
-| `JWT_SECRET` | Secret key for JWT signing | Yes |
-| `GEMINI_API_KEY` | Google Gemini API key | Yes |
-| `PORT` | Server port (default: 5000) | No |
-| `NODE_ENV` | Environment (development/production) | No |
-| `FRONTEND_URL` | Frontend URL for CORS | No |
-
-## Database Schema
-
-### User
-- id, email, passwordHash
-- name, birthDate, birthTime
-- Relations: Partner, Breakup, ChatMessage, TarotReading
-
-### Partner
-- id, userId, name
-- birthDate, birthTime, birthPlace
-- relationship, startDate
-
-### Breakup
-- id, userId, partnerName
-- breakupDate, autoDeleteDate
-- weeklyCheckDone
-
-### ChatMessage
-- id, userId, content
-- role (user/assistant)
-- type, createdAt
-
-### TarotReading
-- id, userId, question
-- cardsDrawn, interpretation
-- createdAt
-
-## Authentication Flow
-
-1. User registers via `/api/auth/register`
-2. User logs in via `/api/auth/login` and receives JWT token
-3. Frontend stores token and sends it in Authorization header: `Bearer <token>`
-4. Protected routes use `authMiddleware` to verify token
-5. User ID is extracted from token and attached to request
-
-## AWS Deployment Ready
-
-This backend is ready to be deployed on:
-- AWS EC2
-- AWS ECS (Docker)
-- AWS Lambda (with adjustments)
-- AWS Elastic Beanstalk
-
-For AWS RDS PostgreSQL, update `DATABASE_URL` in environment variables.
-
-## Scripts
-
-- `npm run dev` - Start development server with hot reload
-- `npm run build` - Build TypeScript to JavaScript
-- `npm start` - Start production server
-- `npm run prisma:generate` - Generate Prisma client
-- `npm run prisma:migrate` - Run database migrations
-- `npm run prisma:studio` - Open Prisma Studio (database GUI)
+## Notes
+- Some controllers currently echo/log payload for easier testing.
+- Ensure auth middleware runs before VIP/check middlewares to provide req.user.id.
+- Use enums exactly as defined in Prisma (e.g., Gender = male | femal | other).

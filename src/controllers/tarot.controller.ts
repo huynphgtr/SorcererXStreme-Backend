@@ -33,9 +33,10 @@ async function handleTarotLogic(
     cardsDrawn: TarotCard[];
     userContext: TarotContext;
     partnerContext?: TarotContext;
+    userId: string;
   }
 ) {
-  const { mode, question, cardsDrawn, userContext, partnerContext } = params;
+  const { mode, question, cardsDrawn, userContext, partnerContext, userId } = params;
 
   const aiPayload = {
     domain: "tarot",
@@ -52,14 +53,20 @@ async function handleTarotLogic(
     }
   };
   const aiResponse = await AIService.callMysticEndpoint(aiPayload);
+  
+  // 3. Handle VIP Usage
+  try {
+    if (mode === 'question') {
+      await VIPService.incrementUsage(userId, 'tarot_question');
+    } else {  
+    await VIPService.incrementUsage(userId, 'tarot_overview');}
+  } catch (usageError) {
+    console.warn('Failed to increment usage counter:', usageError);
+  }
 
-  // 3. Handle VIP Usage (Chỉ chạy khi AI thành công)
-  // try {
-  //   await VIPService.incrementUsage(userId, 'tarot');
-  // } catch (usageError) {
-  //   console.warn('Failed to increment usage counter:', usageError);
-  // }
-  return aiResponse;
+  // console.log('Test increment usage for tarot');
+  const answer = aiResponse?.answer || aiResponse;
+  return { analysis: answer };
 }
 
 export async function processTarotRequest(req: AuthRequest, res: Response): Promise<void> {
@@ -141,15 +148,16 @@ export async function processTarotRequest(req: AuthRequest, res: Response): Prom
         mode = 'overview';
     }
 
-    // --- E. Process Logic ---
     const result = await handleTarotLogic({
       mode: mode,
       question: questionString,
       cardsDrawn: processedCards,
       userContext: user_context,
-      partnerContext: partner_context ?? undefined
+      partnerContext: partner_context ?? undefined,
+      userId: userId
     });
     res.status(200).json(result);
+    // res.status(200).json(result);
 
   } catch (error: any) {
     if (error.message && error.message.includes('Card at index')) {

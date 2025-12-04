@@ -6,13 +6,14 @@ export const updateProfileSchema = z.object({
   name: z
     .string()
     .min(2, 'Name must be at least 2 characters long')
-    .optional(), // .optional() cho phép trường này có thể không được gửi lên
+    .optional(), 
 
   gender: GenderEnum.optional(),
 
   birth_date: z
     .string()
-    .datetime() // Đảm bảo chuỗi là định dạng ISO 8601 (e.g., "2023-10-27T10:00:00.000Z")
+    // .datetime() // Đảm bảo chuỗi là định dạng ISO 8601 (e.g., "2023-10-27T10:00:00.000Z")
+    .min(1, 'Birth date is required')
     .optional(),
 
   birth_time: z
@@ -36,7 +37,8 @@ export const completeProfileSchema = z.object({
   
   birth_date: z
     .string('Birth date is required')
-    .datetime('Invalid date format. Use ISO 8601 format'), // Yêu cầu chuỗi phải là định dạng datetime
+    // .datetime('Invalid date format. Use ISO 8601 format'), 
+    .min(1, 'Birth date cannot be empty'),
 
   birth_time: z
     .string('Birth time is required')

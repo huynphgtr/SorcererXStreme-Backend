@@ -13,23 +13,17 @@ import horoscopeRoutes from './routes/horoscope.routes';
 import reminderRoutes from './routes/reminder.routes';
 import { errorMiddleware } from './middlewares/error.middleware';
 
-// Load biến môi trường (Dùng cho local, trên Lambda sẽ lấy từ serverless.yml)
 dotenv.config();
-
-// Khai báo kiểu Application rõ ràng cho TypeScript
 const app: Application = express();
 
 // --- CẤU HÌNH CORS ---
-// Lưu ý: Trên Lambda, process.env.FRONTEND_URL phải được set trong serverless.yml
 const allowedOrigins = [
   process.env.FRONTEND_URL || 'http://localhost:3000',
-  'http://localhost:3001',
-  'https://sorcererxstreme.com' // Bạn nên thêm domain thật khi deploy xong
+  'http://localhost:3001'
 ];
 
 app.use(cors({
   origin: (origin, callback) => {
-    // Cho phép requests không có origin (như Postman hoặc curl)
     if (!origin) return callback(null, true);
     if (allowedOrigins.indexOf(origin) === -1) {
       const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
@@ -66,6 +60,5 @@ app.use('/api/numerology', numerologyRoutes);
 
 // --- ERROR HANDLING ---
 app.use(errorMiddleware);
-
-// Export app để handler.ts (serverless-http) sử dụng.
+// --- EXPORT APP ---
 export default app;

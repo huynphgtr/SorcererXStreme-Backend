@@ -1,369 +1,51 @@
 {
   "D:\\FCJ\\SorcererXStreme-Backend\\serverless.yml": {
-    "versionFramework": "4.25.0",
+    "versionFramework": "4.26.1",
     "servicePath": "D:\\FCJ\\SorcererXStreme-Backend\\serverless.yml",
     "serviceConfigFileName": "serverless.yml",
     "service": {
       "service": "sorcererxstreme-backend",
       "provider": {
         "name": "aws",
+        "timeout": 29,
         "runtime": "nodejs20.x",
         "region": "ap-southeast-1",
         "environment": {
           "DATABASE_URL": "postgresql://neondb_owner:npg_6dYBHrUN3Vxm@ep-crimson-heart-a1lg2l77-pooler.ap-southeast-1.aws.neon.tech/SorcererXStreme?sslmode=require&channel_binding=require",
           "JWT_SECRET": "<REDACTED>",
-          "FRONTEND_URL": "http://localhost:3000",
+          "AI_SERVICE_URL": "https://o9i37lplba.execute-api.ap-southeast-1.amazonaws.com/deploy1/metaphysical",
+          "CHAT_SERVICE_URL": "https://o9i37lplba.execute-api.ap-southeast-1.amazonaws.com/deploy1/chatbot",
+          "FRONTEND_URL": "https://main.d30n5a8g6cs88k.amplifyapp.com/",
           "PRISMA_CLI_BINARY_TARGETS": "rhel-openssl-3.0.x"
         },
-        "stage": "dev",
-        "versionFunctions": true,
-        "compiledCloudFormationTemplate": {
-          "AWSTemplateFormatVersion": "2010-09-09",
-          "Description": "The AWS CloudFormation template for this Serverless application",
-          "Resources": {
-            "ApiLogGroup": {
-              "Type": "AWS::Logs::LogGroup",
-              "Properties": {
-                "LogGroupName": "/aws/lambda/sorcererxstreme-backend-dev-api"
-              }
+        "apiGateway": {
+          "usagePlan": {
+            "quota": {
+              "limit": 5000000,
+              "period": "MONTH"
             },
-            "IamRoleLambdaExecution": {
-              "Type": "AWS::IAM::Role",
-              "Properties": {
-                "AssumeRolePolicyDocument": {
-                  "Version": "2012-10-17",
-                  "Statement": [
-                    {
-                      "Effect": "Allow",
-                      "Principal": {
-                        "Service": [
-                          "lambda.amazonaws.com"
-                        ]
-                      },
-                      "Action": [
-                        "sts:AssumeRole"
-                      ]
-                    }
-                  ]
-                },
-                "Policies": [
-                  {
-                    "PolicyName": {
-                      "Fn::Join": [
-                        "-",
-                        [
-                          "sorcererxstreme-backend",
-                          "dev",
-                          "lambda"
-                        ]
-                      ]
-                    },
-                    "PolicyDocument": {
-                      "Version": "2012-10-17",
-                      "Statement": [
-                        {
-                          "Effect": "Allow",
-                          "Action": [
-                            "logs:CreateLogStream",
-                            "logs:CreateLogGroup",
-                            "logs:TagResource"
-                          ],
-                          "Resource": [
-                            {
-                              "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/sorcererxstreme-backend-dev*:*"
-                            }
-                          ]
-                        },
-                        {
-                          "Effect": "Allow",
-                          "Action": [
-                            "logs:PutLogEvents"
-                          ],
-                          "Resource": [
-                            {
-                              "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/sorcererxstreme-backend-dev*:*:*"
-                            }
-                          ]
-                        }
-                      ]
-                    }
-                  }
-                ],
-                "Path": "/",
-                "RoleName": {
-                  "Fn::Join": [
-                    "-",
-                    [
-                      "sorcererxstreme-backend",
-                      "dev",
-                      {
-                        "Ref": "AWS::Region"
-                      },
-                      "lambdaRole"
-                    ]
-                  ]
-                }
-              }
-            },
-            "ApiLambdaFunction": {
-              "Type": "AWS::Lambda::Function",
-              "Properties": {
-                "Code": {
-                  "S3Bucket": "serverless-framework-deployments-ap-southeast-1-a38a0297-9cd4",
-                  "S3Key": "serverless/sorcererxstreme-backend/dev/1764512173733-2025-11-30T14:16:13.733Z/sorcererxstreme-backend-api.zip"
-                },
-                "Handler": "src/handler.handler",
-                "Runtime": "nodejs20.x",
-                "FunctionName": "sorcererxstreme-backend-dev-api",
-                "MemorySize": 1024,
-                "Timeout": 6,
-                "Environment": {
-                  "Variables": {
-                    "DATABASE_URL": "postgresql://neondb_owner:npg_6dYBHrUN3Vxm@ep-crimson-heart-a1lg2l77-pooler.ap-southeast-1.aws.neon.tech/SorcererXStreme?sslmode=require&channel_binding=require",
-                    "JWT_SECRET": "<REDACTED>",
-                    "FRONTEND_URL": "http://localhost:3000",
-                    "PRISMA_CLI_BINARY_TARGETS": "rhel-openssl-3.0.x"
-                  }
-                },
-                "Role": {
-                  "Fn::GetAtt": [
-                    "IamRoleLambdaExecution",
-                    "Arn"
-                  ]
-                }
-              },
-              "DependsOn": [
-                "ApiLogGroup"
-              ]
-            },
-            "ApiLambdaVersionPOC3SJGEQZiuYgdrpgM0HaaiVt6dZ0TkIZavtU2xbgg": {
-              "Type": "AWS::Lambda::Version",
-              "DeletionPolicy": "Retain",
-              "Properties": {
-                "FunctionName": {
-                  "Ref": "ApiLambdaFunction"
-                },
-                "CodeSha256": "gx+vbyxwTytaTg0oK7WV4B2Vej2v69kBPSm6JDTwYIM="
-              }
-            },
-            "ApiGatewayRestApi": {
-              "Type": "AWS::ApiGateway::RestApi",
-              "Properties": {
-                "Name": "dev-sorcererxstreme-backend",
-                "EndpointConfiguration": {
-                  "Types": [
-                    "EDGE"
-                  ]
-                },
-                "Policy": ""
-              }
-            },
-            "ApiGatewayResourceProxyVar": {
-              "Type": "AWS::ApiGateway::Resource",
-              "Properties": {
-                "ParentId": {
-                  "Fn::GetAtt": [
-                    "ApiGatewayRestApi",
-                    "RootResourceId"
-                  ]
-                },
-                "PathPart": "{proxy+}",
-                "RestApiId": {
-                  "Ref": "ApiGatewayRestApi"
-                }
-              }
-            },
-            "ApiGatewayMethodAny": {
-              "Type": "AWS::ApiGateway::Method",
-              "Properties": {
-                "HttpMethod": "ANY",
-                "RequestParameters": {},
-                "ResourceId": {
-                  "Fn::GetAtt": [
-                    "ApiGatewayRestApi",
-                    "RootResourceId"
-                  ]
-                },
-                "RestApiId": {
-                  "Ref": "ApiGatewayRestApi"
-                },
-                "ApiKeyRequired": "<REDACTED>",
-                "AuthorizationType": "NONE",
-                "Integration": {
-                  "IntegrationHttpMethod": "POST",
-                  "Type": "AWS_PROXY",
-                  "Uri": {
-                    "Fn::Join": [
-                      "",
-                      [
-                        "arn:",
-                        {
-                          "Ref": "AWS::Partition"
-                        },
-                        ":apigateway:",
-                        {
-                          "Ref": "AWS::Region"
-                        },
-                        ":lambda:path/2015-03-31/functions/",
-                        {
-                          "Fn::GetAtt": [
-                            "ApiLambdaFunction",
-                            "Arn"
-                          ]
-                        },
-                        "/invocations"
-                      ]
-                    ]
-                  }
-                },
-                "MethodResponses": []
-              },
-              "DependsOn": [
-                "ApiLambdaPermissionApiGateway"
-              ]
-            },
-            "ApiGatewayMethodProxyVarAny": {
-              "Type": "AWS::ApiGateway::Method",
-              "Properties": {
-                "HttpMethod": "ANY",
-                "RequestParameters": {},
-                "ResourceId": {
-                  "Ref": "ApiGatewayResourceProxyVar"
-                },
-                "RestApiId": {
-                  "Ref": "ApiGatewayRestApi"
-                },
-                "ApiKeyRequired": "<REDACTED>",
-                "AuthorizationType": "NONE",
-                "Integration": {
-                  "IntegrationHttpMethod": "POST",
-                  "Type": "AWS_PROXY",
-                  "Uri": {
-                    "Fn::Join": [
-                      "",
-                      [
-                        "arn:",
-                        {
-                          "Ref": "AWS::Partition"
-                        },
-                        ":apigateway:",
-                        {
-                          "Ref": "AWS::Region"
-                        },
-                        ":lambda:path/2015-03-31/functions/",
-                        {
-                          "Fn::GetAtt": [
-                            "ApiLambdaFunction",
-                            "Arn"
-                          ]
-                        },
-                        "/invocations"
-                      ]
-                    ]
-                  }
-                },
-                "MethodResponses": []
-              },
-              "DependsOn": [
-                "ApiLambdaPermissionApiGateway"
-              ]
-            },
-            "ApiGatewayDeployment1764512164522": {
-              "Type": "AWS::ApiGateway::Deployment",
-              "Properties": {
-                "RestApiId": {
-                  "Ref": "ApiGatewayRestApi"
-                },
-                "StageName": "dev"
-              },
-              "DependsOn": [
-                "ApiGatewayMethodAny",
-                "ApiGatewayMethodProxyVarAny"
-              ]
-            },
-            "ApiLambdaPermissionApiGateway": {
-              "Type": "AWS::Lambda::Permission",
-              "Properties": {
-                "FunctionName": {
-                  "Fn::GetAtt": [
-                    "ApiLambdaFunction",
-                    "Arn"
-                  ]
-                },
-                "Action": "lambda:InvokeFunction",
-                "Principal": "apigateway.amazonaws.com",
-                "SourceArn": {
-                  "Fn::Join": [
-                    "",
-                    [
-                      "arn:",
-                      {
-                        "Ref": "AWS::Partition"
-                      },
-                      ":execute-api:",
-                      {
-                        "Ref": "AWS::Region"
-                      },
-                      ":",
-                      {
-                        "Ref": "AWS::AccountId"
-                      },
-                      ":",
-                      {
-                        "Ref": "ApiGatewayRestApi"
-                      },
-                      "/*/*"
-                    ]
-                  ]
-                }
-              }
-            }
-          },
-          "Outputs": {
-            "ServerlessDeploymentBucketName": {
-              "Value": "serverless-framework-deployments-ap-southeast-1-a38a0297-9cd4",
-              "Export": {
-                "Name": "sls-sorcererxstreme-backend-dev-ServerlessDeploymentBucketName"
-              }
-            },
-            "ApiLambdaFunctionQualifiedArn": {
-              "Description": "Current Lambda function version",
-              "Value": {
-                "Ref": "ApiLambdaVersionPOC3SJGEQZiuYgdrpgM0HaaiVt6dZ0TkIZavtU2xbgg"
-              },
-              "Export": {
-                "Name": "sls-sorcererxstreme-backend-dev-ApiLambdaFunctionQualifiedArn"
-              }
-            },
-            "ServiceEndpoint": {
-              "Description": "URL of the service endpoint",
-              "Value": {
-                "Fn::Join": [
-                  "",
-                  [
-                    "https://",
-                    {
-                      "Ref": "ApiGatewayRestApi"
-                    },
-                    ".execute-api.",
-                    {
-                      "Ref": "AWS::Region"
-                    },
-                    ".",
-                    {
-                      "Ref": "AWS::URLSuffix"
-                    },
-                    "/dev"
-                  ]
-                ]
-              },
-              "Export": {
-                "Name": "sls-sorcererxstreme-backend-dev-ServiceEndpoint"
-              }
+            "throttle": {
+              "burstLimit": 200,
+              "rateLimit": 100
             }
           }
         },
-        "vpc": {}
+        "iam": {
+          "role": {
+            "statements": [
+              {
+                "Effect": "Allow",
+                "Action": [
+                  "ses:SendEmail",
+                  "ses:SendRawEmail"
+                ],
+                "Resource": "*"
+              }
+            ]
+          }
+        },
+        "stage": "dev",
+        "versionFunctions": true
       },
       "build": {
         "esbuild": {
@@ -385,9 +67,7 @@
           "node_modules/.prisma/client/libquery_engine-rhel-openssl-3.0.x.so.node",
           "node_modules/.prisma/client/schema.prisma"
         ],
-        "artifactsS3KeyDirname": "serverless/sorcererxstreme-backend/dev/code-artifacts",
-        "deploymentBucket": "serverless-framework-deployments-ap-southeast-1-a38a0297-9cd4",
-        "artifactDirectoryName": "serverless/sorcererxstreme-backend/dev/1764512173733-2025-11-30T14:16:13.733Z"
+        "artifactsS3KeyDirname": "serverless/sorcererxstreme-backend/dev/code-artifacts"
       },
       "plugins": [
         "serverless-offline"
@@ -398,390 +78,77 @@
           "events": [
             {
               "http": {
-                "path": "",
-                "method": "any",
-                "integration": "AWS_PROXY"
+                "path": "/",
+                "method": "ANY"
               }
             },
             {
               "http": {
-                "path": "{proxy+}",
-                "method": "any",
-                "integration": "AWS_PROXY"
+                "path": "/{proxy+}",
+                "method": "ANY"
               }
             }
           ],
-          "name": "sorcererxstreme-backend-dev-api",
-          "package": {
-            "artifact": "D:\\FCJ\\SorcererXStreme-Backend\\.serverless\\build\\sorcererxstreme-backend-api.zip"
-          },
-          "memory": 1024,
-          "timeout": 6,
-          "runtime": "nodejs20.x",
-          "vpc": {},
-          "versionLogicalId": "ApiLambdaVersionPOC3SJGEQZiuYgdrpgM0HaaiVt6dZ0TkIZavtU2xbgg"
+          "name": "sorcererxstreme-backend-dev-api"
+        },
+        "dailyEmailJob": {
+          "handler": "src/jobs/cron.runDailyJob",
+          "timeout": 60,
+          "events": [
+            {
+              "schedule": {
+                "rate": [
+                  "cron(0 1 * * ? *)"
+                ],
+                "enabled": true
+              }
+            }
+          ],
+          "name": "sorcererxstreme-backend-dev-dailyEmailJob"
         }
       }
     },
     "provider": {
       "name": "aws",
+      "timeout": 29,
       "runtime": "nodejs20.x",
       "region": "ap-southeast-1",
       "environment": {
         "DATABASE_URL": "postgresql://neondb_owner:npg_6dYBHrUN3Vxm@ep-crimson-heart-a1lg2l77-pooler.ap-southeast-1.aws.neon.tech/SorcererXStreme?sslmode=require&channel_binding=require",
         "JWT_SECRET": "<REDACTED>",
-        "FRONTEND_URL": "http://localhost:3000",
+        "AI_SERVICE_URL": "https://o9i37lplba.execute-api.ap-southeast-1.amazonaws.com/deploy1/metaphysical",
+        "CHAT_SERVICE_URL": "https://o9i37lplba.execute-api.ap-southeast-1.amazonaws.com/deploy1/chatbot",
+        "FRONTEND_URL": "https://main.d30n5a8g6cs88k.amplifyapp.com/",
         "PRISMA_CLI_BINARY_TARGETS": "rhel-openssl-3.0.x"
       },
-      "stage": "dev",
-      "versionFunctions": true,
-      "compiledCloudFormationTemplate": {
-        "AWSTemplateFormatVersion": "2010-09-09",
-        "Description": "The AWS CloudFormation template for this Serverless application",
-        "Resources": {
-          "ApiLogGroup": {
-            "Type": "AWS::Logs::LogGroup",
-            "Properties": {
-              "LogGroupName": "/aws/lambda/sorcererxstreme-backend-dev-api"
-            }
+      "apiGateway": {
+        "usagePlan": {
+          "quota": {
+            "limit": 5000000,
+            "period": "MONTH"
           },
-          "IamRoleLambdaExecution": {
-            "Type": "AWS::IAM::Role",
-            "Properties": {
-              "AssumeRolePolicyDocument": {
-                "Version": "2012-10-17",
-                "Statement": [
-                  {
-                    "Effect": "Allow",
-                    "Principal": {
-                      "Service": [
-                        "lambda.amazonaws.com"
-                      ]
-                    },
-                    "Action": [
-                      "sts:AssumeRole"
-                    ]
-                  }
-                ]
-              },
-              "Policies": [
-                {
-                  "PolicyName": {
-                    "Fn::Join": [
-                      "-",
-                      [
-                        "sorcererxstreme-backend",
-                        "dev",
-                        "lambda"
-                      ]
-                    ]
-                  },
-                  "PolicyDocument": {
-                    "Version": "2012-10-17",
-                    "Statement": [
-                      {
-                        "Effect": "Allow",
-                        "Action": [
-                          "logs:CreateLogStream",
-                          "logs:CreateLogGroup",
-                          "logs:TagResource"
-                        ],
-                        "Resource": [
-                          {
-                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/sorcererxstreme-backend-dev*:*"
-                          }
-                        ]
-                      },
-                      {
-                        "Effect": "Allow",
-                        "Action": [
-                          "logs:PutLogEvents"
-                        ],
-                        "Resource": [
-                          {
-                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/sorcererxstreme-backend-dev*:*:*"
-                          }
-                        ]
-                      }
-                    ]
-                  }
-                }
-              ],
-              "Path": "/",
-              "RoleName": {
-                "Fn::Join": [
-                  "-",
-                  [
-                    "sorcererxstreme-backend",
-                    "dev",
-                    {
-                      "Ref": "AWS::Region"
-                    },
-                    "lambdaRole"
-                  ]
-                ]
-              }
-            }
-          },
-          "ApiLambdaFunction": {
-            "Type": "AWS::Lambda::Function",
-            "Properties": {
-              "Code": {
-                "S3Bucket": "serverless-framework-deployments-ap-southeast-1-a38a0297-9cd4",
-                "S3Key": "serverless/sorcererxstreme-backend/dev/1764512173733-2025-11-30T14:16:13.733Z/sorcererxstreme-backend-api.zip"
-              },
-              "Handler": "src/handler.handler",
-              "Runtime": "nodejs20.x",
-              "FunctionName": "sorcererxstreme-backend-dev-api",
-              "MemorySize": 1024,
-              "Timeout": 6,
-              "Environment": {
-                "Variables": {
-                  "DATABASE_URL": "postgresql://neondb_owner:npg_6dYBHrUN3Vxm@ep-crimson-heart-a1lg2l77-pooler.ap-southeast-1.aws.neon.tech/SorcererXStreme?sslmode=require&channel_binding=require",
-                  "JWT_SECRET": "<REDACTED>",
-                  "FRONTEND_URL": "http://localhost:3000",
-                  "PRISMA_CLI_BINARY_TARGETS": "rhel-openssl-3.0.x"
-                }
-              },
-              "Role": {
-                "Fn::GetAtt": [
-                  "IamRoleLambdaExecution",
-                  "Arn"
-                ]
-              }
-            },
-            "DependsOn": [
-              "ApiLogGroup"
-            ]
-          },
-          "ApiLambdaVersionPOC3SJGEQZiuYgdrpgM0HaaiVt6dZ0TkIZavtU2xbgg": {
-            "Type": "AWS::Lambda::Version",
-            "DeletionPolicy": "Retain",
-            "Properties": {
-              "FunctionName": {
-                "Ref": "ApiLambdaFunction"
-              },
-              "CodeSha256": "gx+vbyxwTytaTg0oK7WV4B2Vej2v69kBPSm6JDTwYIM="
-            }
-          },
-          "ApiGatewayRestApi": {
-            "Type": "AWS::ApiGateway::RestApi",
-            "Properties": {
-              "Name": "dev-sorcererxstreme-backend",
-              "EndpointConfiguration": {
-                "Types": [
-                  "EDGE"
-                ]
-              },
-              "Policy": ""
-            }
-          },
-          "ApiGatewayResourceProxyVar": {
-            "Type": "AWS::ApiGateway::Resource",
-            "Properties": {
-              "ParentId": {
-                "Fn::GetAtt": [
-                  "ApiGatewayRestApi",
-                  "RootResourceId"
-                ]
-              },
-              "PathPart": "{proxy+}",
-              "RestApiId": {
-                "Ref": "ApiGatewayRestApi"
-              }
-            }
-          },
-          "ApiGatewayMethodAny": {
-            "Type": "AWS::ApiGateway::Method",
-            "Properties": {
-              "HttpMethod": "ANY",
-              "RequestParameters": {},
-              "ResourceId": {
-                "Fn::GetAtt": [
-                  "ApiGatewayRestApi",
-                  "RootResourceId"
-                ]
-              },
-              "RestApiId": {
-                "Ref": "ApiGatewayRestApi"
-              },
-              "ApiKeyRequired": "<REDACTED>",
-              "AuthorizationType": "NONE",
-              "Integration": {
-                "IntegrationHttpMethod": "POST",
-                "Type": "AWS_PROXY",
-                "Uri": {
-                  "Fn::Join": [
-                    "",
-                    [
-                      "arn:",
-                      {
-                        "Ref": "AWS::Partition"
-                      },
-                      ":apigateway:",
-                      {
-                        "Ref": "AWS::Region"
-                      },
-                      ":lambda:path/2015-03-31/functions/",
-                      {
-                        "Fn::GetAtt": [
-                          "ApiLambdaFunction",
-                          "Arn"
-                        ]
-                      },
-                      "/invocations"
-                    ]
-                  ]
-                }
-              },
-              "MethodResponses": []
-            },
-            "DependsOn": [
-              "ApiLambdaPermissionApiGateway"
-            ]
-          },
-          "ApiGatewayMethodProxyVarAny": {
-            "Type": "AWS::ApiGateway::Method",
-            "Properties": {
-              "HttpMethod": "ANY",
-              "RequestParameters": {},
-              "ResourceId": {
-                "Ref": "ApiGatewayResourceProxyVar"
-              },
-              "RestApiId": {
-                "Ref": "ApiGatewayRestApi"
-              },
-              "ApiKeyRequired": "<REDACTED>",
-              "AuthorizationType": "NONE",
-              "Integration": {
-                "IntegrationHttpMethod": "POST",
-                "Type": "AWS_PROXY",
-                "Uri": {
-                  "Fn::Join": [
-                    "",
-                    [
-                      "arn:",
-                      {
-                        "Ref": "AWS::Partition"
-                      },
-                      ":apigateway:",
-                      {
-                        "Ref": "AWS::Region"
-                      },
-                      ":lambda:path/2015-03-31/functions/",
-                      {
-                        "Fn::GetAtt": [
-                          "ApiLambdaFunction",
-                          "Arn"
-                        ]
-                      },
-                      "/invocations"
-                    ]
-                  ]
-                }
-              },
-              "MethodResponses": []
-            },
-            "DependsOn": [
-              "ApiLambdaPermissionApiGateway"
-            ]
-          },
-          "ApiGatewayDeployment1764512164522": {
-            "Type": "AWS::ApiGateway::Deployment",
-            "Properties": {
-              "RestApiId": {
-                "Ref": "ApiGatewayRestApi"
-              },
-              "StageName": "dev"
-            },
-            "DependsOn": [
-              "ApiGatewayMethodAny",
-              "ApiGatewayMethodProxyVarAny"
-            ]
-          },
-          "ApiLambdaPermissionApiGateway": {
-            "Type": "AWS::Lambda::Permission",
-            "Properties": {
-              "FunctionName": {
-                "Fn::GetAtt": [
-                  "ApiLambdaFunction",
-                  "Arn"
-                ]
-              },
-              "Action": "lambda:InvokeFunction",
-              "Principal": "apigateway.amazonaws.com",
-              "SourceArn": {
-                "Fn::Join": [
-                  "",
-                  [
-                    "arn:",
-                    {
-                      "Ref": "AWS::Partition"
-                    },
-                    ":execute-api:",
-                    {
-                      "Ref": "AWS::Region"
-                    },
-                    ":",
-                    {
-                      "Ref": "AWS::AccountId"
-                    },
-                    ":",
-                    {
-                      "Ref": "ApiGatewayRestApi"
-                    },
-                    "/*/*"
-                  ]
-                ]
-              }
-            }
-          }
-        },
-        "Outputs": {
-          "ServerlessDeploymentBucketName": {
-            "Value": "serverless-framework-deployments-ap-southeast-1-a38a0297-9cd4",
-            "Export": {
-              "Name": "sls-sorcererxstreme-backend-dev-ServerlessDeploymentBucketName"
-            }
-          },
-          "ApiLambdaFunctionQualifiedArn": {
-            "Description": "Current Lambda function version",
-            "Value": {
-              "Ref": "ApiLambdaVersionPOC3SJGEQZiuYgdrpgM0HaaiVt6dZ0TkIZavtU2xbgg"
-            },
-            "Export": {
-              "Name": "sls-sorcererxstreme-backend-dev-ApiLambdaFunctionQualifiedArn"
-            }
-          },
-          "ServiceEndpoint": {
-            "Description": "URL of the service endpoint",
-            "Value": {
-              "Fn::Join": [
-                "",
-                [
-                  "https://",
-                  {
-                    "Ref": "ApiGatewayRestApi"
-                  },
-                  ".execute-api.",
-                  {
-                    "Ref": "AWS::Region"
-                  },
-                  ".",
-                  {
-                    "Ref": "AWS::URLSuffix"
-                  },
-                  "/dev"
-                ]
-              ]
-            },
-            "Export": {
-              "Name": "sls-sorcererxstreme-backend-dev-ServiceEndpoint"
-            }
+          "throttle": {
+            "burstLimit": 200,
+            "rateLimit": 100
           }
         }
       },
-      "vpc": {}
+      "iam": {
+        "role": {
+          "statements": [
+            {
+              "Effect": "Allow",
+              "Action": [
+                "ses:SendEmail",
+                "ses:SendRawEmail"
+              ],
+              "Resource": "*"
+            }
+          ]
+        }
+      },
+      "stage": "dev",
+      "versionFunctions": true
     },
     "dashboard": {
       "isEnabledForService": false,
@@ -792,11 +159,14 @@
       "serviceProvider": null,
       "instanceParameters": null
     },
-    "serviceRawFile": "service: sorcererxstreme-backend\r\n\r\nprovider:\r\n  name: aws\r\n  runtime: nodejs20.x\r\n  region: ap-southeast-1\r\n  environment:\r\n    DATABASE_URL: ${env:DATABASE_URL}\r\n    JWT_SECRET: ${env:JWT_SECRET}\r\n    FRONTEND_URL: ${env:FRONTEND_URL}\r\n    PRISMA_CLI_BINARY_TARGETS: rhel-openssl-3.0.x\r\n\r\nbuild:\r\n  esbuild:\r\n    bundle: true\r\n    minify: true\r\n    sourcemap: false\r\n    # QUAN TRỌNG: Bỏ dòng external đi!\r\n    # Chúng ta sẽ để esbuild nén luôn cả @prisma/client vào file JS chính.\r\n    # Chỉ loại trừ file binary (vì file này không nén được).\r\n    external:\r\n      - 'aws-sdk' # Lambda có sẵn rồi\r\n      - '@prisma/client/runtime/library' # Phần này Prisma load động\r\n\r\npackage:\r\n  individually: true\r\n  excludeDevDependencies: true\r\n  patterns:\r\n    # 1. XÓA SẠCH TẤT CẢ (Làm sạch môi trường)\r\n    - '!./**'\r\n    - '!node_modules/**'\r\n    \r\n    # 2. CHỈ LẤY LẠI NHỮNG THỨ CẦN THIẾT\r\n    \r\n    # Lấy file binary của Linux (Bắt buộc)\r\n    - 'node_modules/.prisma/client/libquery_engine-rhel-openssl-3.0.x.so.node'\r\n    - 'node_modules/.prisma/client/schema.prisma'\r\n    \r\n    # Lấy code Prisma Client (cần thiết nếu không dùng external)\r\n    # Nếu esbuild bundle tốt thì không cần dòng này, nhưng an toàn thì cứ để\r\n    # - 'node_modules/@prisma/client/**' \r\n\r\nplugins:\r\n  - serverless-offline\r\n\r\nfunctions:\r\n  api:\r\n    handler: src/handler.handler\r\n    events:\r\n      - http:\r\n          path: /\r\n          method: ANY\r\n      - http:\r\n          path: /{proxy+}\r\n          method: ANY",
+    "serviceRawFile": "service: sorcererxstreme-backend\r\n\r\nprovider:\r\n  name: aws\r\n  timeout: 29\r\n  runtime: nodejs20.x\r\n  region: ap-southeast-1\r\n  environment:\r\n    DATABASE_URL: ${ssm:/sorcererxstreme/dev/database_url, true}\r\n    JWT_SECRET: ${ssm:/sorcererxstreme/dev/jwt_secret, true}\r\n    AI_SERVICE_URL: ${env:META_SERVICE_URL}\r\n    CHAT_SERVICE_URL: ${env:CHAT_SERVICE_URL}\r\n    FRONTEND_URL: ${ssm:/sorcererxstreme/dev/frontend_url, true}\r\n    PRISMA_CLI_BINARY_TARGETS: rhel-openssl-3.0.x\r\n  apiGateway:\r\n    # Throttling\r\n    usagePlan:\r\n      quota:\r\n        limit: 5000000\r\n        period: MONTH\r\n      throttle:\r\n        burstLimit: 200\r\n        rateLimit: 100\r\n  iam:\r\n    role:\r\n      statements:\r\n        - Effect: 'Allow'   # <--- Dùng dấu gạch ngang\r\n          Action:\r\n            - 'ses:SendEmail'\r\n            - 'ses:SendRawEmail'\r\n          Resource: '*'\r\n  \r\n\r\nbuild:\r\n  esbuild:\r\n    bundle: true\r\n    minify: true\r\n    sourcemap: false\r\n    external:\r\n      - \"aws-sdk\"\r\n      - \"@prisma/client/runtime/library\"\r\n\r\npackage:\r\n  individually: true\r\n  excludeDevDependencies: true\r\n  patterns:\r\n    - \"!./**\"\r\n    - \"!node_modules/**\"\r\n    - \"node_modules/.prisma/client/libquery_engine-rhel-openssl-3.0.x.so.node\"\r\n    - \"node_modules/.prisma/client/schema.prisma\"\r\n\r\n    # Lấy code Prisma Client (cần thiết nếu không dùng external)\r\n    # Nếu esbuild bundle tốt thì không cần dòng này, nhưng an toàn thì cứ để\r\n    # - 'node_modules/@prisma/client/**'\r\n\r\nplugins:\r\n  - serverless-offline\r\n\r\nfunctions:\r\n  api:\r\n    handler: src/handler.handler\r\n    events:\r\n      - http:\r\n          path: /\r\n          method: ANY\r\n      - http:\r\n          path: /{proxy+}\r\n          method: ANY\r\n\r\n  dailyEmailJob:\r\n    handler: 'src/jobs/cron.runDailyJob'    \r\n    timeout: 60 # Cho 60s để xử lý DB và gửi mail\r\n    \r\n    events: [\r\n      {\r\n        schedule: {\r\n          # Chạy lúc 00:00 UTC hằng ngày (Tức 07:00 sáng giờ VN)\r\n          rate: ['cron(0 1 * * ? *)'], \r\n          enabled: true, # Set false nếu muốn tạm tắt\r\n        },\r\n      },\r\n    ]\r\n\r\n\r\n",
     "command": [
-      "deploy"
+      "invoke"
     ],
-    "options": {},
+    "options": {
+      "log": true,
+      "function": "dailyEmailJob"
+    },
     "orgId": "da97ffff-6efc-4023-86c5-f9b993a348a2",
     "orgName": "sorcererxstreme",
     "userId": "g7ZgMQXRHCVZrct3PR",
@@ -805,12 +175,18 @@
     "serviceProviderAwsCfStackName": "sorcererxstreme-backend-dev",
     "serviceProviderAwsCfStackId": "arn:aws:cloudformation:ap-southeast-1:958923398802:stack/sorcererxstreme-backend-dev/d31df160-cdf2-11f0-a210-02a637576fb5",
     "serviceProviderAwsCfStackCreated": "2025-11-30T13:45:26.428Z",
-    "serviceProviderAwsCfStackUpdated": "2025-11-30T14:09:10.925Z",
-    "serviceProviderAwsCfStackStatus": "UPDATE_ROLLBACK_COMPLETE",
+    "serviceProviderAwsCfStackUpdated": "2025-12-03T10:13:40.688Z",
+    "serviceProviderAwsCfStackStatus": "UPDATE_COMPLETE",
     "serviceProviderAwsCfStackOutputs": [
       {
+        "OutputKey": "DailyEmailJobLambdaFunctionQualifiedArn",
+        "OutputValue": "arn:aws:lambda:ap-southeast-1:958923398802:function:sorcererxstreme-backend-dev-dailyEmailJob:2",
+        "Description": "Current Lambda function version",
+        "ExportName": "sls-sorcererxstreme-backend-dev-DailyEmailJobLambdaFunctionQualifiedArn"
+      },
+      {
         "OutputKey": "ApiLambdaFunctionQualifiedArn",
-        "OutputValue": "arn:aws:lambda:ap-southeast-1:958923398802:function:sorcererxstreme-backend-dev-api:2",
+        "OutputValue": "arn:aws:lambda:ap-southeast-1:958923398802:function:sorcererxstreme-backend-dev-api:10",
         "Description": "Current Lambda function version",
         "ExportName": "sls-sorcererxstreme-backend-dev-ApiLambdaFunctionQualifiedArn"
       },
@@ -825,352 +201,6 @@
         "OutputValue": "serverless-framework-deployments-ap-southeast-1-a38a0297-9cd4",
         "ExportName": "sls-sorcererxstreme-backend-dev-ServerlessDeploymentBucketName"
       }
-    ],
-    "compiledCloudFormationTemplate": {
-      "AWSTemplateFormatVersion": "2010-09-09",
-      "Description": "The AWS CloudFormation template for this Serverless application",
-      "Resources": {
-        "ApiLogGroup": {
-          "Type": "AWS::Logs::LogGroup",
-          "Properties": {
-            "LogGroupName": "/aws/lambda/sorcererxstreme-backend-dev-api"
-          }
-        },
-        "IamRoleLambdaExecution": {
-          "Type": "AWS::IAM::Role",
-          "Properties": {
-            "AssumeRolePolicyDocument": {
-              "Version": "2012-10-17",
-              "Statement": [
-                {
-                  "Effect": "Allow",
-                  "Principal": {
-                    "Service": [
-                      "lambda.amazonaws.com"
-                    ]
-                  },
-                  "Action": [
-                    "sts:AssumeRole"
-                  ]
-                }
-              ]
-            },
-            "Policies": [
-              {
-                "PolicyName": {
-                  "Fn::Join": [
-                    "-",
-                    [
-                      "sorcererxstreme-backend",
-                      "dev",
-                      "lambda"
-                    ]
-                  ]
-                },
-                "PolicyDocument": {
-                  "Version": "2012-10-17",
-                  "Statement": [
-                    {
-                      "Effect": "Allow",
-                      "Action": [
-                        "logs:CreateLogStream",
-                        "logs:CreateLogGroup",
-                        "logs:TagResource"
-                      ],
-                      "Resource": [
-                        {
-                          "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/sorcererxstreme-backend-dev*:*"
-                        }
-                      ]
-                    },
-                    {
-                      "Effect": "Allow",
-                      "Action": [
-                        "logs:PutLogEvents"
-                      ],
-                      "Resource": [
-                        {
-                          "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/sorcererxstreme-backend-dev*:*:*"
-                        }
-                      ]
-                    }
-                  ]
-                }
-              }
-            ],
-            "Path": "/",
-            "RoleName": {
-              "Fn::Join": [
-                "-",
-                [
-                  "sorcererxstreme-backend",
-                  "dev",
-                  {
-                    "Ref": "AWS::Region"
-                  },
-                  "lambdaRole"
-                ]
-              ]
-            }
-          }
-        },
-        "ApiLambdaFunction": {
-          "Type": "AWS::Lambda::Function",
-          "Properties": {
-            "Code": {
-              "S3Bucket": "serverless-framework-deployments-ap-southeast-1-a38a0297-9cd4",
-              "S3Key": "serverless/sorcererxstreme-backend/dev/1764512173733-2025-11-30T14:16:13.733Z/sorcererxstreme-backend-api.zip"
-            },
-            "Handler": "src/handler.handler",
-            "Runtime": "nodejs20.x",
-            "FunctionName": "sorcererxstreme-backend-dev-api",
-            "MemorySize": 1024,
-            "Timeout": 6,
-            "Environment": {
-              "Variables": {
-                "DATABASE_URL": "postgresql://neondb_owner:npg_6dYBHrUN3Vxm@ep-crimson-heart-a1lg2l77-pooler.ap-southeast-1.aws.neon.tech/SorcererXStreme?sslmode=require&channel_binding=require",
-                "JWT_SECRET": "<REDACTED>",
-                "FRONTEND_URL": "http://localhost:3000",
-                "PRISMA_CLI_BINARY_TARGETS": "rhel-openssl-3.0.x"
-              }
-            },
-            "Role": {
-              "Fn::GetAtt": [
-                "IamRoleLambdaExecution",
-                "Arn"
-              ]
-            }
-          },
-          "DependsOn": [
-            "ApiLogGroup"
-          ]
-        },
-        "ApiLambdaVersionPOC3SJGEQZiuYgdrpgM0HaaiVt6dZ0TkIZavtU2xbgg": {
-          "Type": "AWS::Lambda::Version",
-          "DeletionPolicy": "Retain",
-          "Properties": {
-            "FunctionName": {
-              "Ref": "ApiLambdaFunction"
-            },
-            "CodeSha256": "gx+vbyxwTytaTg0oK7WV4B2Vej2v69kBPSm6JDTwYIM="
-          }
-        },
-        "ApiGatewayRestApi": {
-          "Type": "AWS::ApiGateway::RestApi",
-          "Properties": {
-            "Name": "dev-sorcererxstreme-backend",
-            "EndpointConfiguration": {
-              "Types": [
-                "EDGE"
-              ]
-            },
-            "Policy": ""
-          }
-        },
-        "ApiGatewayResourceProxyVar": {
-          "Type": "AWS::ApiGateway::Resource",
-          "Properties": {
-            "ParentId": {
-              "Fn::GetAtt": [
-                "ApiGatewayRestApi",
-                "RootResourceId"
-              ]
-            },
-            "PathPart": "{proxy+}",
-            "RestApiId": {
-              "Ref": "ApiGatewayRestApi"
-            }
-          }
-        },
-        "ApiGatewayMethodAny": {
-          "Type": "AWS::ApiGateway::Method",
-          "Properties": {
-            "HttpMethod": "ANY",
-            "RequestParameters": {},
-            "ResourceId": {
-              "Fn::GetAtt": [
-                "ApiGatewayRestApi",
-                "RootResourceId"
-              ]
-            },
-            "RestApiId": {
-              "Ref": "ApiGatewayRestApi"
-            },
-            "ApiKeyRequired": "<REDACTED>",
-            "AuthorizationType": "NONE",
-            "Integration": {
-              "IntegrationHttpMethod": "POST",
-              "Type": "AWS_PROXY",
-              "Uri": {
-                "Fn::Join": [
-                  "",
-                  [
-                    "arn:",
-                    {
-                      "Ref": "AWS::Partition"
-                    },
-                    ":apigateway:",
-                    {
-                      "Ref": "AWS::Region"
-                    },
-                    ":lambda:path/2015-03-31/functions/",
-                    {
-                      "Fn::GetAtt": [
-                        "ApiLambdaFunction",
-                        "Arn"
-                      ]
-                    },
-                    "/invocations"
-                  ]
-                ]
-              }
-            },
-            "MethodResponses": []
-          },
-          "DependsOn": [
-            "ApiLambdaPermissionApiGateway"
-          ]
-        },
-        "ApiGatewayMethodProxyVarAny": {
-          "Type": "AWS::ApiGateway::Method",
-          "Properties": {
-            "HttpMethod": "ANY",
-            "RequestParameters": {},
-            "ResourceId": {
-              "Ref": "ApiGatewayResourceProxyVar"
-            },
-            "RestApiId": {
-              "Ref": "ApiGatewayRestApi"
-            },
-            "ApiKeyRequired": "<REDACTED>",
-            "AuthorizationType": "NONE",
-            "Integration": {
-              "IntegrationHttpMethod": "POST",
-              "Type": "AWS_PROXY",
-              "Uri": {
-                "Fn::Join": [
-                  "",
-                  [
-                    "arn:",
-                    {
-                      "Ref": "AWS::Partition"
-                    },
-                    ":apigateway:",
-                    {
-                      "Ref": "AWS::Region"
-                    },
-                    ":lambda:path/2015-03-31/functions/",
-                    {
-                      "Fn::GetAtt": [
-                        "ApiLambdaFunction",
-                        "Arn"
-                      ]
-                    },
-                    "/invocations"
-                  ]
-                ]
-              }
-            },
-            "MethodResponses": []
-          },
-          "DependsOn": [
-            "ApiLambdaPermissionApiGateway"
-          ]
-        },
-        "ApiGatewayDeployment1764512164522": {
-          "Type": "AWS::ApiGateway::Deployment",
-          "Properties": {
-            "RestApiId": {
-              "Ref": "ApiGatewayRestApi"
-            },
-            "StageName": "dev"
-          },
-          "DependsOn": [
-            "ApiGatewayMethodAny",
-            "ApiGatewayMethodProxyVarAny"
-          ]
-        },
-        "ApiLambdaPermissionApiGateway": {
-          "Type": "AWS::Lambda::Permission",
-          "Properties": {
-            "FunctionName": {
-              "Fn::GetAtt": [
-                "ApiLambdaFunction",
-                "Arn"
-              ]
-            },
-            "Action": "lambda:InvokeFunction",
-            "Principal": "apigateway.amazonaws.com",
-            "SourceArn": {
-              "Fn::Join": [
-                "",
-                [
-                  "arn:",
-                  {
-                    "Ref": "AWS::Partition"
-                  },
-                  ":execute-api:",
-                  {
-                    "Ref": "AWS::Region"
-                  },
-                  ":",
-                  {
-                    "Ref": "AWS::AccountId"
-                  },
-                  ":",
-                  {
-                    "Ref": "ApiGatewayRestApi"
-                  },
-                  "/*/*"
-                ]
-              ]
-            }
-          }
-        }
-      },
-      "Outputs": {
-        "ServerlessDeploymentBucketName": {
-          "Value": "serverless-framework-deployments-ap-southeast-1-a38a0297-9cd4",
-          "Export": {
-            "Name": "sls-sorcererxstreme-backend-dev-ServerlessDeploymentBucketName"
-          }
-        },
-        "ApiLambdaFunctionQualifiedArn": {
-          "Description": "Current Lambda function version",
-          "Value": {
-            "Ref": "ApiLambdaVersionPOC3SJGEQZiuYgdrpgM0HaaiVt6dZ0TkIZavtU2xbgg"
-          },
-          "Export": {
-            "Name": "sls-sorcererxstreme-backend-dev-ApiLambdaFunctionQualifiedArn"
-          }
-        },
-        "ServiceEndpoint": {
-          "Description": "URL of the service endpoint",
-          "Value": {
-            "Fn::Join": [
-              "",
-              [
-                "https://",
-                {
-                  "Ref": "ApiGatewayRestApi"
-                },
-                ".execute-api.",
-                {
-                  "Ref": "AWS::Region"
-                },
-                ".",
-                {
-                  "Ref": "AWS::URLSuffix"
-                },
-                "/dev"
-              ]
-            ]
-          },
-          "Export": {
-            "Name": "sls-sorcererxstreme-backend-dev-ServiceEndpoint"
-          }
-        }
-      }
-    }
+    ]
   }
 }

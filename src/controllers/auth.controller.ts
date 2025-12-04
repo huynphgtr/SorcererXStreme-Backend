@@ -64,6 +64,13 @@ export async function login(req: Request, res: Response): Promise<void> {
         id: user.id,
         email: user.email,
         name: user.name,
+        gender: user.gender,              
+        birth_date: user.birth_date,      
+        birth_time: user.birth_time,      
+        birth_place: user.birth_place,    
+        is_vip: user.is_vip,              
+        vip_tier: user.vip_tier,          
+        vip_expires_at: user.vip_expires_at, 
       }
     });
 
