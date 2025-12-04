@@ -1,0 +1,45 @@
+name: Deploy Backend to AWS Lambda
+
+on:
+  push:
+    branches:
+      - master # Chỉ chạy khi có code mới vào nhánh main
+  workflow_dispatch: 
+
+jobs:
+  deploy:
+    name: deploy
+    runs-on: ubuntu-latest # Chạy trên máy ảo Linux
+
+    steps:
+    # 1. Lấy code về
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    # 2. Cài Node.js 20
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '20'
+
+    # 3. Cài đặt thư viện (npm install)
+    - name: Install Dependencies
+      run: npm ci
+
+    # 4. Tạo Prisma Client (Bước này bắt buộc để có file binary Linux)
+    - name: Generate Prisma Client
+      run: npx prisma generate
+
+    # 5. Cài Serverless Framework
+    - name: Install Serverless Framework
+      run: npm install -g serverless
+
+    # 6. Deploy lên AWS
+    - name: Serverless Deploy
+      run: serverless deploy
+      env:
+        # Cấp quyền cho GitHub truy cập AWS
+        # Bạn phải cài 2 biến này trong GitHub Repo -> Settings -> Secrets
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        # Các biến môi trường khác (SSM sẽ tự lo phần còn lại)
