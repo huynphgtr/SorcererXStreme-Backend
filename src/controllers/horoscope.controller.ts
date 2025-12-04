@@ -41,9 +41,13 @@ async function handleHoroscopeLogic(
     user_context: userContext
   };
 
+  // console.log('[Horoscope] Sending payload:', JSON.stringify(payload, null, 2)); // DEBUG
+
   const aiResponse = await AIService.callMysticEndpoint(payload);
-  const analysis = aiResponse?.answer?.analysis || '';
-  console.log('[Horoscope] Extracted analysis length:', analysis.length);
+  const analysis = aiResponse?.answer|| aiResponse ;
+  // console.log('[Horoscope] AI Response:', JSON.stringify(aiResponse, null, 2)); // DEBUG
+  // console.log('[Horoscope] aiResponse?.answer:', aiResponse?.answer); // DEBUG
+  // console.log('[Horoscope] Extracted analysis length:', analysis.length);
 
   try {
     if(mode === 'daily'){

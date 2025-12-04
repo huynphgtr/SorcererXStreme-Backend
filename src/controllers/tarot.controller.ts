@@ -157,7 +157,7 @@ export async function processTarotRequest(req: AuthRequest, res: Response): Prom
       userId: userId
     });
     res.status(200).json(result);
-    res.status(200).json(result);
+    // res.status(200).json(result);
 
   } catch (error: any) {
     if (error.message && error.message.includes('Card at index')) {
