@@ -45,3 +45,4 @@ jobs:
         # Các biến môi trường khác (SSM sẽ tự lo phần còn lại)
         SERVERLESS_ACCESS_KEY: ${{ secrets.SERVERLESS_ACCESS_KEY }}
         META_SERVICE_URL: "placeholder_value_for_ci"
+        CHAT_SERVICE_URL: "placeholder_value_for_ci"
