@@ -6,6 +6,7 @@ import { updateProfileSchema , completeProfileSchema } from '../validators/user.
 export async function completeProfile(req: Request, res: Response): Promise<void> {
   try {
     const userId = req.user?.id;
+    console.log('User ID in completeProfile:', userId);
     if (!userId) {
       res.status(401).json({ message: 'Unauthorized' });
       return;

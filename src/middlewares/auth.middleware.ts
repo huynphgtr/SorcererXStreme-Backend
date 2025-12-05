@@ -41,5 +41,55 @@ export interface AuthRequest extends Request {
   userId?: string;
 }
 
+// import { Request, Response, NextFunction } from 'express';
+// import { CognitoJwtVerifier } from 'aws-jwt-verify';
 
+// // 1. Cấu hình Verifier (Bộ kiểm tra token)
+// // Nó sẽ tự động tải Key từ AWS về và cache lại, rất nhanh.
+// const verifier = CognitoJwtVerifier.create({
+//   userPoolId: process.env.USER_POOL_ID!,       // Lấy từ biến môi trường
+//   tokenUse: "access",                          // Chúng ta check Access Token
+//   clientId: process.env.USER_POOL_CLIENT_ID!,  // Lấy từ biến môi trường
+// });
+
+// // Mở rộng kiểu Request để TS không báo lỗi req.user
+// declare global {
+//   namespace Express {
+//     interface Request {
+//       user?: {
+//         id: string;
+//         email?: string;
+//         [key: string]: any;
+//       };
+//     }
+//   }
+// }
+
+// export async function authenticateToken(req: Request, res: Response, next: NextFunction) {
+//   // 2. Lấy token từ Header
+//   const authHeader = req.headers['authorization'];
+//   const token = authHeader && authHeader.split(' ')[1]; // Dạng "Bearer <token>"
+
+//   if (!token) {
+//     return res.status(401).json({ message: 'No token provided' });
+//   }
+
+//   try {
+//     // 3. Verify Token bằng thư viện AWS
+//     // Nếu token hết hạn, sai chữ ký, hoặc sai Client ID -> Nó sẽ tự throw error
+//     const payload = await verifier.verify(token);
+
+//     // 4. Gắn thông tin User vào Request
+//     // payload.sub chính là UUID của user (trùng với ID trong NeonDB)
+//     req.user = {
+//       id: payload.sub,
+//       email: payload.username, // Cognito thường để username là email (nếu config vậy)
+//     };
+
+//     next(); // Cho phép đi tiếp
+//   } catch (err) {
+//     console.error('Auth Error:', err);
+//     return res.status(401).json({ message: 'Unauthorized: Invalid or expired token' });
+//   }
+// }
 

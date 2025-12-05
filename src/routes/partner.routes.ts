@@ -4,7 +4,6 @@ import { addPartner, removePartner } from '../controllers/partner.controller';
 
 const partnerRouter = Router();
 partnerRouter.use(authenticateToken);
-
 partnerRouter.post('/', addPartner); 
 partnerRouter.delete('/', removePartner);
 
