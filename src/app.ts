@@ -17,21 +17,42 @@ dotenv.config();
 const app: Application = express();
 
 // --- CẤU HÌNH CORS ---
-const allowedOrigins = [
-  process.env.FRONTEND_URL || 'http://localhost:3000',
-  'http://localhost:3001'
-];
+// const allowedOrigins = [
+//   process.env.FRONTEND_URL || 'http://localhost:3001'
+// ];
+
+// app.use(cors({
+//   origin: (origin, callback) => {
+//     if (!origin) return callback(null, true);
+//     if (allowedOrigins.indexOf(origin) === -1) {
+//       const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+//       return callback(new Error(msg), false);
+//     }
+//     return callback(null, true);
+//   },
+//   credentials: true
+// }));
 
 app.use(cors({
-  origin: (origin, callback) => {
+  origin: function (origin, callback) {
+    // 1. Cho phép các request không có Origin (như Postman, Server-to-Server, Mobile App)
     if (!origin) return callback(null, true);
-    if (allowedOrigins.indexOf(origin) === -1) {
-      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-      return callback(new Error(msg), false);
+
+    const allowedOrigins = [
+      process.env.FRONTEND_URL,  
+      'https://main.d30n5a8g6cs88k.amplifyapp.com',    
+      'http://localhost:3001'
+    ];
+
+    // 2. Kiểm tra Origin có nằm trong danh sách không
+    if (allowedOrigins.indexOf(origin) !== -1 || !process.env.FRONTEND_URL) {
+      callback(null, true);
+    } else {
+      console.log('Blocked Origin:', origin); 
+      callback(new Error(`The CORS policy for this site does not allow access from ${origin}`));
     }
-    return callback(null, true);
   },
-  credentials: true
+  credentials: true 
 }));
 
 // --- MIDDLEWARES ---

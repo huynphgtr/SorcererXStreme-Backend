@@ -127,7 +127,7 @@ export async function forgotPassword(req: Request, res: Response) {
       return;
     }
     console.error('[Forgot Password Error]:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({ message: 'Internal server error', error});
   }
 }
 
@@ -148,7 +148,7 @@ export async function resetPassword(req: Request, res: Response) {
       return;
     }
     console.error('[Reset Password Error]:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({ message: 'Internal server error', error});
   }
 }
 

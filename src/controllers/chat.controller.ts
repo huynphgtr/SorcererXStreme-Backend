@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { VIPService } from '../services/vip.service';
-import { ChatService } from '../services/chat.service'; 
+import { ChatService } from '../services/chat.service';
 import { AIService } from '../services/ai.service';
 
 // Interface cho Request có user (đã qua middleware auth)
@@ -21,7 +21,7 @@ interface ChatContext {
 
 function validateRequiredFields(ctx: any, label: string): string | null {
   if (!ctx) return `Missing ${label} object`;
-  
+
   const required = ['name', 'birth_date', 'birth_time', 'gender'];
   const missing = required.find(field => !ctx[field] || ctx[field].toString().trim() === '');
 
@@ -47,21 +47,34 @@ export async function sendMessage(params: {
     partner_context: partnerContext ?? null,
     data: {
       sessionId: sessionId,
-      question: question, 
+      question: question,
     }
   };
 
   try {
     // 3. Gọi AI Service
     const aiResponseContent = await AIService.sendChatMessage(aiPayload);
-    return {
-      // sessionId,
-      // question,
-      answer: aiResponseContent
-    };
+
+    const bodyString = aiResponseContent?.data?.answer?.body || aiResponseContent?.answer?.body || aiResponseContent?.body;
+
+    if (!bodyString) {
+      console.warn("Không tìm thấy body trong phản hồi của AI Service", aiResponseContent);
+      return "Không nhận được phản hồi phù hợp.";
+    }
+
+    // Bước 2: Parse chuỗi JSON trong body (vì body đang là dạng string "{\"sessionId\": ...}")
+    const parsedBody = JSON.parse(bodyString);
+
+    // Bước 3: Trả về trực tiếp nội dung 'reply'
+    return parsedBody.reply;
+    // return {
+    //   // sessionId,
+    //   // question,
+    //   answer: aiResponseContent
+    // };
   } catch (error) {
     console.error('Error inside sendMessage:', error);
-    throw error; 
+    throw error;
   }
 }
 
@@ -89,7 +102,7 @@ export async function processMessage(req: AuthRequest, res: Response): Promise<v
     }
 
     const { domain, feature_type, user_context, partner_context, data } = req.body ?? {};
-    
+
     const sessionId = data?.sessionId;
     const question = data?.question;
 
@@ -132,7 +145,7 @@ export async function processMessage(req: AuthRequest, res: Response): Promise<v
     const accessCheck = await VIPService.checkFeatureAccess(userId, 'chatMessagesPerDay');
 
     if (!accessCheck.allowed) {
-       res.status(403).json({
+      res.status(403).json({
         success: false,
         code: 'LIMIT_REACHED',
         message: 'Bạn đã hết lượt chat với AI trong ngày.',
@@ -162,12 +175,12 @@ export async function processMessage(req: AuthRequest, res: Response): Promise<v
     // ==================================================================
     await VIPService.incrementUsage(userId, 'chat');
     res.status(200).json({
-      success: true,
+      // success: true,
       data: result,
-      usage: {
-        current: (accessCheck.currentUsage || 0) + 1,
-        limit: accessCheck.limit
-      }
+      // usage: {
+      //   current: (accessCheck.currentUsage || 0) + 1,
+      //   limit: accessCheck.limit
+      // }
     });
 
   } catch (error: any) {
