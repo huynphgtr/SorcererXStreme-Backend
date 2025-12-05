@@ -9,13 +9,20 @@
       "timeout": 29,
       "runtime": "nodejs20.x",
       "region": "ap-southeast-1",
+      "stage": "dev",
       "environment": {
         "DATABASE_URL": "postgresql://neondb_owner:npg_6dYBHrUN3Vxm@ep-crimson-heart-a1lg2l77-pooler.ap-southeast-1.aws.neon.tech/SorcererXStreme?sslmode=require&channel_binding=require",
         "JWT_SECRET": "your-super-secret-jwt-key-here-change-in-production",
-        "AI_SERVICE_URL": "https://o9i37lplba.execute-api.ap-southeast-1.amazonaws.com/deploy1/metaphysical",
+        "META_SERVICE_URL": "https://o9i37lplba.execute-api.ap-southeast-1.amazonaws.com/deploy1/metaphysical",
         "CHAT_SERVICE_URL": "https://o9i37lplba.execute-api.ap-southeast-1.amazonaws.com/deploy1/chatbot",
         "FRONTEND_URL": "https://main.d30n5a8g6cs88k.amplifyapp.com/",
-        "PRISMA_CLI_BINARY_TARGETS": "rhel-openssl-3.0.x"
+        "PRISMA_CLI_BINARY_TARGETS": "rhel-openssl-3.0.x",
+        "USER_POOL_ID": {
+          "Ref": "SorcererUserPool"
+        },
+        "USER_POOL_CLIENT_ID": {
+          "Ref": "SorcererUserPoolClient"
+        }
       },
       "apiGateway": {
         "usagePlan": {
@@ -43,7 +50,6 @@
           ]
         }
       },
-      "stage": "dev",
       "versionFunctions": true,
       "compiledCloudFormationTemplate": {
         "AWSTemplateFormatVersion": "2010-09-09",
@@ -59,6 +65,12 @@
             "Type": "AWS::Logs::LogGroup",
             "Properties": {
               "LogGroupName": "/aws/lambda/sorcererxstreme-backend-dev-dailyEmailJob"
+            }
+          },
+          "SyncUserLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/sorcererxstreme-backend-dev-syncUser"
             }
           },
           "IamRoleLambdaExecution": {
@@ -147,7 +159,7 @@
             "Properties": {
               "Code": {
                 "S3Bucket": "serverless-framework-deployments-ap-southeast-1-a38a0297-9cd4",
-                "S3Key": "serverless/sorcererxstreme-backend/dev/1764756814370-2025-12-03T10:13:34.370Z/sorcererxstreme-backend-api.zip"
+                "S3Key": "serverless/sorcererxstreme-backend/dev/1764924589974-2025-12-05T08:49:49.974Z/sorcererxstreme-backend-api.zip"
               },
               "Handler": "src/handler.handler",
               "Runtime": "nodejs20.x",
@@ -158,10 +170,16 @@
                 "Variables": {
                   "DATABASE_URL": "postgresql://neondb_owner:npg_6dYBHrUN3Vxm@ep-crimson-heart-a1lg2l77-pooler.ap-southeast-1.aws.neon.tech/SorcererXStreme?sslmode=require&channel_binding=require",
                   "JWT_SECRET": "your-super-secret-jwt-key-here-change-in-production",
-                  "AI_SERVICE_URL": "https://o9i37lplba.execute-api.ap-southeast-1.amazonaws.com/deploy1/metaphysical",
+                  "META_SERVICE_URL": "https://o9i37lplba.execute-api.ap-southeast-1.amazonaws.com/deploy1/metaphysical",
                   "CHAT_SERVICE_URL": "https://o9i37lplba.execute-api.ap-southeast-1.amazonaws.com/deploy1/chatbot",
                   "FRONTEND_URL": "https://main.d30n5a8g6cs88k.amplifyapp.com/",
-                  "PRISMA_CLI_BINARY_TARGETS": "rhel-openssl-3.0.x"
+                  "PRISMA_CLI_BINARY_TARGETS": "rhel-openssl-3.0.x",
+                  "USER_POOL_ID": {
+                    "$ref": "$[\"service\"][\"provider\"][\"environment\"][\"USER_POOL_ID\"]"
+                  },
+                  "USER_POOL_CLIENT_ID": {
+                    "$ref": "$[\"service\"][\"provider\"][\"environment\"][\"USER_POOL_CLIENT_ID\"]"
+                  }
                 }
               },
               "Role": {
@@ -180,7 +198,7 @@
             "Properties": {
               "Code": {
                 "S3Bucket": "serverless-framework-deployments-ap-southeast-1-a38a0297-9cd4",
-                "S3Key": "serverless/sorcererxstreme-backend/dev/1764756814370-2025-12-03T10:13:34.370Z/sorcererxstreme-backend-dailyEmailJob.zip"
+                "S3Key": "serverless/sorcererxstreme-backend/dev/1764924589974-2025-12-05T08:49:49.974Z/sorcererxstreme-backend-dailyEmailJob.zip"
               },
               "Handler": "src/jobs/cron.runDailyJob",
               "Runtime": "nodejs20.x",
@@ -191,10 +209,16 @@
                 "Variables": {
                   "DATABASE_URL": "postgresql://neondb_owner:npg_6dYBHrUN3Vxm@ep-crimson-heart-a1lg2l77-pooler.ap-southeast-1.aws.neon.tech/SorcererXStreme?sslmode=require&channel_binding=require",
                   "JWT_SECRET": "your-super-secret-jwt-key-here-change-in-production",
-                  "AI_SERVICE_URL": "https://o9i37lplba.execute-api.ap-southeast-1.amazonaws.com/deploy1/metaphysical",
+                  "META_SERVICE_URL": "https://o9i37lplba.execute-api.ap-southeast-1.amazonaws.com/deploy1/metaphysical",
                   "CHAT_SERVICE_URL": "https://o9i37lplba.execute-api.ap-southeast-1.amazonaws.com/deploy1/chatbot",
                   "FRONTEND_URL": "https://main.d30n5a8g6cs88k.amplifyapp.com/",
-                  "PRISMA_CLI_BINARY_TARGETS": "rhel-openssl-3.0.x"
+                  "PRISMA_CLI_BINARY_TARGETS": "rhel-openssl-3.0.x",
+                  "USER_POOL_ID": {
+                    "$ref": "$[\"service\"][\"provider\"][\"environment\"][\"USER_POOL_ID\"]"
+                  },
+                  "USER_POOL_CLIENT_ID": {
+                    "$ref": "$[\"service\"][\"provider\"][\"environment\"][\"USER_POOL_CLIENT_ID\"]"
+                  }
                 }
               },
               "Role": {
@@ -208,31 +232,80 @@
               "DailyEmailJobLogGroup"
             ]
           },
-          "DailyEmailJobLambdaVersionBbatAZTJQNbljoid0d34ELULHfeSbrYgUSZ4xV1sbuA": {
+          "SyncUserLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": "serverless-framework-deployments-ap-southeast-1-a38a0297-9cd4",
+                "S3Key": "serverless/sorcererxstreme-backend/dev/1764924589974-2025-12-05T08:49:49.974Z/sorcererxstreme-backend-syncUser.zip"
+              },
+              "Handler": "src/handlers/auth-trigger.postConfirmation",
+              "Runtime": "nodejs20.x",
+              "FunctionName": "sorcererxstreme-backend-dev-syncUser",
+              "MemorySize": 1024,
+              "Timeout": 29,
+              "Environment": {
+                "Variables": {
+                  "DATABASE_URL": "postgresql://neondb_owner:npg_6dYBHrUN3Vxm@ep-crimson-heart-a1lg2l77-pooler.ap-southeast-1.aws.neon.tech/SorcererXStreme?sslmode=require&channel_binding=require",
+                  "JWT_SECRET": "your-super-secret-jwt-key-here-change-in-production",
+                  "META_SERVICE_URL": "https://o9i37lplba.execute-api.ap-southeast-1.amazonaws.com/deploy1/metaphysical",
+                  "CHAT_SERVICE_URL": "https://o9i37lplba.execute-api.ap-southeast-1.amazonaws.com/deploy1/chatbot",
+                  "FRONTEND_URL": "https://main.d30n5a8g6cs88k.amplifyapp.com/",
+                  "PRISMA_CLI_BINARY_TARGETS": "rhel-openssl-3.0.x",
+                  "USER_POOL_ID": {
+                    "$ref": "$[\"service\"][\"provider\"][\"environment\"][\"USER_POOL_ID\"]"
+                  },
+                  "USER_POOL_CLIENT_ID": {
+                    "$ref": "$[\"service\"][\"provider\"][\"environment\"][\"USER_POOL_CLIENT_ID\"]"
+                  }
+                }
+              },
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              }
+            },
+            "DependsOn": [
+              "SyncUserLogGroup"
+            ]
+          },
+          "DailyEmailJobLambdaVersionDKkOv6kuUjTzLWq8UevrZSReJHGnpJTvY4Wo595z6c": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "DailyEmailJobLambdaFunction"
               },
-              "CodeSha256": "b7pGjVaMqludas+JvYY63TFr73jBf2YKEJGvep8Pq3I="
+              "CodeSha256": "Y1EwkVerx1b+RQKIKCSUgKLYs4rDNa9f8TmkMfxnkZY="
             }
           },
-          "ApiLambdaVersionwII2BUAkm7qKl3wvm8OS4dZ7dewRIAStKCijD7Dpjo": {
+          "SyncUserLambdaVersionj8WagnO2IFThblNeiRgdJuibONQAi7ycw1aTYYOVQI": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "SyncUserLambdaFunction"
+              },
+              "CodeSha256": "Ej6Et7fXcch3/JuXs4huqC/s9SvsIXOsVJ/HxCMUm4o="
+            }
+          },
+          "ApiLambdaVersionb2cyvDo0ygydCJioNbH8qa1hez1ahGAq38FmKxuPg4": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "ApiLambdaFunction"
               },
-              "CodeSha256": "a9sktTbaoPZDCMYj1+Xil/MvuLuQTjVxQoqWN5XLwlQ="
+              "CodeSha256": "QLYYH6Zfh1HFJq+b92wcEngBgROAIRIVLudAZjJVLpU="
             }
           },
           "DailyEmailJobEventsRuleSchedule1": {
             "Type": "AWS::Events::Rule",
             "Properties": {
               "ScheduleExpression": "cron(0 1 * * ? *)",
-              "State": "ENABLED",
+              "State": "DISABLED",
               "Targets": [
                 {
                   "Arn": {
@@ -387,7 +460,7 @@
               "ApiLambdaPermissionApiGateway"
             ]
           },
-          "ApiGatewayDeployment1764756805580": {
+          "ApiGatewayDeployment1764924580065": {
             "Type": "AWS::ApiGateway::Deployment",
             "Properties": {
               "RestApiId": {
@@ -402,7 +475,7 @@
           },
           "ApiGatewayUsagePlan": {
             "Type": "AWS::ApiGateway::UsagePlan",
-            "DependsOn": "ApiGatewayDeployment1764756805580",
+            "DependsOn": "ApiGatewayDeployment1764924580065",
             "Properties": {
               "ApiStages": [
                 {
@@ -460,6 +533,199 @@
                 ]
               }
             }
+          },
+          "SyncUserCustomCognitoUserPool1": {
+            "Type": "Custom::CognitoUserPool",
+            "Version": "1.0",
+            "DependsOn": [
+              "SyncUserLambdaFunction",
+              "CustomDashresourceDashexistingDashcupLambdaFunction"
+            ],
+            "Properties": {
+              "ServiceToken": {
+                "Fn::GetAtt": [
+                  "CustomDashresourceDashexistingDashcupLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "FunctionName": "sorcererxstreme-backend-dev-syncUser",
+              "UserPoolName": "sorcererxstreme-backend-dev-user-pool",
+              "UserPoolConfigs": [
+                {
+                  "Trigger": "PostConfirmation"
+                }
+              ]
+            }
+          },
+          "IamRoleCustomResourcesLambdaExecution": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+              "AssumeRolePolicyDocument": {
+                "Version": "2012-10-17",
+                "Statement": [
+                  {
+                    "Effect": "Allow",
+                    "Principal": {
+                      "Service": [
+                        "lambda.amazonaws.com"
+                      ]
+                    },
+                    "Action": [
+                      "sts:AssumeRole"
+                    ]
+                  }
+                ]
+              },
+              "Policies": [
+                {
+                  "PolicyName": {
+                    "Fn::Join": [
+                      "-",
+                      [
+                        "dev",
+                        "sorcererxstreme-backend",
+                        "custom-resources-lambda"
+                      ]
+                    ]
+                  },
+                  "PolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                      {
+                        "Effect": "Allow",
+                        "Action": [
+                          "logs:CreateLogStream",
+                          "logs:CreateLogGroup",
+                          "logs:TagResource"
+                        ],
+                        "Resource": [
+                          {
+                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/sorcererxstreme-backend-dev*:*"
+                          }
+                        ]
+                      },
+                      {
+                        "Effect": "Allow",
+                        "Action": [
+                          "logs:PutLogEvents"
+                        ],
+                        "Resource": [
+                          {
+                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/sorcererxstreme-backend-dev*:*:*"
+                          }
+                        ]
+                      },
+                      {
+                        "Effect": "Allow",
+                        "Resource": "*",
+                        "Action": [
+                          "cognito-idp:ListUserPools",
+                          "cognito-idp:DescribeUserPool",
+                          "cognito-idp:UpdateUserPool"
+                        ]
+                      },
+                      {
+                        "Effect": "Allow",
+                        "Resource": {
+                          "Fn::Sub": "arn:${AWS::Partition}:lambda:*:*:function:sorcererxstreme-backend-dev-syncUser"
+                        },
+                        "Action": [
+                          "lambda:AddPermission",
+                          "lambda:RemovePermission"
+                        ]
+                      },
+                      {
+                        "Effect": "Allow",
+                        "Resource": {
+                          "Fn::Sub": "arn:${AWS::Partition}:iam::*:role/*"
+                        },
+                        "Action": [
+                          "iam:PassRole"
+                        ]
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          "CustomDashresourceDashexistingDashcupLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": "serverless-framework-deployments-ap-southeast-1-a38a0297-9cd4",
+                "S3Key": "serverless/sorcererxstreme-backend/dev/1764924589974-2025-12-05T08:49:49.974Z/custom-resources.zip"
+              },
+              "FunctionName": "sorcererxstreme-backend-dev-custom-resource-existing-cup",
+              "Handler": "cognito-user-pool/handler.handler",
+              "MemorySize": 1024,
+              "Runtime": "nodejs22.x",
+              "Timeout": 180,
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleCustomResourcesLambdaExecution",
+                  "Arn"
+                ]
+              }
+            },
+            "DependsOn": [
+              "IamRoleCustomResourcesLambdaExecution",
+              "CustomDashresourceDashexistingDashcupLogGroup"
+            ]
+          },
+          "CustomDashresourceDashexistingDashcupLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/sorcererxstreme-backend-dev-custom-resource-existing-cup"
+            }
+          },
+          "SorcererUserPool": {
+            "Type": "AWS::Cognito::UserPool",
+            "Properties": {
+              "UserPoolName": "sorcererxstreme-backend-dev-user-pool",
+              "UsernameAttributes": [
+                "email"
+              ],
+              "AutoVerifiedAttributes": [
+                "email"
+              ],
+              "Policies": {
+                "PasswordPolicy": {
+                  "MinimumLength": 8,
+                  "RequireLowercase": true,
+                  "RequireNumbers": true,
+                  "RequireSymbols": true,
+                  "RequireUppercase": true
+                }
+              },
+              "Schema": [
+                {
+                  "Name": "email",
+                  "Required": true,
+                  "Mutable": true
+                },
+                {
+                  "Name": "name",
+                  "Required": false,
+                  "Mutable": true
+                }
+              ]
+            }
+          },
+          "SorcererUserPoolClient": {
+            "Type": "AWS::Cognito::UserPoolClient",
+            "Properties": {
+              "ClientName": "sorcererxstreme-backend-dev-client",
+              "UserPoolId": {
+                "Ref": "SorcererUserPool"
+              },
+              "GenerateSecret": false,
+              "ExplicitAuthFlows": [
+                "ALLOW_USER_SRP_AUTH",
+                "ALLOW_REFRESH_TOKEN_AUTH",
+                "ALLOW_USER_PASSWORD_AUTH"
+              ]
+            }
           }
         },
         "Outputs": {
@@ -472,16 +738,25 @@
           "DailyEmailJobLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "DailyEmailJobLambdaVersionBbatAZTJQNbljoid0d34ELULHfeSbrYgUSZ4xV1sbuA"
+              "Ref": "DailyEmailJobLambdaVersionDKkOv6kuUjTzLWq8UevrZSReJHGnpJTvY4Wo595z6c"
             },
             "Export": {
               "Name": "sls-sorcererxstreme-backend-dev-DailyEmailJobLambdaFunctionQualifiedArn"
             }
           },
+          "SyncUserLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "SyncUserLambdaVersionj8WagnO2IFThblNeiRgdJuibONQAi7ycw1aTYYOVQI"
+            },
+            "Export": {
+              "Name": "sls-sorcererxstreme-backend-dev-SyncUserLambdaFunctionQualifiedArn"
+            }
+          },
           "ApiLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "ApiLambdaVersionwII2BUAkm7qKl3wvm8OS4dZ7dewRIAStKCijD7Dpjo"
+              "Ref": "ApiLambdaVersionb2cyvDo0ygydCJioNbH8qa1hez1ahGAq38FmKxuPg4"
             },
             "Export": {
               "Name": "sls-sorcererxstreme-backend-dev-ApiLambdaFunctionQualifiedArn"
@@ -511,6 +786,16 @@
             },
             "Export": {
               "Name": "sls-sorcererxstreme-backend-dev-ServiceEndpoint"
+            }
+          },
+          "UserPoolId": {
+            "Value": {
+              "Ref": "SorcererUserPool"
+            }
+          },
+          "UserPoolClientId": {
+            "Value": {
+              "Ref": "SorcererUserPoolClient"
             }
           }
         }
@@ -548,7 +833,7 @@
         "timeout": 29,
         "runtime": "nodejs20.x",
         "vpc": {},
-        "versionLogicalId": "ApiLambdaVersionwII2BUAkm7qKl3wvm8OS4dZ7dewRIAStKCijD7Dpjo"
+        "versionLogicalId": "ApiLambdaVersionb2cyvDo0ygydCJioNbH8qa1hez1ahGAq38FmKxuPg4"
       },
       "dailyEmailJob": {
         "handler": "src/jobs/cron.runDailyJob",
@@ -559,7 +844,7 @@
               "rate": [
                 "cron(0 1 * * ? *)"
               ],
-              "enabled": true
+              "enabled": false
             }
           }
         ],
@@ -570,12 +855,98 @@
         "memory": 1024,
         "runtime": "nodejs20.x",
         "vpc": {},
-        "versionLogicalId": "DailyEmailJobLambdaVersionBbatAZTJQNbljoid0d34ELULHfeSbrYgUSZ4xV1sbuA"
+        "versionLogicalId": "DailyEmailJobLambdaVersionDKkOv6kuUjTzLWq8UevrZSReJHGnpJTvY4Wo595z6c"
+      },
+      "syncUser": {
+        "handler": "src/handlers/auth-trigger.postConfirmation",
+        "events": [
+          {
+            "cognitoUserPool": {
+              "pool": "sorcererxstreme-backend-dev-user-pool",
+              "trigger": "PostConfirmation",
+              "existing": true
+            }
+          }
+        ],
+        "name": "sorcererxstreme-backend-dev-syncUser",
+        "package": {
+          "artifact": "D:\\FCJ\\SorcererXStreme-Backend\\.serverless\\build\\sorcererxstreme-backend-syncUser.zip"
+        },
+        "memory": 1024,
+        "timeout": 29,
+        "runtime": "nodejs20.x",
+        "vpc": {},
+        "versionLogicalId": "SyncUserLambdaVersionj8WagnO2IFThblNeiRgdJuibONQAi7ycw1aTYYOVQI"
+      }
+    },
+    "resources": {
+      "Resources": {
+        "SorcererUserPool": {
+          "Type": "AWS::Cognito::UserPool",
+          "Properties": {
+            "UserPoolName": "sorcererxstreme-backend-dev-user-pool",
+            "UsernameAttributes": [
+              "email"
+            ],
+            "AutoVerifiedAttributes": [
+              "email"
+            ],
+            "Policies": {
+              "PasswordPolicy": {
+                "MinimumLength": 8,
+                "RequireLowercase": true,
+                "RequireNumbers": true,
+                "RequireSymbols": true,
+                "RequireUppercase": true
+              }
+            },
+            "Schema": [
+              {
+                "Name": "email",
+                "Required": true,
+                "Mutable": true
+              },
+              {
+                "Name": "name",
+                "Required": false,
+                "Mutable": true
+              }
+            ]
+          }
+        },
+        "SorcererUserPoolClient": {
+          "Type": "AWS::Cognito::UserPoolClient",
+          "Properties": {
+            "ClientName": "sorcererxstreme-backend-dev-client",
+            "UserPoolId": {
+              "Ref": "SorcererUserPool"
+            },
+            "GenerateSecret": false,
+            "ExplicitAuthFlows": [
+              "ALLOW_USER_SRP_AUTH",
+              "ALLOW_REFRESH_TOKEN_AUTH",
+              "ALLOW_USER_PASSWORD_AUTH"
+            ]
+          }
+        }
+      },
+      "Outputs": {
+        "UserPoolId": {
+          "Value": {
+            "Ref": "SorcererUserPool"
+          }
+        },
+        "UserPoolClientId": {
+          "Value": {
+            "Ref": "SorcererUserPoolClient"
+          }
+        }
       }
     },
     "configValidationMode": "warn",
     "serviceFilename": "serverless",
     "initialServerlessConfig": {
+      "org": "sorcererxstreme",
       "service": "sorcererxstreme-backend",
       "provider": {
         "$ref": "$[\"service\"][\"provider\"]"
@@ -602,16 +973,20 @@
         ],
         "artifactsS3KeyDirname": "serverless/sorcererxstreme-backend/dev/code-artifacts",
         "deploymentBucket": "serverless-framework-deployments-ap-southeast-1-a38a0297-9cd4",
-        "artifactDirectoryName": "serverless/sorcererxstreme-backend/dev/1764756814370-2025-12-03T10:13:34.370Z"
+        "artifactDirectoryName": "serverless/sorcererxstreme-backend/dev/1764924589974-2025-12-05T08:49:49.974Z"
       },
       "plugins": {
         "$ref": "$[\"service\"][\"plugins\"]"
       },
       "functions": {
         "$ref": "$[\"service\"][\"functions\"]"
+      },
+      "resources": {
+        "$ref": "$[\"service\"][\"resources\"]"
       }
     },
     "appId": null,
+    "org": "sorcererxstreme",
     "orgId": null,
     "build": {
       "$ref": "$[\"service\"][\"initialServerlessConfig\"][\"build\"]"
@@ -620,7 +995,7 @@
   },
   "package": {
     "individually": true,
-    "artifactDirectoryName": "serverless/sorcererxstreme-backend/dev/1764756814370-2025-12-03T10:13:34.370Z",
+    "artifactDirectoryName": "serverless/sorcererxstreme-backend/dev/1764924589974-2025-12-05T08:49:49.974Z",
     "artifact": ""
   }
 }

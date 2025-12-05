@@ -5,7 +5,6 @@ import { getReminderSettings, updateReminderSettings } from '../controllers/remi
 const reminderRouter = Router();
 
 reminderRouter.use(authenticateToken);
-
 reminderRouter.get('/', getReminderSettings);
 reminderRouter.patch('/', updateReminderSettings);
 
