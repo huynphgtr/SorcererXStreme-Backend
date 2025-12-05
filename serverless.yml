@@ -16,7 +16,7 @@ provider:
     EMAIL_PORT: ${env:EMAIL_PORT}
     EMAIL_USER: ${env:EMAIL_USER}
     EMAIL_PASS: ${env:EMAIL_PASS}
-    FRONTEND_URL: ${env:FRONTEND_URL}
+    FRONTEND_URL: ${ssm:/sorcererxstreme/${self:provider.stage}/frontend_url, true}
     PRISMA_CLI_BINARY_TARGETS: rhel-openssl-3.0.x
     USER_POOL_ID: { Ref: SorcererUserPool }
     USER_POOL_CLIENT_ID: { Ref: SorcererUserPoolClient }
