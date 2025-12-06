@@ -42,8 +42,8 @@ jobs:
       env:
         # Vẫn cần Key của Serverless V4
         SERVERLESS_ACCESS_KEY: ${{ secrets.SERVERLESS_ACCESS_KEY }}
-        META_SERVICE_URL: "placeholder_value_for_ci"
-        CHAT_SERVICE_URL: "placeholder_value_for_ci"
+        META_SERVICE_URL: ${{ secrets.META_SERVICE_URL }}
+        CHAT_SERVICE_URL: ${{ secrets.CHAT_SERVICE_URL }}
         EMAIL_HOST: ${{ secrets.EMAIL_HOST }}
         EMAIL_PORT: ${{ secrets.EMAIL_PORT }}
         EMAIL_USER: ${{ secrets.EMAIL_USER }}
