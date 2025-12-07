@@ -12,16 +12,39 @@ type AddPartnerData = { // Đổi tên cho rõ nghĩa
 
 export class PartnerService {
 
-  // Kiểm tra xem user có đang trong một mối quan hệ không
-  static async hasActivePartner(userId: string): Promise<boolean> {
+// Kiểm tra xem user có đang trong một mối quan hệ không
+static async hasActivePartner(userId: string): Promise<boolean> {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { partner_name: true },
+  });
+  // Nếu partner_name không phải null, nghĩa là đang có partner
+  return user?.partner_name != null;
+}
+
+// --- Hiển thị thông tin partner ---
+  static async getPartner(userId: string) {
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      select: { partner_name: true },
+      select: {
+        partner_name: true,
+        partner_gender: true,
+        partner_birth_date: true,
+        partner_birth_time: true,
+        partner_birth_place: true,
+        relationship_start_date: true,
+      },
     });
-    // Nếu partner_name không phải null, nghĩa là đang có partner
-    return user?.partner_name != null;
+
+    // Nếu không tìm thấy user hoặc trường partner_name rỗng
+    if (!user || !user.partner_name) {
+      return null; // Hoặc bạn có thể throw new Error('No active partner found');
+    }
+
+    return user;
   }
 
+//Thêm partner mới
 static async addPartner(userId: string, data: AddPartnerData) {
     // BƯỚC 1: KIỂM TRA ĐIỀU KIỆN TIÊN QUYẾT
     const hasPartner = await this.hasActivePartner(userId);
@@ -49,18 +72,19 @@ static async addPartner(userId: string, data: AddPartnerData) {
     });
   }
 
-  // Hàm "chia tay": chỉ cần xóa thông tin
-  static async removePartner(userId: string) {
-    return prisma.user.update({
-      where: { id: userId },
-      data: {
-        partner_name: null,
-        partner_gender: null,
-        partner_birth_date: null,
-        partner_birth_time: null,
-        partner_birth_place: null,
-        relationship_start_date: null,
-      }
-    });
-  }
+// Hàm "chia tay"
+static async removePartner(userId: string) {
+  return prisma.user.update({
+    where: { id: userId },
+    data: {
+      partner_name: null,
+      partner_gender: null,
+      partner_birth_date: null,
+      partner_birth_time: null,
+      partner_birth_place: null,
+      relationship_start_date: null,
+    }
+  });
+}
+
 }
