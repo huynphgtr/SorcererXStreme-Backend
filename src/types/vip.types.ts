@@ -5,9 +5,18 @@ export enum VIPTier {
 
 export enum SubscriptionStatus {
   ACTIVE = 'active',
+  PENDING = 'pending', 
   EXPIRED = 'expired',
   CANCELLED = 'cancelled'
 }
+
+export const BANK_CONFIG = {
+  BANK_ID: 'TPB', 
+  ACCOUNT_NO: '10001718658', 
+  ACCOUNT_NAME: 'TRAN PHUONG HUYEN' , 
+  TEMPLATE: 'compact', 
+  TX_PREFIX: 'VIPDH'
+};
 
 export interface VIPFeatureLimits {
   

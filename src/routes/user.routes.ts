@@ -1,11 +1,11 @@
 import { Router } from 'express';
 import { completeProfile, getProfile, updateProfile } from '../controllers/user.controller';
-import { upgradeToVIP } from '../controllers/vip.controller';
+// import { upgradeToVIP } from '../controllers/vip.controller';
 import { authenticateToken } from '@/middlewares/auth.middleware';
 const userRouter = Router();
 userRouter.use(authenticateToken);
 userRouter.put('/complete-profile', completeProfile);
 userRouter.patch('/update-profile', updateProfile);
 userRouter.get('/profile', getProfile);
-userRouter.post('/upgrade-vip', upgradeToVIP);
+// userRouter.post('/upgrade-vip', upgradeToVIP);
 export default userRouter;
