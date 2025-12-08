@@ -26,7 +26,6 @@ import { VIP_TIER_LIMITS } from '../types/vip.types';
 //   }
 // }
 
-
 export class VIPController {
 
   // ----------------------------------------------------------------
@@ -35,10 +34,12 @@ export class VIPController {
   // ----------------------------------------------------------------
   static async getVIPStatus(req: Request, res: Response) {
     try {
-      const userId = req.user.id; // Lấy từ middleware auth
-      
-      const data = await VIPService.getUserLimits(userId);
-      
+      const userId = req.user?.id;
+      if (!userId) {
+        res.status(401).json({ message: 'Unauthorized' });
+        return;
+      }      
+      const data = await VIPService.getUserLimits(userId);      
       return res.json({
         success: true,
         data: data
@@ -55,7 +56,11 @@ export class VIPController {
   // ----------------------------------------------------------------
   static async checkAccess(req: Request, res: Response) {
     try {
-      const userId = req.user.id;
+      const userId = req.user?.id;
+      if (!userId) {
+        res.status(401).json({ message: 'Unauthorized' });
+        return;
+      }   
       const { feature } = req.query;
 
       if (!feature || typeof feature !== 'string') {
@@ -92,7 +97,11 @@ export class VIPController {
   // ----------------------------------------------------------------
   static async getHistory(req: Request, res: Response) {
     try {
-      const userId = req.user.id;
+      const userId = req.user?.id;
+      if (!userId) {
+        res.status(401).json({ message: 'Unauthorized' });
+        return;
+      }   
       const history = await VIPService.getSubscriptionHistory(userId);
 
       return res.json({
@@ -111,8 +120,11 @@ export class VIPController {
   // ----------------------------------------------------------------
   static async cancelSubscription(req: Request, res: Response) {
     try {
-      const userId = req.user.id;
-      
+      const userId = req.user?.id;
+      if (!userId) {
+        res.status(401).json({ message: 'Unauthorized' });
+        return;
+      }         
       const result = await VIPService.cancelSubscription(userId);
 
       return res.json({

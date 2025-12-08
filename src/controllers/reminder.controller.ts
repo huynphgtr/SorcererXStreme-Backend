@@ -3,11 +3,11 @@ import { ReminderService } from '../services/reminder.service';
 import { updateReminderSchema } from '../validators/reminder.validator';
 import { z } from 'zod';
 
-interface AuthRequest extends Request {
-    user?: {
-        id: string;
-    };
-}
+// interface AuthRequest extends Request {
+//     user?: {
+//         id: string;
+//     };
+// }
 
 // --- Controller Logic ---
 
@@ -16,7 +16,7 @@ interface AuthRequest extends Request {
  * @description Lấy cài đặt reminder hiện tại của người dùng. 
  * Nếu chưa có, sẽ tạo cài đặt mặc định.
  */
-export async function getReminderSettings(req: AuthRequest, res: Response): Promise<void> {
+export async function getReminderSettings(req: Request, res: Response): Promise<void> {
     const userId = req.user?.id;
 
     if (!userId) {
@@ -37,7 +37,7 @@ export async function getReminderSettings(req: AuthRequest, res: Response): Prom
  * @route POST/PUT /reminders/settings
  * @description Cập nhật cài đặt reminder (Đăng ký/Hủy đăng ký)
  */
-export async function updateReminderSettings(req: AuthRequest, res: Response): Promise<void> {
+export async function updateReminderSettings(req: Request, res: Response): Promise<void> {
     const userId = req.user?.id;
 
     if (!userId) {
