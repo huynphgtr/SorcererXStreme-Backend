@@ -1,0 +1,769 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "The AWS CloudFormation template for this Serverless application",
+  "Resources": {
+    "ApiLogGroup": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "LogGroupName": "/aws/lambda/sorcererxstreme-backend-dev-api"
+      }
+    },
+    "DailyEmailJobLogGroup": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "LogGroupName": "/aws/lambda/sorcererxstreme-backend-dev-dailyEmailJob"
+      }
+    },
+    "SyncUserLogGroup": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "LogGroupName": "/aws/lambda/sorcererxstreme-backend-dev-syncUser"
+      }
+    },
+    "IamRoleLambdaExecution": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": [
+                  "lambda.amazonaws.com"
+                ]
+              },
+              "Action": [
+                "sts:AssumeRole"
+              ]
+            }
+          ]
+        },
+        "Policies": [
+          {
+            "PolicyName": {
+              "Fn::Join": [
+                "-",
+                [
+                  "sorcererxstreme-backend",
+                  "dev",
+                  "lambda"
+                ]
+              ]
+            },
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "logs:CreateLogStream",
+                    "logs:CreateLogGroup",
+                    "logs:TagResource"
+                  ],
+                  "Resource": [
+                    {
+                      "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/sorcererxstreme-backend-dev*:*"
+                    }
+                  ]
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "logs:PutLogEvents"
+                  ],
+                  "Resource": [
+                    {
+                      "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/sorcererxstreme-backend-dev*:*:*"
+                    }
+                  ]
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "ses:SendEmail",
+                    "ses:SendRawEmail"
+                  ],
+                  "Resource": "*"
+                }
+              ]
+            }
+          }
+        ],
+        "Path": "/",
+        "RoleName": {
+          "Fn::Join": [
+            "-",
+            [
+              "sorcererxstreme-backend",
+              "dev",
+              {
+                "Ref": "AWS::Region"
+              },
+              "lambdaRole"
+            ]
+          ]
+        }
+      }
+    },
+    "ApiLambdaFunction": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": "serverless-framework-deployments-ap-southeast-1-a38a0297-9cd4",
+          "S3Key": "serverless/sorcererxstreme-backend/dev/1765205052072-2025-12-08T14:44:12.072Z/sorcererxstreme-backend-api.zip"
+        },
+        "Handler": "src/handler.handler",
+        "Runtime": "nodejs20.x",
+        "FunctionName": "sorcererxstreme-backend-dev-api",
+        "MemorySize": 1024,
+        "Timeout": 29,
+        "Environment": {
+          "Variables": {
+            "DATABASE_URL": "postgresql://neondb_owner:npg_6dYBHrUN3Vxm@ep-crimson-heart-a1lg2l77-pooler.ap-southeast-1.aws.neon.tech/SorcererXStreme?sslmode=require&channel_binding=require",
+            "JWT_SECRET": "your-super-secret-jwt-key-here-change-in-production",
+            "META_SERVICE_URL": "https://o9i37lplba.execute-api.ap-southeast-1.amazonaws.com/deploy1/metaphysical",
+            "CHAT_SERVICE_URL": "https://o9i37lplba.execute-api.ap-southeast-1.amazonaws.com/deploy1/chatbot",
+            "EMAIL_HOST": "smtp.sendgrid.net",
+            "EMAIL_PORT": "587",
+            "EMAIL_USER": "apikey",
+            "EMAIL_PASS": "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",
+            "SEPAY_API_KEY": "this_is_my_secret_api_key_of_prj",
+            "FRONTEND_URL": "https://main.d30n5a8g6cs88k.amplifyapp.com/",
+            "PRISMA_CLI_BINARY_TARGETS": "rhel-openssl-3.0.x",
+            "USER_POOL_ID": {
+              "Ref": "SorcererUserPool"
+            },
+            "USER_POOL_CLIENT_ID": {
+              "Ref": "SorcererUserPoolClient"
+            }
+          }
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "IamRoleLambdaExecution",
+            "Arn"
+          ]
+        }
+      },
+      "DependsOn": [
+        "ApiLogGroup"
+      ]
+    },
+    "DailyEmailJobLambdaFunction": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": "serverless-framework-deployments-ap-southeast-1-a38a0297-9cd4",
+          "S3Key": "serverless/sorcererxstreme-backend/dev/1765205052072-2025-12-08T14:44:12.072Z/sorcererxstreme-backend-dailyEmailJob.zip"
+        },
+        "Handler": "src/jobs/cron.runDailyJob",
+        "Runtime": "nodejs20.x",
+        "FunctionName": "sorcererxstreme-backend-dev-dailyEmailJob",
+        "MemorySize": 1024,
+        "Timeout": 60,
+        "Environment": {
+          "Variables": {
+            "DATABASE_URL": "postgresql://neondb_owner:npg_6dYBHrUN3Vxm@ep-crimson-heart-a1lg2l77-pooler.ap-southeast-1.aws.neon.tech/SorcererXStreme?sslmode=require&channel_binding=require",
+            "JWT_SECRET": "your-super-secret-jwt-key-here-change-in-production",
+            "META_SERVICE_URL": "https://o9i37lplba.execute-api.ap-southeast-1.amazonaws.com/deploy1/metaphysical",
+            "CHAT_SERVICE_URL": "https://o9i37lplba.execute-api.ap-southeast-1.amazonaws.com/deploy1/chatbot",
+            "EMAIL_HOST": "smtp.sendgrid.net",
+            "EMAIL_PORT": "587",
+            "EMAIL_USER": "apikey",
+            "EMAIL_PASS": "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",
+            "SEPAY_API_KEY": "this_is_my_secret_api_key_of_prj",
+            "FRONTEND_URL": "https://main.d30n5a8g6cs88k.amplifyapp.com/",
+            "PRISMA_CLI_BINARY_TARGETS": "rhel-openssl-3.0.x",
+            "USER_POOL_ID": {
+              "Ref": "SorcererUserPool"
+            },
+            "USER_POOL_CLIENT_ID": {
+              "Ref": "SorcererUserPoolClient"
+            }
+          }
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "IamRoleLambdaExecution",
+            "Arn"
+          ]
+        }
+      },
+      "DependsOn": [
+        "DailyEmailJobLogGroup"
+      ]
+    },
+    "SyncUserLambdaFunction": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": "serverless-framework-deployments-ap-southeast-1-a38a0297-9cd4",
+          "S3Key": "serverless/sorcererxstreme-backend/dev/1765205052072-2025-12-08T14:44:12.072Z/sorcererxstreme-backend-syncUser.zip"
+        },
+        "Handler": "src/handlers/auth-trigger.postConfirmation",
+        "Runtime": "nodejs20.x",
+        "FunctionName": "sorcererxstreme-backend-dev-syncUser",
+        "MemorySize": 1024,
+        "Timeout": 29,
+        "Environment": {
+          "Variables": {
+            "DATABASE_URL": "postgresql://neondb_owner:npg_6dYBHrUN3Vxm@ep-crimson-heart-a1lg2l77-pooler.ap-southeast-1.aws.neon.tech/SorcererXStreme?sslmode=require&channel_binding=require",
+            "JWT_SECRET": "your-super-secret-jwt-key-here-change-in-production",
+            "META_SERVICE_URL": "https://o9i37lplba.execute-api.ap-southeast-1.amazonaws.com/deploy1/metaphysical",
+            "CHAT_SERVICE_URL": "https://o9i37lplba.execute-api.ap-southeast-1.amazonaws.com/deploy1/chatbot",
+            "EMAIL_HOST": "smtp.sendgrid.net",
+            "EMAIL_PORT": "587",
+            "EMAIL_USER": "apikey",
+            "EMAIL_PASS": "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",
+            "SEPAY_API_KEY": "this_is_my_secret_api_key_of_prj",
+            "FRONTEND_URL": "https://main.d30n5a8g6cs88k.amplifyapp.com/",
+            "PRISMA_CLI_BINARY_TARGETS": "rhel-openssl-3.0.x",
+            "USER_POOL_ID": {
+              "Ref": "SorcererUserPool"
+            },
+            "USER_POOL_CLIENT_ID": {
+              "Ref": "SorcererUserPoolClient"
+            }
+          }
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "IamRoleLambdaExecution",
+            "Arn"
+          ]
+        }
+      },
+      "DependsOn": [
+        "SyncUserLogGroup"
+      ]
+    },
+    "SyncUserLambdaVersionGM6oXxng99ZMOFl7iuQ92zvMtHcEi9tTnnZWynnnE7s": {
+      "Type": "AWS::Lambda::Version",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "FunctionName": {
+          "Ref": "SyncUserLambdaFunction"
+        },
+        "CodeSha256": "fM1gQQd3QJSIs2DjcBZTR2QmBPVAOgb7TcYBShhowQ4="
+      }
+    },
+    "DailyEmailJobLambdaVersion83yODAo1UngUvk0Erxov3txCCA5kW6Nb1RD7S9dEp8": {
+      "Type": "AWS::Lambda::Version",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "FunctionName": {
+          "Ref": "DailyEmailJobLambdaFunction"
+        },
+        "CodeSha256": "3xocz88ys892ScpclSDKBfVjluGuuH7KizoyXDAS+ls="
+      }
+    },
+    "ApiLambdaVersion9l7SSS563Wucopwq8qPyiYMRQI7oNpz8ffFqa0s": {
+      "Type": "AWS::Lambda::Version",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "FunctionName": {
+          "Ref": "ApiLambdaFunction"
+        },
+        "CodeSha256": "OaUFFqLJxVOYAivzvQKLvs10pPhULhuXmu+yq+zGuCQ="
+      }
+    },
+    "DailyEmailJobEventsRuleSchedule1": {
+      "Type": "AWS::Events::Rule",
+      "Properties": {
+        "ScheduleExpression": "cron(0 1 * * ? *)",
+        "State": "DISABLED",
+        "Targets": [
+          {
+            "Arn": {
+              "Fn::GetAtt": [
+                "DailyEmailJobLambdaFunction",
+                "Arn"
+              ]
+            },
+            "Id": "dailyEmailJobSchedule"
+          }
+        ]
+      }
+    },
+    "DailyEmailJobLambdaPermissionEventsRuleSchedule1": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "DailyEmailJobLambdaFunction",
+            "Arn"
+          ]
+        },
+        "Action": "lambda:InvokeFunction",
+        "Principal": "events.amazonaws.com",
+        "SourceArn": {
+          "Fn::GetAtt": [
+            "DailyEmailJobEventsRuleSchedule1",
+            "Arn"
+          ]
+        }
+      }
+    },
+    "ApiGatewayRestApi": {
+      "Type": "AWS::ApiGateway::RestApi",
+      "Properties": {
+        "Name": "dev-sorcererxstreme-backend",
+        "EndpointConfiguration": {
+          "Types": [
+            "EDGE"
+          ]
+        },
+        "Policy": ""
+      }
+    },
+    "ApiGatewayResourceProxyVar": {
+      "Type": "AWS::ApiGateway::Resource",
+      "Properties": {
+        "ParentId": {
+          "Fn::GetAtt": [
+            "ApiGatewayRestApi",
+            "RootResourceId"
+          ]
+        },
+        "PathPart": "{proxy+}",
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        }
+      }
+    },
+    "ApiGatewayMethodAny": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "HttpMethod": "ANY",
+        "RequestParameters": {},
+        "ResourceId": {
+          "Fn::GetAtt": [
+            "ApiGatewayRestApi",
+            "RootResourceId"
+          ]
+        },
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        },
+        "ApiKeyRequired": false,
+        "AuthorizationType": "NONE",
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":apigateway:",
+                {
+                  "Ref": "AWS::Region"
+                },
+                ":lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::GetAtt": [
+                    "ApiLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "/invocations"
+              ]
+            ]
+          }
+        },
+        "MethodResponses": []
+      },
+      "DependsOn": [
+        "ApiLambdaPermissionApiGateway"
+      ]
+    },
+    "ApiGatewayMethodProxyVarAny": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "HttpMethod": "ANY",
+        "RequestParameters": {},
+        "ResourceId": {
+          "Ref": "ApiGatewayResourceProxyVar"
+        },
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        },
+        "ApiKeyRequired": false,
+        "AuthorizationType": "NONE",
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":apigateway:",
+                {
+                  "Ref": "AWS::Region"
+                },
+                ":lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::GetAtt": [
+                    "ApiLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "/invocations"
+              ]
+            ]
+          }
+        },
+        "MethodResponses": []
+      },
+      "DependsOn": [
+        "ApiLambdaPermissionApiGateway"
+      ]
+    },
+    "ApiGatewayDeployment1765205044571": {
+      "Type": "AWS::ApiGateway::Deployment",
+      "Properties": {
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        },
+        "StageName": "dev"
+      },
+      "DependsOn": [
+        "ApiGatewayMethodAny",
+        "ApiGatewayMethodProxyVarAny"
+      ]
+    },
+    "ApiGatewayUsagePlan": {
+      "Type": "AWS::ApiGateway::UsagePlan",
+      "DependsOn": "ApiGatewayDeployment1765205044571",
+      "Properties": {
+        "ApiStages": [
+          {
+            "ApiId": {
+              "Ref": "ApiGatewayRestApi"
+            },
+            "Stage": "dev"
+          }
+        ],
+        "Description": "Usage plan for sorcererxstreme-backend dev stage",
+        "UsagePlanName": "sorcererxstreme-backend-dev",
+        "Quota": {
+          "Limit": 5000000,
+          "Period": "MONTH"
+        },
+        "Throttle": {
+          "BurstLimit": 200,
+          "RateLimit": 100
+        }
+      }
+    },
+    "ApiLambdaPermissionApiGateway": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "ApiLambdaFunction",
+            "Arn"
+          ]
+        },
+        "Action": "lambda:InvokeFunction",
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition"
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region"
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              ":",
+              {
+                "Ref": "ApiGatewayRestApi"
+              },
+              "/*/*"
+            ]
+          ]
+        }
+      }
+    },
+    "SyncUserCustomCognitoUserPool1": {
+      "Type": "Custom::CognitoUserPool",
+      "Version": "1.0",
+      "DependsOn": [
+        "SyncUserLambdaFunction",
+        "CustomDashresourceDashexistingDashcupLambdaFunction"
+      ],
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "CustomDashresourceDashexistingDashcupLambdaFunction",
+            "Arn"
+          ]
+        },
+        "FunctionName": "sorcererxstreme-backend-dev-syncUser",
+        "UserPoolName": "sorcererxstreme-backend-dev-user-pool",
+        "UserPoolConfigs": [
+          {
+            "Trigger": "PostConfirmation"
+          }
+        ]
+      }
+    },
+    "IamRoleCustomResourcesLambdaExecution": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": [
+                  "lambda.amazonaws.com"
+                ]
+              },
+              "Action": [
+                "sts:AssumeRole"
+              ]
+            }
+          ]
+        },
+        "Policies": [
+          {
+            "PolicyName": {
+              "Fn::Join": [
+                "-",
+                [
+                  "dev",
+                  "sorcererxstreme-backend",
+                  "custom-resources-lambda"
+                ]
+              ]
+            },
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "logs:CreateLogStream",
+                    "logs:CreateLogGroup",
+                    "logs:TagResource"
+                  ],
+                  "Resource": [
+                    {
+                      "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/sorcererxstreme-backend-dev*:*"
+                    }
+                  ]
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "logs:PutLogEvents"
+                  ],
+                  "Resource": [
+                    {
+                      "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/sorcererxstreme-backend-dev*:*:*"
+                    }
+                  ]
+                },
+                {
+                  "Effect": "Allow",
+                  "Resource": "*",
+                  "Action": [
+                    "cognito-idp:ListUserPools",
+                    "cognito-idp:DescribeUserPool",
+                    "cognito-idp:UpdateUserPool"
+                  ]
+                },
+                {
+                  "Effect": "Allow",
+                  "Resource": {
+                    "Fn::Sub": "arn:${AWS::Partition}:lambda:*:*:function:sorcererxstreme-backend-dev-syncUser"
+                  },
+                  "Action": [
+                    "lambda:AddPermission",
+                    "lambda:RemovePermission"
+                  ]
+                },
+                {
+                  "Effect": "Allow",
+                  "Resource": {
+                    "Fn::Sub": "arn:${AWS::Partition}:iam::*:role/*"
+                  },
+                  "Action": [
+                    "iam:PassRole"
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "CustomDashresourceDashexistingDashcupLambdaFunction": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": "serverless-framework-deployments-ap-southeast-1-a38a0297-9cd4",
+          "S3Key": "serverless/sorcererxstreme-backend/dev/1765205052072-2025-12-08T14:44:12.072Z/custom-resources.zip"
+        },
+        "FunctionName": "sorcererxstreme-backend-dev-custom-resource-existing-cup",
+        "Handler": "cognito-user-pool/handler.handler",
+        "MemorySize": 1024,
+        "Runtime": "nodejs22.x",
+        "Timeout": 180,
+        "Role": {
+          "Fn::GetAtt": [
+            "IamRoleCustomResourcesLambdaExecution",
+            "Arn"
+          ]
+        }
+      },
+      "DependsOn": [
+        "IamRoleCustomResourcesLambdaExecution",
+        "CustomDashresourceDashexistingDashcupLogGroup"
+      ]
+    },
+    "CustomDashresourceDashexistingDashcupLogGroup": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "LogGroupName": "/aws/lambda/sorcererxstreme-backend-dev-custom-resource-existing-cup"
+      }
+    },
+    "SorcererUserPool": {
+      "Type": "AWS::Cognito::UserPool",
+      "Properties": {
+        "UserPoolName": "sorcererxstreme-backend-dev-user-pool",
+        "UsernameAttributes": [
+          "email"
+        ],
+        "AutoVerifiedAttributes": [
+          "email"
+        ],
+        "Policies": {
+          "PasswordPolicy": {
+            "MinimumLength": 8,
+            "RequireLowercase": true,
+            "RequireNumbers": true,
+            "RequireSymbols": true,
+            "RequireUppercase": true
+          }
+        },
+        "Schema": [
+          {
+            "Name": "email",
+            "Required": true,
+            "Mutable": true
+          },
+          {
+            "Name": "name",
+            "Required": false,
+            "Mutable": true
+          }
+        ]
+      }
+    },
+    "SorcererUserPoolClient": {
+      "Type": "AWS::Cognito::UserPoolClient",
+      "Properties": {
+        "ClientName": "sorcererxstreme-backend-dev-client",
+        "UserPoolId": {
+          "Ref": "SorcererUserPool"
+        },
+        "GenerateSecret": false,
+        "ExplicitAuthFlows": [
+          "ALLOW_USER_SRP_AUTH",
+          "ALLOW_REFRESH_TOKEN_AUTH",
+          "ALLOW_USER_PASSWORD_AUTH"
+        ]
+      }
+    }
+  },
+  "Outputs": {
+    "ServerlessDeploymentBucketName": {
+      "Value": "serverless-framework-deployments-ap-southeast-1-a38a0297-9cd4",
+      "Export": {
+        "Name": "sls-sorcererxstreme-backend-dev-ServerlessDeploymentBucketName"
+      }
+    },
+    "SyncUserLambdaFunctionQualifiedArn": {
+      "Description": "Current Lambda function version",
+      "Value": {
+        "Ref": "SyncUserLambdaVersionGM6oXxng99ZMOFl7iuQ92zvMtHcEi9tTnnZWynnnE7s"
+      },
+      "Export": {
+        "Name": "sls-sorcererxstreme-backend-dev-SyncUserLambdaFunctionQualifiedArn"
+      }
+    },
+    "DailyEmailJobLambdaFunctionQualifiedArn": {
+      "Description": "Current Lambda function version",
+      "Value": {
+        "Ref": "DailyEmailJobLambdaVersion83yODAo1UngUvk0Erxov3txCCA5kW6Nb1RD7S9dEp8"
+      },
+      "Export": {
+        "Name": "sls-sorcererxstreme-backend-dev-DailyEmailJobLambdaFunctionQualifiedArn"
+      }
+    },
+    "ApiLambdaFunctionQualifiedArn": {
+      "Description": "Current Lambda function version",
+      "Value": {
+        "Ref": "ApiLambdaVersion9l7SSS563Wucopwq8qPyiYMRQI7oNpz8ffFqa0s"
+      },
+      "Export": {
+        "Name": "sls-sorcererxstreme-backend-dev-ApiLambdaFunctionQualifiedArn"
+      }
+    },
+    "ServiceEndpoint": {
+      "Description": "URL of the service endpoint",
+      "Value": {
+        "Fn::Join": [
+          "",
+          [
+            "https://",
+            {
+              "Ref": "ApiGatewayRestApi"
+            },
+            ".execute-api.",
+            {
+              "Ref": "AWS::Region"
+            },
+            ".",
+            {
+              "Ref": "AWS::URLSuffix"
+            },
+            "/dev"
+          ]
+        ]
+      },
+      "Export": {
+        "Name": "sls-sorcererxstreme-backend-dev-ServiceEndpoint"
+      }
+    },
+    "UserPoolId": {
+      "Value": {
+        "Ref": "SorcererUserPool"
+      }
+    },
+    "UserPoolClientId": {
+      "Value": {
+        "Ref": "SorcererUserPoolClient"
+      }
+    }
+  }
+}

@@ -1,5 +1,5 @@
-import { Response } from 'express';
-import { AuthRequest } from '../middlewares/auth.middleware';
+import { Request, Response } from 'express';
+// import { AuthRequest } from '../middlewares/auth.middleware';
 import { VIPService } from '../services/vip.service';
 import { AIService } from '../services/ai.service';
 
@@ -68,9 +68,9 @@ async function handleHoroscopeLogic(
   };
 }
 
-export async function getHoroscope(req: AuthRequest, res: Response): Promise<void> {
+export async function getHoroscope(req: Request, res: Response): Promise<void> {
   try {
-    const userId = req.user?.id || req.userId;
+    const userId = req.user?.id;
     if (!userId) {
       res.status(401).json({ message: 'Unauthorized' });
       return;

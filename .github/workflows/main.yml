@@ -49,3 +49,5 @@ jobs:
         EMAIL_USER: ${{ secrets.EMAIL_USER }}
         EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
         SEPAY_API_KEY: ${{ secrets.SEPAY_API_KEY }}
+        USER_POOL_ID: ${{ secrets.USER_POOL_ID }}
+        USER_POOL_CLIENT_ID: ${{ secrets.USER_POOL_CLIENT_ID}}

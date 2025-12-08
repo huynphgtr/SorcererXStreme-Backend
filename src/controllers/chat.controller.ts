@@ -4,11 +4,11 @@ import { ChatService } from '../services/chat.service';
 import { AIService } from '../services/ai.service';
 
 // Interface cho Request có user (đã qua middleware auth)
-interface AuthRequest extends Request {
-  user?: {
-    id: string;
-  };
-}
+// interface AuthRequest extends Request {
+//   user?: {
+//     id: string;
+//   };
+// }
 
 interface ChatContext {
   name?: string;
@@ -78,7 +78,7 @@ export async function sendMessage(params: {
   }
 }
 
-export async function createNewSession(req: AuthRequest, res: Response) {
+export async function createNewSession(req: Request, res: Response) {
   try {
     const userId = req.user?.id;
     if (!userId) {
@@ -92,7 +92,7 @@ export async function createNewSession(req: AuthRequest, res: Response) {
   }
 }
 
-export async function processMessage(req: AuthRequest, res: Response): Promise<void> {
+export async function processMessage(req: Request, res: Response): Promise<void> {
   try {
     const userId = req.user?.id;
 

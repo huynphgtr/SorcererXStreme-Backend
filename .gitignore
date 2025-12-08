@@ -1,5 +1,23 @@
+# Dependencies
 node_modules
+/npm-debug.log*
+/yarn-debug.log*
+/yarn-error.log*
+/pnpm-debug.log*
+
+# Build/Dist
 dist
+build
+tmp
+
+# Configuration
 .env
-*.log
+.env.*
 .DS_Store
+.idea/ # IntelliJ/Webstorm config
+.vscode/ # VS Code workspace/launch config
+
+# Compiled/Runtime Files
+*.log
+*.tsbuildinfo
+coverage

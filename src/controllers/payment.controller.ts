@@ -7,7 +7,11 @@ const prisma = new PrismaClient();
 // 1.Tạo tài khoản
 export const createPayment = async (req: Request, res: Response) => {
   try {
-    const userId = req.user.id; 
+    const userId = req.user?.id;
+    if (!userId) {
+      res.status(401).json({ message: 'Unauthorized' });
+      return;
+    }
     const { tier, durationMonths } = req.body;    
     let price = tier === VIPTier.VIP ? 2000 * durationMonths : 0;    
     if (price === 0) return res.status(400).json({ success: false, message: "Invalid tier" });
@@ -55,7 +59,11 @@ export const handleWebhook = async (req: Request, res: Response) => {
 export const checkPaymentStatus = async (req: Request, res: Response) => {
     try {
         const { subscriptionId } = req.params;
-        const userId = req.user.id;
+        const userId = req.user?.id;
+        if (!userId) {
+          res.status(401).json({ message: 'Unauthorized' });
+          return;
+        }
         const subscription = await prisma.subscription.findUnique({
             where: { id: subscriptionId }
         });

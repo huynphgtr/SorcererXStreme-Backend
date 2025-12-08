@@ -47,6 +47,8 @@ build:
     external:
       - "aws-sdk"
       - "@prisma/client/runtime/library"
+      - '@prisma/client' 
+      - '.prisma'  
 
 package:
   individually: true
@@ -54,12 +56,22 @@ package:
   patterns:
     - "!./**"
     - "!node_modules/**"
-    - "node_modules/.prisma/client/libquery_engine-rhel-openssl-3.0.x.so.node"
-    - "node_modules/.prisma/client/schema.prisma"
 
-    # Lấy code Prisma Client (cần thiết nếu không dùng external)
-    # Nếu esbuild bundle tốt thì không cần dòng này, nhưng an toàn thì cứ để
-    # - 'node_modules/@prisma/client/**'
+    - 'src/**'
+    - 'package.json'
+
+    - 'node_modules/@prisma/client/**'
+
+    - 'node_modules/.prisma/client/index.js'
+    - 'node_modules/.prisma/client/package.json'
+    - 'node_modules/.prisma/client/schema.prisma'
+    - 'node_modules/.prisma/client/default.js' 
+
+    - 'node_modules/.prisma/client/libquery_engine-rhel-openssl-3.0.x.so.node'
+
+    - '!node_modules/.prisma/client/libquery_engine-windows.exe'
+    - '!node_modules/.prisma/client/libquery_engine-darwin*'
+    - '!node_modules/.prisma/client/*-musl*'
 
 plugins:
   - serverless-offline
