@@ -12,6 +12,8 @@ import numerologyRoutes from './routes/numerology.routes';
 import horoscopeRoutes from './routes/horoscope.routes';
 import reminderRoutes from './routes/reminder.routes';
 import { errorMiddleware } from './middlewares/error.middleware';
+import paymentRoutes from './routes/payment.routes';
+import vipRoutes from './routes/vip.routes';
 
 dotenv.config();
 const app: Application = express();
@@ -78,7 +80,8 @@ app.use('/api/tarot', tarotRoutes);
 app.use('/api/astrology', astrologyRoutes);
 app.use('/api/horoscope', horoscopeRoutes);
 app.use('/api/numerology', numerologyRoutes);
-
+app.use('/api/payments', paymentRoutes); 
+app.use('/api/vip', vipRoutes)
 // --- ERROR HANDLING ---
 app.use(errorMiddleware);
 // --- EXPORT APP ---

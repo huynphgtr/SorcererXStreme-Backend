@@ -1,0 +1,316 @@
+{
+  "D:\\FCJ\\SorcererXStreme-Backend\\serverless.yml": {
+    "versionFramework": "4.27.0",
+    "servicePath": "D:\\FCJ\\SorcererXStreme-Backend\\serverless.yml",
+    "serviceConfigFileName": "serverless.yml",
+    "service": {
+      "org": "sorcererxstreme",
+      "service": "sorcererxstreme-backend",
+      "provider": {
+        "name": "aws",
+        "timeout": 29,
+        "runtime": "nodejs20.x",
+        "region": "ap-southeast-1",
+        "stage": "dev",
+        "environment": {
+          "DATABASE_URL": "postgresql://neondb_owner:npg_6dYBHrUN3Vxm@ep-crimson-heart-a1lg2l77-pooler.ap-southeast-1.aws.neon.tech/SorcererXStreme?sslmode=require&channel_binding=require",
+          "JWT_SECRET": "<REDACTED>",
+          "META_SERVICE_URL": "https://o9i37lplba.execute-api.ap-southeast-1.amazonaws.com/deploy1/metaphysical",
+          "CHAT_SERVICE_URL": "https://o9i37lplba.execute-api.ap-southeast-1.amazonaws.com/deploy1/chatbot",
+          "EMAIL_HOST": "smtp.sendgrid.net",
+          "EMAIL_PORT": "587",
+          "EMAIL_USER": "apikey",
+          "EMAIL_PASS": "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",
+          "SEPAY_API_KEY": "<REDACTED>",
+          "FRONTEND_URL": "https://main.d30n5a8g6cs88k.amplifyapp.com/",
+          "PRISMA_CLI_BINARY_TARGETS": "rhel-openssl-3.0.x",
+          "USER_POOL_ID": {
+            "Ref": "SorcererUserPool"
+          },
+          "USER_POOL_CLIENT_ID": {
+            "Ref": "SorcererUserPoolClient"
+          }
+        },
+        "apiGateway": {
+          "usagePlan": {
+            "quota": {
+              "limit": 5000000,
+              "period": "MONTH"
+            },
+            "throttle": {
+              "burstLimit": 200,
+              "rateLimit": 100
+            }
+          }
+        },
+        "iam": {
+          "role": {
+            "statements": [
+              {
+                "Effect": "Allow",
+                "Action": [
+                  "ses:SendEmail",
+                  "ses:SendRawEmail"
+                ],
+                "Resource": "*"
+              }
+            ]
+          }
+        },
+        "versionFunctions": true
+      },
+      "build": {
+        "esbuild": {
+          "bundle": true,
+          "minify": true,
+          "sourcemap": false,
+          "external": [
+            "aws-sdk",
+            "@prisma/client/runtime/library"
+          ]
+        }
+      },
+      "package": {
+        "individually": true,
+        "excludeDevDependencies": true,
+        "patterns": [
+          "!./**",
+          "!node_modules/**",
+          "node_modules/.prisma/client/libquery_engine-rhel-openssl-3.0.x.so.node",
+          "node_modules/.prisma/client/schema.prisma"
+        ],
+        "artifactsS3KeyDirname": "serverless/sorcererxstreme-backend/dev/code-artifacts"
+      },
+      "plugins": [
+        "serverless-offline"
+      ],
+      "functions": {
+        "api": {
+          "handler": "src/handler.handler",
+          "events": [
+            {
+              "http": {
+                "path": "/",
+                "method": "ANY"
+              }
+            },
+            {
+              "http": {
+                "path": "/{proxy+}",
+                "method": "ANY"
+              }
+            }
+          ],
+          "name": "sorcererxstreme-backend-dev-api"
+        },
+        "dailyEmailJob": {
+          "handler": "src/jobs/cron.runDailyJob",
+          "timeout": 60,
+          "events": [
+            {
+              "schedule": {
+                "rate": [
+                  "cron(0 1 * * ? *)"
+                ],
+                "enabled": false
+              }
+            }
+          ],
+          "name": "sorcererxstreme-backend-dev-dailyEmailJob"
+        },
+        "syncUser": {
+          "handler": "src/handlers/auth-trigger.postConfirmation",
+          "events": [
+            {
+              "cognitoUserPool": {
+                "pool": "sorcererxstreme-backend-dev-user-pool",
+                "trigger": "PostConfirmation",
+                "existing": true
+              }
+            }
+          ],
+          "name": "sorcererxstreme-backend-dev-syncUser"
+        }
+      },
+      "resources": {
+        "Resources": {
+          "SorcererUserPool": {
+            "Type": "AWS::Cognito::UserPool",
+            "Properties": {
+              "UserPoolName": "sorcererxstreme-backend-dev-user-pool",
+              "UsernameAttributes": [
+                "email"
+              ],
+              "AutoVerifiedAttributes": [
+                "email"
+              ],
+              "Policies": {
+                "PasswordPolicy": "<REDACTED>"
+              },
+              "Schema": [
+                {
+                  "Name": "email",
+                  "Required": true,
+                  "Mutable": true
+                },
+                {
+                  "Name": "name",
+                  "Required": false,
+                  "Mutable": true
+                }
+              ]
+            }
+          },
+          "SorcererUserPoolClient": {
+            "Type": "AWS::Cognito::UserPoolClient",
+            "Properties": {
+              "ClientName": "sorcererxstreme-backend-dev-client",
+              "UserPoolId": {
+                "Ref": "SorcererUserPool"
+              },
+              "GenerateSecret": "<REDACTED>",
+              "ExplicitAuthFlows": [
+                "ALLOW_USER_SRP_AUTH",
+                "ALLOW_REFRESH_TOKEN_AUTH",
+                "ALLOW_USER_PASSWORD_AUTH"
+              ]
+            }
+          }
+        },
+        "Outputs": {
+          "UserPoolId": {
+            "Value": {
+              "Ref": "SorcererUserPool"
+            }
+          },
+          "UserPoolClientId": {
+            "Value": {
+              "Ref": "SorcererUserPoolClient"
+            }
+          }
+        }
+      }
+    },
+    "provider": {
+      "name": "aws",
+      "timeout": 29,
+      "runtime": "nodejs20.x",
+      "region": "ap-southeast-1",
+      "stage": "dev",
+      "environment": {
+        "DATABASE_URL": "postgresql://neondb_owner:npg_6dYBHrUN3Vxm@ep-crimson-heart-a1lg2l77-pooler.ap-southeast-1.aws.neon.tech/SorcererXStreme?sslmode=require&channel_binding=require",
+        "JWT_SECRET": "<REDACTED>",
+        "META_SERVICE_URL": "https://o9i37lplba.execute-api.ap-southeast-1.amazonaws.com/deploy1/metaphysical",
+        "CHAT_SERVICE_URL": "https://o9i37lplba.execute-api.ap-southeast-1.amazonaws.com/deploy1/chatbot",
+        "EMAIL_HOST": "smtp.sendgrid.net",
+        "EMAIL_PORT": "587",
+        "EMAIL_USER": "apikey",
+        "EMAIL_PASS": "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",
+        "SEPAY_API_KEY": "<REDACTED>",
+        "FRONTEND_URL": "https://main.d30n5a8g6cs88k.amplifyapp.com/",
+        "PRISMA_CLI_BINARY_TARGETS": "rhel-openssl-3.0.x",
+        "USER_POOL_ID": {
+          "Ref": "SorcererUserPool"
+        },
+        "USER_POOL_CLIENT_ID": {
+          "Ref": "SorcererUserPoolClient"
+        }
+      },
+      "apiGateway": {
+        "usagePlan": {
+          "quota": {
+            "limit": 5000000,
+            "period": "MONTH"
+          },
+          "throttle": {
+            "burstLimit": 200,
+            "rateLimit": 100
+          }
+        }
+      },
+      "iam": {
+        "role": {
+          "statements": [
+            {
+              "Effect": "Allow",
+              "Action": [
+                "ses:SendEmail",
+                "ses:SendRawEmail"
+              ],
+              "Resource": "*"
+            }
+          ]
+        }
+      },
+      "versionFunctions": true
+    },
+    "dashboard": {
+      "isEnabledForService": false,
+      "requiredAuthentication": false,
+      "orgFeaturesInUse": null,
+      "orgObservabilityIntegrations": null,
+      "serviceAppId": null,
+      "serviceProvider": null,
+      "instanceParameters": null
+    },
+    "error": {
+      "message": "Build failed with 1 error:\nsrc/routes/user.routes.ts:3:9: ERROR: No matching export in \"src/controllers/vip.controller.ts\" for import \"upgradeToVIP\"",
+      "stack": "ServerlessError2: Build failed with 1 error:\nsrc/routes/user.routes.ts:3:9: ERROR: No matching export in \"src/controllers/vip.controller.ts\" for import \"upgradeToVIP\"\n    at Esbuild._build (file:///C:/Users/Asus/.serverless/releases/4.27.0/package/dist/sf-core.js:1309:16374)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async before:offline:start (file:///C:/Users/Asus/.serverless/releases/4.27.0/package/dist/sf-core.js:1309:4657)\n    at async PluginManager.runHooks (file:///C:/Users/Asus/.serverless/releases/4.27.0/package/dist/sf-core.js:1372:11105)\n    at async PluginManager.invoke (file:///C:/Users/Asus/.serverless/releases/4.27.0/package/dist/sf-core.js:1372:11815)\n    at async PluginManager.run (file:///C:/Users/Asus/.serverless/releases/4.27.0/package/dist/sf-core.js:1372:12607)\n    at async Serverless.run (file:///C:/Users/Asus/.serverless/releases/4.27.0/package/dist/sf-core.js:1379:10524)\n    at async runFramework (file:///C:/Users/Asus/.serverless/releases/4.27.0/package/dist/sf-core.js:1406:1781)\n    at async TraditionalRunner.run (file:///C:/Users/Asus/.serverless/releases/4.27.0/package/dist/sf-core.js:1402:28508)\n    at async route (file:///C:/Users/Asus/.serverless/releases/4.27.0/package/dist/sf-core.js:1577:2848)",
+      "code": "ESBULD_BUILD_ERROR"
+    },
+    "serviceRawFile": "org: sorcererxstreme\r\nservice: sorcererxstreme-backend\r\n\r\nprovider:\r\n  name: aws\r\n  timeout: 29\r\n  runtime: nodejs20.x\r\n  region: ap-southeast-1\r\n  stage: ${opt:stage, 'dev'}\r\n  environment:\r\n    DATABASE_URL: ${ssm:/sorcererxstreme/${self:provider.stage}/database_url, true}\r\n    JWT_SECRET: ${ssm:/sorcererxstreme/${self:provider.stage}/jwt_secret, true}\r\n    META_SERVICE_URL: ${env:META_SERVICE_URL}\r\n    CHAT_SERVICE_URL: ${env:CHAT_SERVICE_URL}\r\n    EMAIL_HOST: ${env:EMAIL_HOST}\r\n    EMAIL_PORT: ${env:EMAIL_PORT}\r\n    EMAIL_USER: ${env:EMAIL_USER}\r\n    EMAIL_PASS: ${env:EMAIL_PASS}\r\n    SEPAY_API_KEY: ${env:SEPAY_API_KEY}\r\n    FRONTEND_URL: ${ssm:/sorcererxstreme/${self:provider.stage}/frontend_url, true}\r\n    PRISMA_CLI_BINARY_TARGETS: rhel-openssl-3.0.x\r\n    USER_POOL_ID: { Ref: SorcererUserPool }\r\n    USER_POOL_CLIENT_ID: { Ref: SorcererUserPoolClient }\r\n  apiGateway:\r\n    # Throttling\r\n    usagePlan:\r\n      quota:\r\n        limit: 5000000\r\n        period: MONTH\r\n      throttle:\r\n        burstLimit: 200\r\n        rateLimit: 100\r\n  iam:\r\n    role:\r\n      statements:\r\n        - Effect: 'Allow'   \r\n          Action:\r\n            - 'ses:SendEmail'\r\n            - 'ses:SendRawEmail'\r\n          Resource: '*'  \r\n\r\nbuild:\r\n  esbuild:\r\n    bundle: true\r\n    minify: true\r\n    sourcemap: false\r\n    external:\r\n      - \"aws-sdk\"\r\n      - \"@prisma/client/runtime/library\"\r\n\r\npackage:\r\n  individually: true\r\n  excludeDevDependencies: true\r\n  patterns:\r\n    - \"!./**\"\r\n    - \"!node_modules/**\"\r\n    - \"node_modules/.prisma/client/libquery_engine-rhel-openssl-3.0.x.so.node\"\r\n    - \"node_modules/.prisma/client/schema.prisma\"\r\n\r\n    # Lấy code Prisma Client (cần thiết nếu không dùng external)\r\n    # Nếu esbuild bundle tốt thì không cần dòng này, nhưng an toàn thì cứ để\r\n    # - 'node_modules/@prisma/client/**'\r\n\r\nplugins:\r\n  - serverless-offline\r\n\r\nfunctions:\r\n  api:\r\n    handler: src/handler.handler\r\n    events:\r\n      - http:\r\n          path: /\r\n          method: ANY\r\n      - http:\r\n          path: /{proxy+}\r\n          method: ANY        \r\n\r\n  dailyEmailJob:\r\n    handler: 'src/jobs/cron.runDailyJob'    \r\n    timeout: 60     \r\n    events: [\r\n      {\r\n        schedule: {\r\n          rate: ['cron(0 1 * * ? *)'], \r\n          enabled: false, \r\n        },\r\n      },\r\n    ]\r\n\r\n  syncUser:\r\n    handler: src/handlers/auth-trigger.postConfirmation\r\n    events:\r\n      - cognitoUserPool:\r\n          pool: ${self:service}-${self:provider.stage}-user-pool # Trùng tên với Resource bên dưới\r\n          trigger: PostConfirmation\r\n          existing: true # Bắt buộc true vì pool được tạo ở resources\r\n\r\nresources:\r\n  Resources:\r\n    # 1. Tạo Cognito User Pool\r\n    SorcererUserPool:\r\n      Type: AWS::Cognito::UserPool\r\n      Properties:\r\n        UserPoolName: ${self:service}-${self:provider.stage}-user-pool\r\n        UsernameAttributes:\r\n          - email\r\n        AutoVerifiedAttributes:\r\n          - email\r\n        Policies:\r\n          PasswordPolicy:\r\n            MinimumLength: 8\r\n            RequireLowercase: true\r\n            RequireNumbers: true\r\n            RequireSymbols: true\r\n            RequireUppercase: true\r\n        Schema:\r\n          - Name: email\r\n            Required: true\r\n            Mutable: true\r\n          - Name: name\r\n            Required: false\r\n            Mutable: true\r\n\r\n    # 2. Tạo User Pool Client (Cho Frontend)\r\n    SorcererUserPoolClient:\r\n      Type: AWS::Cognito::UserPoolClient\r\n      Properties:\r\n        ClientName: ${self:service}-${self:provider.stage}-client\r\n        UserPoolId:\r\n          Ref: SorcererUserPool\r\n        GenerateSecret: false \r\n        ExplicitAuthFlows:\r\n          - ALLOW_USER_SRP_AUTH\r\n          - ALLOW_REFRESH_TOKEN_AUTH\r\n          - ALLOW_USER_PASSWORD_AUTH\r\n\r\n  Outputs:\r\n    UserPoolId:\r\n      Value:\r\n        Ref: SorcererUserPool\r\n    UserPoolClientId:\r\n      Value:\r\n        Ref: SorcererUserPoolClient\r\n  \r\n\r\n\r\n",
+    "command": [
+      "offline"
+    ],
+    "options": {},
+    "orgId": "da97ffff-6efc-4023-86c5-f9b993a348a2",
+    "orgName": "sorcererxstreme",
+    "userId": "g7ZgMQXRHCVZrct3PR",
+    "userName": "sorcererxstreme",
+    "serviceProviderAwsAccountId": "958923398802",
+    "serviceProviderAwsCfStackName": "sorcererxstreme-backend-dev",
+    "serviceProviderAwsCfStackId": "arn:aws:cloudformation:ap-southeast-1:958923398802:stack/sorcererxstreme-backend-dev/d31df160-cdf2-11f0-a210-02a637576fb5",
+    "serviceProviderAwsCfStackCreated": "2025-11-30T13:45:26.428Z",
+    "serviceProviderAwsCfStackUpdated": "2025-12-07T10:58:39.117Z",
+    "serviceProviderAwsCfStackStatus": "UPDATE_COMPLETE",
+    "serviceProviderAwsCfStackOutputs": [
+      {
+        "OutputKey": "SyncUserLambdaFunctionQualifiedArn",
+        "OutputValue": "arn:aws:lambda:ap-southeast-1:958923398802:function:sorcererxstreme-backend-dev-syncUser:13",
+        "Description": "Current Lambda function version",
+        "ExportName": "sls-sorcererxstreme-backend-dev-SyncUserLambdaFunctionQualifiedArn"
+      },
+      {
+        "OutputKey": "UserPoolClientId",
+        "OutputValue": "7p9od9fspnht26kno8nf20qk4d"
+      },
+      {
+        "OutputKey": "UserPoolId",
+        "OutputValue": "ap-southeast-1_HIcaz6b8Z"
+      },
+      {
+        "OutputKey": "DailyEmailJobLambdaFunctionQualifiedArn",
+        "OutputValue": "arn:aws:lambda:ap-southeast-1:958923398802:function:sorcererxstreme-backend-dev-dailyEmailJob:16",
+        "Description": "Current Lambda function version",
+        "ExportName": "sls-sorcererxstreme-backend-dev-DailyEmailJobLambdaFunctionQualifiedArn"
+      },
+      {
+        "OutputKey": "ApiLambdaFunctionQualifiedArn",
+        "OutputValue": "arn:aws:lambda:ap-southeast-1:958923398802:function:sorcererxstreme-backend-dev-api:24",
+        "Description": "Current Lambda function version",
+        "ExportName": "sls-sorcererxstreme-backend-dev-ApiLambdaFunctionQualifiedArn"
+      },
+      {
+        "OutputKey": "ServiceEndpoint",
+        "OutputValue": "https://w3l0qc4g2h.execute-api.ap-southeast-1.amazonaws.com/dev",
+        "Description": "URL of the service endpoint",
+        "ExportName": "sls-sorcererxstreme-backend-dev-ServiceEndpoint"
+      },
+      {
+        "OutputKey": "ServerlessDeploymentBucketName",
+        "OutputValue": "serverless-framework-deployments-ap-southeast-1-a38a0297-9cd4",
+        "ExportName": "sls-sorcererxstreme-backend-dev-ServerlessDeploymentBucketName"
+      }
+    ]
+  }
+}

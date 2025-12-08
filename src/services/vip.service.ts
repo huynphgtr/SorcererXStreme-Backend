@@ -1,12 +1,10 @@
 import { PrismaClient, UsageStats } from '@prisma/client';
-import { VIPTier, VIP_TIER_LIMITS, SubscriptionData, SubscriptionStatus } from '../types/vip.types';
+import { VIPTier, VIP_TIER_LIMITS, SubscriptionData, SubscriptionStatus, BANK_CONFIG } from '../types/vip.types';
 
 const prisma = new PrismaClient();
 
 export class VIPService {
-  // ----------------------------------------------------------------
-  // 1. Kiểm tra quyền truy cập (CHECK ACCESS)
-  // ----------------------------------------------------------------
+
   static async checkFeatureAccess(
     userId: string,
     feature: keyof typeof VIP_TIER_LIMITS.FREE
@@ -111,10 +109,6 @@ export class VIPService {
     return { allowed, currentUsage, limit: featureLimit as number, tier };
   }
 
-  // ----------------------------------------------------------------
-  // 2. Tăng số lần sử dụng (INCREMENT USAGE)
-  // ----------------------------------------------------------------
-  // Lưu ý: featureKey ở đây là các chuỗi định danh hành động cụ thể từ Controller
   static async incrementUsage(userId: string, featureKey: 
     'chat' | 
     'tarot_overview' | 'tarot_question' | 
@@ -159,7 +153,6 @@ export class VIPService {
     }
   }
 
-  // Lấy tier hiện tại của user
   static async getCurrentTier(userId: string): Promise<VIPTier> {
     const user = await prisma.user.findUnique({
       where: { id: userId },
@@ -169,17 +162,13 @@ export class VIPService {
     if (!user) {
       throw new Error('User not found');
     }
-
-    // Kiểm tra hết hạn
     if (user.vip_expires_at && new Date() > user.vip_expires_at) {
-      // Hết hạn -> downgrade về FREE
       await prisma.user.update({
         where: { id: userId },
         data: { vip_tier: VIPTier.FREE, vip_expires_at: null }
       });
       return VIPTier.FREE;
     }
-
     return user.vip_tier as VIPTier;
   }
 
@@ -202,39 +191,39 @@ export class VIPService {
   }
 
   // Tạo subscription mới
-  static async createSubscription(data: SubscriptionData) {
-    const { userId, tier, price, durationMonths, paymentMethod, transactionId } = data;
+  // static async createSubscription(data: SubscriptionData) {
+  //   const { userId, tier, price, durationMonths, paymentMethod, transactionId } = data;
 
-    const startDate = new Date();
-    const endDate = new Date();
-    // Logic cộng tháng thông minh hơn (tránh lỗi ngày 31)
-    endDate.setMonth(endDate.getMonth() + durationMonths);
+  //   const startDate = new Date();
+  //   const endDate = new Date();
+  //   // Logic cộng tháng thông minh hơn (tránh lỗi ngày 31)
+  //   endDate.setMonth(endDate.getMonth() + durationMonths);
 
-    // Tạo subscription record
-    const subscription = await prisma.subscription.create({
-      data: {
-        user_id: userId,
-        tier,
-        price,
-        start_date: startDate,
-        end_date: endDate,
-        status: SubscriptionStatus.ACTIVE,
-        payment_method: paymentMethod,
-        transaction_id: transactionId
-      }
-    });
+  //   // Tạo subscription record
+  //   const subscription = await prisma.subscription.create({
+  //     data: {
+  //       user_id: userId,
+  //       tier,
+  //       price,
+  //       start_date: startDate,
+  //       end_date: endDate,
+  //       status: SubscriptionStatus.ACTIVE,
+  //       payment_method: paymentMethod,
+  //       transaction_id: transactionId
+  //     }
+  //   });
 
-    // Update user tier
-    await prisma.user.update({
-      where: { id: userId },
-      data: {
-        vip_tier: tier,
-        vip_expires_at: endDate
-      }
-    });
+  //   // Update user tier
+  //   await prisma.user.update({
+  //     where: { id: userId },
+  //     data: {
+  //       vip_tier: tier,
+  //       vip_expires_at: endDate
+  //     }
+  //   });
 
-    return subscription;
-  }
+  //   return subscription;
+  // }
 
   // Hủy subscription
   static async cancelSubscription(userId: string) {
@@ -306,4 +295,7 @@ export class VIPService {
 
     return expiredUsers.length;
   }
+
+  
 }
+
