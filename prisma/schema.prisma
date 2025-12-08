@@ -1,5 +1,5 @@
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
   binaryTargets = ["native", "rhel-openssl-3.0.x"] 
 }
 
@@ -14,66 +14,54 @@ enum Gender {
   other
 }
 
-/// @map("password_reset_tokens")
-model PasswordResetToken {
-  id        String   @id @default(uuid())
-  token     String   @unique
-  user_id   String
-  expiresAt DateTime
-  user      User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
-
-  @@map("password_reset_tokens")
-}
-
 /// @map("users")
 model User {
-  id             String          @id @default(uuid())
+  // ID do Cognito cấp (UUID), không tự tăng, không default
+  id             String          @id 
   email          String          @unique
-  password_hash  String?
   name           String?
   gender         Gender?     
   is_vip         Boolean         @default(false)
+  
   birth_date     DateTime?
   birth_time     String?
   birth_place    String?
   created_at     DateTime        @default(now())
 
-  partner_name     String?
-  partner_gender   Gender?
-  partner_birth_date DateTime?
-  partner_birth_time String?
+  // Thông tin partner (Tử vi)
+  partner_name        String?
+  partner_gender      Gender?
+  partner_birth_date  DateTime?
+  partner_birth_time  String?
   partner_birth_place String?
   relationship_start_date DateTime? 
 
+  // VIP Info
   vip_tier       String          @default("FREE")
   vip_expires_at DateTime?
+
+  // Quan hệ
   reminder       Reminder?
   subscriptions  Subscription[]
   usageStats     UsageStats?
-  passwordResetTokens PasswordResetToken[]
-  chatSessions        ChatSession[]
+  chatSessions   ChatSession[]
+  
+  // Đã xóa: password_hash, passwordResetTokens
 }
 
 /// @map("reminders")
 model Reminder {
   user_id       String    @id
   is_subscribed Boolean   @default(true)
-  frequency     String    @default("daily")
+  frequency     String    @default("daily")  
   last_sent     DateTime?
   user          User      @relation(fields: [user_id], references: [id])
-}
-
-/// @map("token_blocklist")
-model TokenBlocklist {
-  id        String   @id @default(uuid())
-  jti       String   @unique
-  expiresAt DateTime
 }
 
 /// @map("subscriptions")
 model Subscription {
   id             String   @id @default(uuid())
-  user_id        String
+  user_id        String   
   tier           String
   price          Int
   start_date     DateTime @default(now())
@@ -89,14 +77,17 @@ model Subscription {
 model UsageStats {
   id      String @id @default(uuid())
   user_id String @unique
-  chat_messages_today Int @default(0)
-  tarot_overview_today Int @default(0)
-  tarot_question_today Int @default(0)
+  
+  // Các chỉ số giới hạn
+  chat_messages_today      Int @default(0)
+  tarot_overview_today     Int @default(0)
+  tarot_question_today     Int @default(0)
   astrology_overview_today Int @default(0)
   astrology_love_today     Int @default(0)
-  numerology_today Int @default(0)
-  horoscope_daily_today Int @default(0)
-  horoscope_natal_chart Int @default(0)
+  numerology_today         Int @default(0)
+  horoscope_daily_today    Int @default(0)
+  horoscope_natal_chart    Int @default(0)
+  
   last_reset_date DateTime @default(now())
   user            User     @relation(fields: [user_id], references: [id])
 }
@@ -107,10 +98,8 @@ model ChatSession {
   user_id      String    @db.Text
   title        String?   @db.Text
   created_at   DateTime  @default(now())
-  updated_at   DateTime  @updatedAt
-  
+  updated_at   DateTime  @updatedAt  
   user         User      @relation(fields: [user_id], references: [id])
-
   @@index([user_id])
   @@map("chat_sessions")
 }

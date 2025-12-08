@@ -1,5 +1,5 @@
-import { Response } from 'express';
-import { AuthRequest } from '../middlewares/auth.middleware';
+import { Request, Response } from 'express';
+// import { AuthRequest } from '../middlewares/auth.middleware';
 import { VIPService } from '../services/vip.service';
 import { AIService } from '../services/ai.service';
 
@@ -48,7 +48,7 @@ async function handleNumerologyLogic(
 
 }
 
-export async function getNumerology(req: AuthRequest, res: Response): Promise<void> {
+export async function getNumerology(req: Request, res: Response): Promise<void> {
   try {
     const userId = req.user?.id;
     if (!userId) {
