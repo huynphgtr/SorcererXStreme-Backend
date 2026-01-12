@@ -41,20 +41,22 @@ app.use(cors({
     if (!origin) return callback(null, true);
 
     const allowedOrigins = [
-      process.env.FRONTEND_URL,  
-      'https://main.d30n5a8g6cs88k.amplifyapp.com',    
-      'http://localhost:3001'
+      process.env.FRONTEND_URL,
+      'https://main.d30n5a8g6cs88k.amplifyapp.com',
+      'https://www.sorcererxstreme.xyz/',
+      'http://localhost:3001',
+      'http://localhost:3000'
     ];
 
     // 2. Kiểm tra Origin có nằm trong danh sách không
     if (allowedOrigins.indexOf(origin) !== -1 || !process.env.FRONTEND_URL) {
       callback(null, true);
     } else {
-      console.log('Blocked Origin:', origin); 
+      console.log('Blocked Origin:', origin);
       callback(new Error(`The CORS policy for this site does not allow access from ${origin}`));
     }
   },
-  credentials: true 
+  credentials: true
 }));
 
 // --- MIDDLEWARES ---
@@ -63,24 +65,24 @@ app.use(express.urlencoded({ extended: true }));
 
 // --- HEALTH CHECK ---
 app.get('/health', (req: Request, res: Response) => {
-  res.status(200).json({ 
-    status: 'ok', 
+  res.status(200).json({
+    status: 'ok',
     message: 'Backend is running on Lambda!',
-    region: process.env.AWS_REGION || 'local' 
+    region: process.env.AWS_REGION || 'local'
   });
 });
 
 // --- ROUTES ---
 // app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
-app.use('/api/partners', partnerRoutes);   
+app.use('/api/partners', partnerRoutes);
 app.use('/api/reminders', reminderRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/tarot', tarotRoutes);
 app.use('/api/astrology', astrologyRoutes);
 app.use('/api/horoscope', horoscopeRoutes);
 app.use('/api/numerology', numerologyRoutes);
-app.use('/api/payments', paymentRoutes); 
+app.use('/api/payments', paymentRoutes);
 app.use('/api/vip', vipRoutes)
 // --- ERROR HANDLING ---
 app.use(errorMiddleware);
