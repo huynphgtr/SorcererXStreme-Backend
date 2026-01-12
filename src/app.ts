@@ -42,8 +42,8 @@ app.use(cors({
 
     const allowedOrigins = [
       process.env.FRONTEND_URL,
-      'https://main.d30n5a8g6cs88k.amplifyapp.com',
       'https://www.sorcererxstreme.xyz/',
+      'https://main.d30n5a8g6cs88k.amplifyapp.com',
       'http://localhost:3001',
       'http://localhost:3000'
     ];
