@@ -90,7 +90,6 @@ export async function getProfile(req: Request, res: Response): Promise<void> {
       res.status(404).json({ message: 'User not found' });
       return;
     }
-
     res.status(200).json(userProfile);
 
   } catch (error) {
