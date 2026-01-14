@@ -46,7 +46,7 @@ export async function sendMessage(params: {
     user_context: userContext,
     partner_context: partnerContext ?? null,
     data: {
-      sessionId: sessionId,
+      userId: userId,
       question: question,
     }
   };

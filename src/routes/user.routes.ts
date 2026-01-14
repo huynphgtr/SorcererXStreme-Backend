@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { completeProfile, getProfile, updateProfile } from '../controllers/user.controller';
 // import { upgradeToVIP } from '../controllers/vip.controller';
-import { authenticateToken } from '@/middlewares/auth.middleware';
+import { authenticateToken } from '../middlewares/auth.middleware';
 const userRouter = Router();
 userRouter.use(authenticateToken);
 userRouter.put('/complete-profile', completeProfile);
