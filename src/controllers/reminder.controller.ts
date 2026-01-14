@@ -3,14 +3,6 @@ import { ReminderService } from '../services/reminder.service';
 import { updateReminderSchema } from '../validators/reminder.validator';
 import { z } from 'zod';
 
-// interface AuthRequest extends Request {
-//     user?: {
-//         id: string;
-//     };
-// }
-
-// --- Controller Logic ---
-
 /**
  * @route GET /reminders/settings
  * @description Lấy cài đặt reminder hiện tại của người dùng. 
@@ -74,3 +66,4 @@ export async function updateReminderSettings(req: Request, res: Response): Promi
         res.status(500).json({ message: 'Internal server error while updating settings.' });
     }
 }
+
