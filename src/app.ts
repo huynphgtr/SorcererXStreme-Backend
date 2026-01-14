@@ -18,31 +18,14 @@ import vipRoutes from './routes/vip.routes';
 dotenv.config();
 const app: Application = express();
 
-// --- CẤU HÌNH CORS ---
-// const allowedOrigins = [
-//   process.env.FRONTEND_URL || 'http://localhost:3001'
-// ];
-
-// app.use(cors({
-//   origin: (origin, callback) => {
-//     if (!origin) return callback(null, true);
-//     if (allowedOrigins.indexOf(origin) === -1) {
-//       const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-//       return callback(new Error(msg), false);
-//     }
-//     return callback(null, true);
-//   },
-//   credentials: true
-// }));
-
 app.use(cors({
   origin: function (origin, callback) {
-    // 1. Cho phép các request không có Origin (như Postman, Server-to-Server, Mobile App)
+    // 1. Cho phép các request không có Origin 
     if (!origin) return callback(null, true);
 
     const allowedOrigins = [
       process.env.FRONTEND_URL,
-      'https://www.sorcererxstreme.xyz/',
+      'https://www.sorcererxstreme.xyz',
       'https://main.d30n5a8g6cs88k.amplifyapp.com',
       'http://localhost:3001',
       'http://localhost:3000'

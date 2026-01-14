@@ -85,7 +85,8 @@ functions:
           method: ANY
       - http:
           path: /{proxy+}
-          method: ANY        
+          method: ANY
+          cors: true        
 
   dailyEmailJob:
     handler: 'src/jobs/cron.runDailyJob'    

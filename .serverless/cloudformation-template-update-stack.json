@@ -111,7 +111,7 @@
       "Properties": {
         "Code": {
           "S3Bucket": "serverless-framework-deployments-ap-southeast-1-a38a0297-9cd4",
-          "S3Key": "serverless/sorcererxstreme-backend/dev/1768097628756-2026-01-11T02:13:48.756Z/sorcererxstreme-backend-api.zip"
+          "S3Key": "serverless/sorcererxstreme-backend/dev/1768285884922-2026-01-13T06:31:24.922Z/sorcererxstreme-backend-api.zip"
         },
         "Handler": "src/handler.handler",
         "Runtime": "nodejs20.x",
@@ -129,7 +129,7 @@
             "EMAIL_USER": "apikey",
             "EMAIL_PASS": "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",
             "SEPAY_API_KEY": "this_is_my_secret_api_key_of_prj",
-            "FRONTEND_URL": "https://main.d30n5a8g6cs88k.amplifyapp.com/",
+            "FRONTEND_URL": "https://www.sorcererxstreme.xyz",
             "PRISMA_CLI_BINARY_TARGETS": "rhel-openssl-3.0.x",
             "USER_POOL_ID": {
               "Ref": "SorcererUserPool"
@@ -155,7 +155,7 @@
       "Properties": {
         "Code": {
           "S3Bucket": "serverless-framework-deployments-ap-southeast-1-a38a0297-9cd4",
-          "S3Key": "serverless/sorcererxstreme-backend/dev/1768097628756-2026-01-11T02:13:48.756Z/sorcererxstreme-backend-dailyEmailJob.zip"
+          "S3Key": "serverless/sorcererxstreme-backend/dev/1768285884922-2026-01-13T06:31:24.922Z/sorcererxstreme-backend-dailyEmailJob.zip"
         },
         "Handler": "src/jobs/cron.runDailyJob",
         "Runtime": "nodejs20.x",
@@ -173,7 +173,7 @@
             "EMAIL_USER": "apikey",
             "EMAIL_PASS": "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",
             "SEPAY_API_KEY": "this_is_my_secret_api_key_of_prj",
-            "FRONTEND_URL": "https://main.d30n5a8g6cs88k.amplifyapp.com/",
+            "FRONTEND_URL": "https://www.sorcererxstreme.xyz",
             "PRISMA_CLI_BINARY_TARGETS": "rhel-openssl-3.0.x",
             "USER_POOL_ID": {
               "Ref": "SorcererUserPool"
@@ -199,7 +199,7 @@
       "Properties": {
         "Code": {
           "S3Bucket": "serverless-framework-deployments-ap-southeast-1-a38a0297-9cd4",
-          "S3Key": "serverless/sorcererxstreme-backend/dev/1768097628756-2026-01-11T02:13:48.756Z/sorcererxstreme-backend-syncUser.zip"
+          "S3Key": "serverless/sorcererxstreme-backend/dev/1768285884922-2026-01-13T06:31:24.922Z/sorcererxstreme-backend-syncUser.zip"
         },
         "Handler": "src/handlers/auth-trigger.postConfirmation",
         "Runtime": "nodejs20.x",
@@ -217,7 +217,7 @@
             "EMAIL_USER": "apikey",
             "EMAIL_PASS": "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",
             "SEPAY_API_KEY": "this_is_my_secret_api_key_of_prj",
-            "FRONTEND_URL": "https://main.d30n5a8g6cs88k.amplifyapp.com/",
+            "FRONTEND_URL": "https://www.sorcererxstreme.xyz",
             "PRISMA_CLI_BINARY_TARGETS": "rhel-openssl-3.0.x",
             "USER_POOL_ID": {
               "Ref": "SorcererUserPool"
@@ -238,34 +238,34 @@
         "SyncUserLogGroup"
       ]
     },
-    "SyncUserLambdaVersionmEwRJx770rZxLBeq7xxzT3dRdm7Uy1sCy87bI3u96U": {
-      "Type": "AWS::Lambda::Version",
-      "DeletionPolicy": "Retain",
-      "Properties": {
-        "FunctionName": {
-          "Ref": "SyncUserLambdaFunction"
-        },
-        "CodeSha256": "aaZqhZQuv7V52vTKLPw4QLccwx096MDiCIPl9qOCp40="
-      }
-    },
-    "DailyEmailJobLambdaVersionGOqrAhG5Ur0JUvjWbK93tFeKQt8HQTCmtigl7ubn8": {
+    "DailyEmailJobLambdaVersion2bQziH8hEtBLcC586AnAH23y62qoaRjQKo53jHnQfI": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "DailyEmailJobLambdaFunction"
         },
-        "CodeSha256": "s/VcRTMlvhDFn7S3r0HvHLb3QDmn7tHBxNAH0evRJ0Y="
+        "CodeSha256": "g/X3rGlQUk3kORmoyVhqzr8VJaKbS/h1rG7H4wJLjsc="
       }
     },
-    "ApiLambdaVersionxdr5p0zWurLBobuu43XKgjZgT1YGgjcpXuuIBrQA": {
+    "SyncUserLambdaVersionWV6bQXDzvOQLDAlyfRY2rGrqnKzIKkLWmRTYd1we71k": {
+      "Type": "AWS::Lambda::Version",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "FunctionName": {
+          "Ref": "SyncUserLambdaFunction"
+        },
+        "CodeSha256": "YPvj2eGDXGfDwZtrr7+zLpDjBwsTJc4uvvNthDVdjco="
+      }
+    },
+    "ApiLambdaVersionvDh9buoXpVpBLSzV6kKZEnmovwoJJwbwWtRvzfnmMng": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "ApiLambdaFunction"
         },
-        "CodeSha256": "6MnqMp3D5Gm/+LA3X118h+v0S1eR8CToe1zmf5nLwBI="
+        "CodeSha256": "A+luBQOa5J6l0BvUPURNTasqR7EmrHIPTmMufe0zODY="
       }
     },
     "DailyEmailJobEventsRuleSchedule1": {
@@ -327,6 +327,51 @@
           ]
         },
         "PathPart": "{proxy+}",
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        }
+      }
+    },
+    "ApiGatewayMethodProxyVarOptions": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "AuthorizationType": "NONE",
+        "HttpMethod": "OPTIONS",
+        "MethodResponses": [
+          {
+            "StatusCode": "200",
+            "ResponseParameters": {
+              "method.response.header.Access-Control-Allow-Origin": true,
+              "method.response.header.Access-Control-Allow-Headers": true,
+              "method.response.header.Access-Control-Allow-Methods": true
+            },
+            "ResponseModels": {}
+          }
+        ],
+        "RequestParameters": {},
+        "Integration": {
+          "Type": "MOCK",
+          "RequestTemplates": {
+            "application/json": "{statusCode:200}"
+          },
+          "ContentHandling": "CONVERT_TO_TEXT",
+          "IntegrationResponses": [
+            {
+              "StatusCode": "200",
+              "ResponseParameters": {
+                "method.response.header.Access-Control-Allow-Origin": "'*'",
+                "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent,X-Amzn-Trace-Id'",
+                "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,DELETE,GET,HEAD,PATCH,POST,PUT'"
+              },
+              "ResponseTemplates": {
+                "application/json": ""
+              }
+            }
+          ]
+        },
+        "ResourceId": {
+          "Ref": "ApiGatewayResourceProxyVar"
+        },
         "RestApiId": {
           "Ref": "ApiGatewayRestApi"
         }
@@ -427,7 +472,7 @@
         "ApiLambdaPermissionApiGateway"
       ]
     },
-    "ApiGatewayDeployment1768097612661": {
+    "ApiGatewayDeployment1768285870837": {
       "Type": "AWS::ApiGateway::Deployment",
       "Properties": {
         "RestApiId": {
@@ -436,13 +481,14 @@
         "StageName": "dev"
       },
       "DependsOn": [
+        "ApiGatewayMethodProxyVarOptions",
         "ApiGatewayMethodAny",
         "ApiGatewayMethodProxyVarAny"
       ]
     },
     "ApiGatewayUsagePlan": {
       "Type": "AWS::ApiGateway::UsagePlan",
-      "DependsOn": "ApiGatewayDeployment1768097612661",
+      "DependsOn": "ApiGatewayDeployment1768285870837",
       "Properties": {
         "ApiStages": [
           {
@@ -621,7 +667,7 @@
       "Properties": {
         "Code": {
           "S3Bucket": "serverless-framework-deployments-ap-southeast-1-a38a0297-9cd4",
-          "S3Key": "serverless/sorcererxstreme-backend/dev/1768097628756-2026-01-11T02:13:48.756Z/custom-resources.zip"
+          "S3Key": "serverless/sorcererxstreme-backend/dev/1768285884922-2026-01-13T06:31:24.922Z/custom-resources.zip"
         },
         "FunctionName": "sorcererxstreme-backend-dev-custom-resource-existing-cup",
         "Handler": "cognito-user-pool/handler.handler",
@@ -702,28 +748,28 @@
         "Name": "sls-sorcererxstreme-backend-dev-ServerlessDeploymentBucketName"
       }
     },
-    "SyncUserLambdaFunctionQualifiedArn": {
-      "Description": "Current Lambda function version",
-      "Value": {
-        "Ref": "SyncUserLambdaVersionmEwRJx770rZxLBeq7xxzT3dRdm7Uy1sCy87bI3u96U"
-      },
-      "Export": {
-        "Name": "sls-sorcererxstreme-backend-dev-SyncUserLambdaFunctionQualifiedArn"
-      }
-    },
     "DailyEmailJobLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "DailyEmailJobLambdaVersionGOqrAhG5Ur0JUvjWbK93tFeKQt8HQTCmtigl7ubn8"
+        "Ref": "DailyEmailJobLambdaVersion2bQziH8hEtBLcC586AnAH23y62qoaRjQKo53jHnQfI"
       },
       "Export": {
         "Name": "sls-sorcererxstreme-backend-dev-DailyEmailJobLambdaFunctionQualifiedArn"
       }
     },
+    "SyncUserLambdaFunctionQualifiedArn": {
+      "Description": "Current Lambda function version",
+      "Value": {
+        "Ref": "SyncUserLambdaVersionWV6bQXDzvOQLDAlyfRY2rGrqnKzIKkLWmRTYd1we71k"
+      },
+      "Export": {
+        "Name": "sls-sorcererxstreme-backend-dev-SyncUserLambdaFunctionQualifiedArn"
+      }
+    },
     "ApiLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "ApiLambdaVersionxdr5p0zWurLBobuu43XKgjZgT1YGgjcpXuuIBrQA"
+        "Ref": "ApiLambdaVersionvDh9buoXpVpBLSzV6kKZEnmovwoJJwbwWtRvzfnmMng"
       },
       "Export": {
         "Name": "sls-sorcererxstreme-backend-dev-ApiLambdaFunctionQualifiedArn"
