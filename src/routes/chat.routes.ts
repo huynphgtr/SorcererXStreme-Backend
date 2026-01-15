@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { processMessage } from '../controllers/chat.controller';
-import { authenticateToken } from '../middlewares/auth.middleware'; 
+import { createNewSession, processMessage } from '../controllers/chat.controller';
+import { authenticateToken } from '../middlewares/auth.middleware';
 import { checkFeatureLimit } from '../middlewares/vip.middleware';
 
 const router = Router();

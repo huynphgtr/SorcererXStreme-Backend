@@ -20,6 +20,18 @@ function validateRequiredFields(ctx: any, label: string): string | null {
   return null;
 }
 
+export async function createNewSession(req: Request, res: Response) {
+  try {
+    const userId = req.user?.id;
+    if (!userId) return res.status(401).json({ message: 'Unauthorized' });
+    const { initialTitle } = req.body;
+    const sessionId = await ChatService.getOrCreateDailySession(userId);
+    res.status(201).json({ sessionId: sessionId });
+  } catch (error) {
+    res.status(500).json({ message: 'Error creating session' });
+  }
+}
+
 export async function sendMessage(params: {
   mode: 'question';
   userContext: ChatContext;

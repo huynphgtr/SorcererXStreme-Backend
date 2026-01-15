@@ -3,6 +3,7 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 export class ChatService {
+  
   static async getOrCreateDailySession(userId: string): Promise<string> {
     // Lấy thời điểm hiện tại theo giờ Việt Nam để tính toán mốc bắt đầu/kết thúc ngày
     const now = new Date();
