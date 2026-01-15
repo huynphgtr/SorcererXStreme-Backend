@@ -1,3 +1,5 @@
+process.env.TZ = 'Asia/Ho_Chi_Minh';
+
 import app from './app';
 import { startBlocklistCleanupJob } from './jobs/cleanupBlocklist';
 import { startReminderJob } from './jobs/reminderJob';
@@ -10,4 +12,3 @@ app.listen(PORT, () => {
   startBlocklistCleanupJob();
   startReminderJob();
 });
-

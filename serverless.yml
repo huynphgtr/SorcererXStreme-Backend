@@ -9,6 +9,7 @@ provider:
   stage: ${opt:stage, 'dev'}
   environment:
     DATABASE_URL: ${ssm:/sorcererxstreme/${self:provider.stage}/database_url, true}
+    TZ: Asia/Ho_Chi_Minh
     JWT_SECRET: ${ssm:/sorcererxstreme/${self:provider.stage}/jwt_secret, true}
     META_SERVICE_URL: ${env:META_SERVICE_URL}
     CHAT_SERVICE_URL: ${env:CHAT_SERVICE_URL}
