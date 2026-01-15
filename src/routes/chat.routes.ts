@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createNewSession, processMessage } from '../controllers/chat.controller';
+import { processMessage } from '../controllers/chat.controller';
 import { authenticateToken } from '../middlewares/auth.middleware'; 
 import { checkFeatureLimit } from '../middlewares/vip.middleware';
 
