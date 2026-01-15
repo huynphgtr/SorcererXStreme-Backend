@@ -28,9 +28,8 @@ export async function sendMessage(params: {
   sessionId: string;
   question: string;
 }) {
-  const { mode, userContext, partnerContext, sessionId, question, userId } = params;
+  const { mode, userContext, partnerContext, sessionId, question } = params;
 
-  // 1. Chuẩn bị payload gửi cho AI Service
   const aiPayload = {
     domain: "chatbot",
     feature_type: mode,
@@ -70,7 +69,7 @@ export async function processMessage(req: Request, res: Response): Promise<void>
     const { domain, feature_type, user_context, partner_context, data } = req.body ?? {};
     const question = data?.question;
 
-    // Validation
+    // 1. Validation cơ bản
     if (!question || question.toString().trim() === '') {
       res.status(400).json({ message: 'Question cannot be empty' });
       return;
@@ -90,10 +89,10 @@ export async function processMessage(req: Request, res: Response): Promise<void>
       return;
     }
 
-    // Tự động lấy hoặc tạo sessionId cho ngày hôm nay
+    // 2. Tự động lấy/tạo sessionId theo ngày (đã xử lý múi giờ VN trong service)
     const sessionId = await ChatService.getOrCreateDailySession(userId);
 
-    // VIP CHECK
+    // 3. Kiểm tra quyền truy cập VIP/Limit
     const accessCheck = await VIPService.checkFeatureAccess(userId, 'chatMessagesPerDay');
     if (!accessCheck.allowed) {
       res.status(403).json({
@@ -105,8 +104,9 @@ export async function processMessage(req: Request, res: Response): Promise<void>
       return;
     }
 
+    // 4. Gửi tin nhắn cho AI
     const result = await sendMessage({
-      mode: feature_type,
+      mode: feature_type as 'question',
       userContext: user_context,
       partnerContext: partner_context ?? undefined,
       userId: userId,
@@ -114,6 +114,7 @@ export async function processMessage(req: Request, res: Response): Promise<void>
       question: question,
     });
 
+    // 5. Lưu vết và tăng lượt sử dụng
     await ChatService.saveNewMessages(sessionId, userId, question, result);
     await VIPService.incrementUsage(userId, 'chat');
 
@@ -122,17 +123,5 @@ export async function processMessage(req: Request, res: Response): Promise<void>
   } catch (error: any) {
     console.error('Process message error:', error);
     res.status(500).json({ message: 'Internal Server Error', error: error.message });
-  }
-}
-
-export async function createNewSession(req: Request, res: Response) {
-  try {
-    const userId = req.user?.id;
-    if (!userId) return res.status(401).json({ message: 'Unauthorized' });
-    const { initialTitle } = req.body;
-    const sessionId = await ChatService.createSession(userId, initialTitle);
-    res.status(201).json({ sessionId: sessionId });
-  } catch (error) {
-    res.status(500).json({ message: 'Error creating session' });
   }
 }

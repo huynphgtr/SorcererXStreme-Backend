@@ -4,12 +4,18 @@ const prisma = new PrismaClient();
 
 export class ChatService {
   static async getOrCreateDailySession(userId: string): Promise<string> {
-    const startOfDay = new Date();
+    // Lấy thời điểm hiện tại theo giờ Việt Nam để tính toán mốc bắt đầu/kết thúc ngày
+    const now = new Date();
+    const vnTimeStr = now.toLocaleString("en-US", { timeZone: "Asia/Ho_Chi_Minh" });
+    const vnNow = new Date(vnTimeStr);
+
+    const startOfDay = new Date(vnNow);
     startOfDay.setHours(0, 0, 0, 0);
 
-    const endOfDay = new Date();
+    const endOfDay = new Date(vnNow);
     endOfDay.setHours(23, 59, 59, 999);
 
+    // Tìm session của ngày hôm nay (tính theo giờ VN)
     const existingSession = await prisma.chatSession.findFirst({
       where: {
         user_id: userId,
@@ -23,23 +29,17 @@ export class ChatService {
 
     if (existingSession) return existingSession.id;
 
-    const dateString = new Date().toLocaleDateString('vi-VN');
+    const dateString = vnNow.toLocaleDateString('vi-VN');
     const newSession = await prisma.chatSession.create({
       data: {
         user_id: userId,
         title: `Phiên chat ngày ${dateString}`,
+        // Ép Prisma lưu thời gian hiện tại của App (đã set TZ) thay vì dùng default của DB
+        created_at: now 
       },
       select: { id: true }
     });
 
-    return newSession.id;
-  }
-
-  static async createSession(userId: string, initialTitle: string = "New Chat"): Promise<string> {
-    const newSession = await prisma.chatSession.create({
-      data: { user_id: userId, title: initialTitle },
-      select: { id: true }
-    });
     return newSession.id;
   }
 
@@ -49,10 +49,9 @@ export class ChatService {
     userMessage: string, 
     aiResponse: string
   ): Promise<void> {
-    const now = new Date();
     await prisma.chatSession.update({
       where: { id: sessionId },
-      data: { updated_at: now }
+      data: { updated_at: new Date() } // Sử dụng thời gian hiện tại của server
     });
   }
 }
