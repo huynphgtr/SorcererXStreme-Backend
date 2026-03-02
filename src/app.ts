@@ -25,6 +25,7 @@ app.use(cors({
 
     const allowedOrigins = [
       process.env.FRONTEND_URL,
+      'https://www.huyenhocai.io.vn',
       'https://www.sorcererxstreme.xyz',
       'https://main.d30n5a8g6cs88k.amplifyapp.com',
       'http://localhost:3001',
